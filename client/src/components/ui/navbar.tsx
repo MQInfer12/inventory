@@ -1,13 +1,38 @@
 import Logo from "@/assets/logo.png";
+import { ENDPOINTS } from "@/constants/endpoints";
 import { ROUTES } from "@/constants/routes";
+import { useUserContext } from "@/context/userContext";
+import { useRequest } from "@/hooks/useRequest";
+import { deleteAuthCookie } from "@/utils/authCookie";
+import { toastSuccess } from "@/utils/toasts";
 import { twMerge } from "@/utils/twMerge";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 interface Props {
   isDashboard?: boolean;
 }
 
 const Navbar = ({ isDashboard }: Props) => {
+  const navigate = useNavigate();
+  const { setUser } = useUserContext();
+
+  const { send, loading } = useRequest<null>(ENDPOINTS.LOGOUT, {
+    method: "GET",
+    onSuccess: (res) => {
+      toastSuccess(res.message);
+      setUser(null);
+      deleteAuthCookie();
+      navigate(ROUTES.INDEX);
+    },
+  });
+
+  const handleOptions = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    switch (e.target.value) {
+      case "logout":
+        return send();
+    }
+  };
+
   return (
     <header
       className={twMerge(
@@ -93,9 +118,19 @@ const Navbar = ({ isDashboard }: Props) => {
               </p>
               <select
                 value=""
+                onChange={handleOptions}
                 className="bg-transparent text-white outline-none ring-0 ring-inset focus:ring-2 transition-all duration-300 rounded-md text-sm"
               >
-                <option value="">Opciones</option>
+                <option
+                  className="disabled:bg-gray-300 bg-gray-300 text-white"
+                  disabled
+                  value=""
+                >
+                  {loading ? "Cargando..." : "Opciones"}
+                </option>
+                <option className="text-primary-800" value="logout">
+                  Cerrar sesión
+                </option>
               </select>
             </div>
           </div>

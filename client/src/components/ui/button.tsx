@@ -1,14 +1,17 @@
 interface Props {
+  text: string;
+  disabled?: boolean;
   onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
-const Button = ({ onClick }: Props) => {
+const Button = ({ disabled, text, onClick }: Props) => {
   return (
     <button
       onClick={onClick}
-      className="w-full bg-primary-700 text-white rounded-xl py-2 outline-none ring-white ring-inset ring-0 focus:ring-2 transition-all duration-300"
+      disabled={disabled}
+      className="w-full bg-primary-700 text-white rounded-xl py-2 outline-none ring-white ring-inset ring-0 focus:ring-2 transition-all duration-300 disabled:grayscale"
     >
-      Iniciar sesión
+      {text}
     </button>
   );
 };
