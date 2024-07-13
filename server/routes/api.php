@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\FormularioController;
 use App\Http\Controllers\ProductoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\RespuestaController;
+use App\Http\Controllers\TiendaController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -29,6 +32,8 @@ Route::group(['middleware' => ["auth:sanctum"]], function () {
     Route::get('/usuario/{id}', [UsuarioController::class, 'show']);
 
     Route::apiResource('/producto', ProductoController::class);
+    Route::apiResource('/categoria', CategoriaController::class);
+    Route::apiResource('/tienda', TiendaController::class);
 });
 
 Route::post('/login', [UsuarioController::class, 'login']);

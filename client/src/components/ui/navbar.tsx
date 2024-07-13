@@ -50,7 +50,7 @@ const Navbar = ({ isDashboard }: Props) => {
               <NavLink
                 className={({ isActive }) =>
                   twMerge(
-                    "px-3 transition-all duration-300",
+                    "px-4 transition-all duration-300",
                     isActive
                       ? "text-white [&+span]:scale-100"
                       : "text-white/60 [&+span]:scale-0"
@@ -66,7 +66,7 @@ const Navbar = ({ isDashboard }: Props) => {
               <NavLink
                 className={({ isActive }) =>
                   twMerge(
-                    "px-3 transition-all duration-300",
+                    "px-4 transition-all duration-300",
                     isActive
                       ? "text-white [&+span]:scale-100"
                       : "text-white/60 [&+span]:scale-0"
@@ -82,7 +82,23 @@ const Navbar = ({ isDashboard }: Props) => {
               <NavLink
                 className={({ isActive }) =>
                   twMerge(
-                    "px-3 transition-all duration-300",
+                    "px-4 transition-all duration-300",
+                    isActive
+                      ? "text-white [&+span]:scale-100"
+                      : "text-white/60 [&+span]:scale-0"
+                  )
+                }
+                to={ROUTES.SHOPS}
+              >
+                Tiendas
+              </NavLink>
+              <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
+            </li>
+            <li className="flex flex-col items-center">
+              <NavLink
+                className={({ isActive }) =>
+                  twMerge(
+                    "px-4 transition-all duration-300",
                     isActive
                       ? "text-white [&+span]:scale-100"
                       : "text-white/60 [&+span]:scale-0"
@@ -98,7 +114,7 @@ const Navbar = ({ isDashboard }: Props) => {
               <NavLink
                 className={({ isActive }) =>
                   twMerge(
-                    "px-3 transition-all duration-300",
+                    "px-4 transition-all duration-300",
                     isActive
                       ? "text-white [&+span]:scale-100"
                       : "text-white/60 [&+span]:scale-0"

@@ -7,6 +7,7 @@ import Users from "./pages/private/users";
 import Categories from "./pages/private/categories";
 import Reports from "./pages/private/reports";
 import Home from "./pages/private/home";
+import Shops from "./pages/private/shops";
 
 const RoutesComponent = () => {
   return (
@@ -18,6 +19,7 @@ const RoutesComponent = () => {
           <Route path={ROUTES.PRODUCTS} element={<Products />} />
           <Route path={ROUTES.USERS} element={<Users />} />
           <Route path={ROUTES.CATEGORIES} element={<Categories />} />
+          <Route path={ROUTES.SHOPS} element={<Shops />} />
           <Route path={ROUTES.REPORTS} element={<Reports />} />
         </Route>
       </Routes>

@@ -22,6 +22,8 @@ interface Props {
   columns: ColumnDef<any, any>[];
   onClickRow?: (row: any) => void;
   view: TableView;
+  edit?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
+  del?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
 }
 
 const TanstackTable = forwardRef(
@@ -35,6 +37,8 @@ const TanstackTable = forwardRef(
       setSorting,
       onClickRow,
       view,
+      del,
+      edit,
     }: Props,
     tableRef: React.ForwardedRef<HTMLTableElement>
   ) => {
@@ -91,16 +95,18 @@ const TanstackTable = forwardRef(
                     </div>
                   </th>
                 ))}
-                <th className="text-sm w-40 px-2 py-2 font-semibold text-primary-800 text-center select-none">
-                  Acciones
-                </th>
+                {(edit || del) && (
+                  <th className="text-sm w-40 px-2 py-2 font-semibold text-primary-800 text-center select-none">
+                    Acciones
+                  </th>
+                )}
               </tr>
             ))}
           </thead>
           <tbody className="flex flex-col gap-2">
             {table.getRowModel().rows.map((row, i) => (
               <tr
-                className={`flex transition-all duration-300 bg-white rounded-lg border`}
+                className={`flex transition-all duration-300 bg-white rounded-lg border hover:bg-primary-700/10`}
                 key={row.id}
               >
                 <td
@@ -130,19 +136,29 @@ const TanstackTable = forwardRef(
                     </div>
                   </td>
                 ))}
-                <td className={`w-40 px-2 py-2 text-sm text-neutral-800`}>
-                  <div className="flex gap-2 justify-center items-center w-full h-full">
-                    <ControlButton
-                      title="Editar"
-                      btnType="primary"
-                      icon={<Icon type="edit" />}
-                    />
-                    <ControlButton
-                      title="Eliminar"
-                      icon={<Icon type="delete" />}
-                    />
-                  </div>
-                </td>
+                {(edit || del) && (
+                  <td className={`w-40 px-2 py-2 text-sm text-neutral-800`}>
+                    <div className="flex gap-2 justify-center items-center w-full h-full">
+                      {edit && (
+                        <ControlButton
+                          title="Editar"
+                          btnType="primary"
+                          icon={<Icon type="edit" />}
+                          onClick={() => edit.fn(row.original)}
+                          disabled={edit.disabled?.(row.original)}
+                        />
+                      )}
+                      {del && (
+                        <ControlButton
+                          title="Eliminar"
+                          icon={<Icon type="delete" />}
+                          onClick={() => del.fn(row.original)}
+                          disabled={del.disabled?.(row.original)}
+                        />
+                      )}
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

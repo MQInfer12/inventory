@@ -13,11 +13,12 @@ import { API_LoginDTO, API_LoginRes } from "./types/api";
 import { setAuthCookie } from "@/utils/authCookie";
 import { useUserContext } from "@/context/userContext";
 import { toastSuccess } from "@/utils/toasts";
+import { FormEvent } from "@/types/formEvent";
 
 const Login = () => {
   const navigate = useNavigate();
 
-  const { state, setUser } = useUserContext();
+  const { state, setUserLogin } = useUserContext();
   const [logged, setLogged] = useState(false);
   const [form, setForm] = useState({
     usuario: "",
@@ -30,16 +31,16 @@ const Login = () => {
       onSuccess: ({ message, data }) => {
         toastSuccess(message);
         setAuthCookie(data.access_token);
-        setUser(data.user);
         setLogged(true);
         setTimeout(() => {
+          setUserLogin(data.user);
           navigate(ROUTES.PRODUCTS);
         }, 1000);
       },
     }
   );
 
-  const handleSend = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const handleSend = (e: FormEvent) => {
     e.preventDefault();
     send(form);
   };
@@ -67,6 +68,8 @@ const Login = () => {
               onChange={(v) => setForm((prev) => ({ ...prev, usuario: v }))}
               title="Usuario"
               placeholder="Ingrese usuario"
+              dark
+              required
             />
             <Input
               type="password"
@@ -74,6 +77,8 @@ const Login = () => {
               onChange={(v) => setForm((prev) => ({ ...prev, password: v }))}
               title="Contraseña"
               placeholder="Ingrese contraseña"
+              dark
+              required
             />
             <div className="w-full mt-4">
               <Button

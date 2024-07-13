@@ -2,29 +2,27 @@ import Page from "@/components/ui/page";
 import TableContainer from "@/components/ui/table/tableContainer";
 import { ENDPOINTS } from "@/constants/endpoints";
 import { useGet } from "@/hooks/useGet";
-import { Categoria } from "./types/api";
 import { useModal } from "@/components/ui/modal/modal";
 import Form from "./components/form";
 import { useMutateGet } from "@/hooks/useMutateGet";
 import { toastSuccess } from "@/utils/toasts";
 import { useRequest } from "@/hooks/useRequest";
 import { confirmAlert } from "@/utils/alerts";
+import { Tienda } from "./types/api";
 
-const Categories = () => {
-  const keys = ["categorias"];
-  const { data } = useGet<Categoria[]>(ENDPOINTS.CATEGORIA_INDEX, keys);
-  const { modal, openModal, closeModal } = useModal<Categoria>();
+const Shops = () => {
+  const keys = ["tiendas"];
+  const { data } = useGet<Tienda[]>(ENDPOINTS.TIENDA_INDEX, keys);
+  const { modal, openModal, closeModal } = useModal<Tienda>();
   const { setQueryData } = useMutateGet();
 
   const { send, current } = useRequest<number, number>(
-    ENDPOINTS.CATEGORIA_DESTROY,
+    ENDPOINTS.TIENDA_DESTROY,
     {
       method: "DELETE",
       onSuccess: ({ message, data: id }) => {
         toastSuccess(message);
-        setQueryData<Categoria[]>(keys, (old) =>
-          old.filter((v) => v.id !== id)
-        );
+        setQueryData<Tienda[]>(keys, (old) => old.filter((v) => v.id !== id));
       },
     }
   );
@@ -44,22 +42,30 @@ const Categories = () => {
         }}
         columns={[
           {
+            accessorKey: "nombre",
+            header: "Nombre",
+          },
+          {
             accessorKey: "descripcion",
             header: "Descripción",
+          },
+          {
+            accessorKey: "ciudad",
+            header: "Ciudad",
           },
         ]}
         data={data}
       />
-      {modal("Formulario de categoría", (item) => (
+      {modal("Formulario de tienda", (item) => (
         <Form
           item={item}
           onSuccess={({ message, data }) => {
             if (item) {
-              setQueryData<Categoria[]>(keys, (old) =>
+              setQueryData<Tienda[]>(keys, (old) =>
                 old.map((v) => (v.id === data.id ? data : v))
               );
             } else {
-              setQueryData<Categoria[]>(keys, (old) => [...old, data]);
+              setQueryData<Tienda[]>(keys, (old) => [...old, data]);
             }
             toastSuccess(message);
             closeModal();
@@ -70,4 +76,4 @@ const Categories = () => {
   );
 };
 
-export default Categories;
+export default Shops;

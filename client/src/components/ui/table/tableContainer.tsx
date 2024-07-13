@@ -3,6 +3,7 @@ import TableControls from "./tableControls";
 import TanstackTable from "./tanstackTable";
 import { ColumnDef } from "@tanstack/react-table";
 import Loader from "../loader/loader";
+import Nothing from "../loader/nothing";
 
 interface Props {
   data: any[] | undefined;
@@ -11,6 +12,8 @@ interface Props {
   reload?: () => void;
   add?: () => void;
   onClickRow?: (row: any) => void;
+  edit?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
+  del?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
 }
 
 export type TableView = "table" | "PDF";
@@ -22,6 +25,8 @@ const TableContainer = ({
   reload,
   add,
   onClickRow,
+  del,
+  edit,
 }: Props) => {
   const [sorting, setSorting] = useState<any[]>([]);
   const [filter, setFilter] = useState("");
@@ -38,20 +43,27 @@ const TableContainer = ({
         add={add}
         view={[view, setView]}
         reports={reports}
+        show={data ? data.length > 0 : false}
       />
       <div className="flex flex-1 overflow-auto">
         {data ? (
-          <TanstackTable
-            ref={tableRef}
-            columns={columns}
-            data={data}
-            filter={filter}
-            setFilter={setFilter}
-            sorting={sorting}
-            setSorting={setSorting}
-            onClickRow={onClickRow}
-            view={view}
-          />
+          data.length > 0 ? (
+            <TanstackTable
+              ref={tableRef}
+              columns={columns}
+              data={data}
+              filter={filter}
+              setFilter={setFilter}
+              sorting={sorting}
+              setSorting={setSorting}
+              onClickRow={onClickRow}
+              view={view}
+              del={del}
+              edit={edit}
+            />
+          ) : (
+            <Nothing />
+          )
         ) : (
           <Loader />
         )}

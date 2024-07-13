@@ -10,4 +10,6 @@ export type ErrorResponse = {
   data: null;
 }
 
-export type ApiResponse<T> = Promise<SuccessResponse<T> | ErrorResponse>;
+export type Response<T> = SuccessResponse<T> | ErrorResponse;
+
+export type ApiResponse<T> = Promise<Response<T>>;
