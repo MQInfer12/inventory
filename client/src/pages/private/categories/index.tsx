@@ -22,9 +22,9 @@ const Categories = () => {
       method: "DELETE",
       onSuccess: ({ message, data: id }) => {
         toastSuccess(message);
-        setQueryData<Categoria[]>(keys, (old) =>
-          old.filter((v) => v.id !== id)
-        );
+        setQueryData<Categoria[]>(keys, (old) => {
+          return old.filter((v) => v.id !== id);
+        });
       },
     }
   );

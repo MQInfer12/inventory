@@ -4,7 +4,7 @@ export const useMutateGet = () => {
   const queryClient = useQueryClient();
 
   const setQueryData = <T,>(keys: string[], cb: (old: T) => T) => {
-    queryClient.setQueryData(["tiendas"], (old: T) => cb(old));
+    queryClient.setQueryData(keys, (old: T) => cb(old));
   };
 
   return { setQueryData };
