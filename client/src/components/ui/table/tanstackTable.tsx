@@ -78,10 +78,14 @@ const TanstackTable = forwardRef(
               {group.headers.map((header) => {
                 const width = header.column.columnDef.meta?.width;
                 const center = !!header.column.columnDef.meta?.center;
+                const sticky = !!header.column.columnDef.meta?.sticky;
                 const isColspan = typeof width === "number";
                 return (
                   <th
-                    className="px-2 py-2 text-sm font-bold text-primary-900 text-start select-none hover:bg-gray-200 transition-all duration-300 cursor-pointer"
+                    className={twMerge(
+                      "px-2 py-2 text-sm font-bold text-primary-900 text-start select-none hover:bg-gray-200 transition-all duration-300 cursor-pointer",
+                      sticky && "sticky left-0 bg-bg"
+                    )}
                     key={header.id}
                     onClick={header.column.getToggleSortingHandler()}
                     style={{
@@ -144,7 +148,7 @@ const TanstackTable = forwardRef(
                 onClickRow
                   ? onClickRow.disabled?.(row)
                     ? ""
-                    : "hover:bg-primary-700/10 cursor-pointer"
+                    : "hover:bg-primary-50 cursor-pointer"
                   : ""
               )}
               key={row.id}
@@ -161,11 +165,13 @@ const TanstackTable = forwardRef(
               {row.getVisibleCells().map((cell) => {
                 const width = cell.column.columnDef.meta?.width;
                 const center = !!cell.column.columnDef.meta?.center;
+                const sticky = !!cell.column.columnDef.meta?.sticky;
                 const isColspan = typeof width === "number";
                 return (
                   <td
                     className={twMerge(
-                      `px-2 py-2 text-sm text-neutral-800`
+                      `px-2 py-2 text-sm text-neutral-800`,
+                      sticky && "sticky left-0 bg-inherit z-10 border-r"
                     )}
                     key={cell.id}
                     onClick={() => handleClickRow(row.original)}

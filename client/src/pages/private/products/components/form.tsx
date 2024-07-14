@@ -23,7 +23,9 @@ const Form = ({ item, onSuccess }: Props) => {
     QUERYKEYS.TIENDAS,
   ]);
   const { send, loading } = useRequest<Producto, FormData>(
-    item ? ENDPOINTS.PRODUCTO_UPDATE + item.id + "?_method=PUT" : ENDPOINTS.PRODUCTO_STORE,
+    item
+      ? ENDPOINTS.PRODUCTO_UPDATE + item.id + "?_method=PUT"
+      : ENDPOINTS.PRODUCTO_STORE,
     {
       method: "POST",
       onSuccess,
@@ -89,7 +91,9 @@ const Form = ({ item, onSuccess }: Props) => {
         >
           <option value="">Seleccione una tienda</option>
           {tiendas?.map((t) => (
-            <option value={t.id}>{t.nombre}</option>
+            <option key={t.id} value={t.id}>
+              {t.nombre}
+            </option>
           ))}
         </Select>
       </div>

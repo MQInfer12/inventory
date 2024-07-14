@@ -8,6 +8,7 @@ import Nothing from "../loader/nothing";
 interface Props {
   data: any[] | undefined;
   columns: ColumnDef<any, any>[];
+  disableButtons?: boolean;
   reports?: boolean;
   reload?: (...props: any) => Promise<any>;
   add?: () => void;
@@ -33,6 +34,7 @@ const TableContainer = ({
   del,
   button,
   edit,
+  disableButtons = false
 }: Props) => {
   const [sorting, setSorting] = useState<any[]>([]);
   const [filter, setFilter] = useState("");
@@ -51,6 +53,7 @@ const TableContainer = ({
         reports={reports}
         show={data ? data.length > 0 : false}
         button={button}
+        disableButtons={disableButtons}
       />
       <div className="flex flex-1 overflow-auto w-full">
         {data ? (

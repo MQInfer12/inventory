@@ -14,18 +14,14 @@ import ZoomImage from "@/components/ui/zoomImage";
 import { getHttpImage } from "@/utils/http";
 import { twMerge } from "@/utils/twMerge";
 import Icon from "@/components/icons/icon";
-import {
-  ElementRef,
-  MutableRefObject,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
+import TransactionFooter from "./components/transactionFooter";
 
-interface Transaction {
+export interface Transaction {
   id: number;
   city: "cbba" | "sc";
-  diff: number;
+  diff_cbba: number;
+  diff_sc: number;
 }
 
 const Products = () => {
@@ -53,7 +49,7 @@ const Products = () => {
     const product = data?.find((v) => v.id === id);
     if (!product) return;
     const val = value === "" ? "0" : value;
-    const exist = transaction.find((v) => v.id === id && v.city === city);
+    const exist = transaction.find((v) => v.id === id);
     let diff = 0;
     switch (city) {
       case "cbba":
@@ -64,8 +60,17 @@ const Products = () => {
         break;
     }
     if (exist) {
+      console.log(exist, city, diff);
       setTransaction((prev) =>
-        prev.map((v) => (v.id === id && v.city === city ? { ...v, diff } : v))
+        prev.map((v) =>
+          v.id === id
+            ? {
+                ...v,
+                diff_cbba: city === "cbba" ? diff : v.diff_cbba,
+                diff_sc: city === "sc" ? diff : v.diff_sc,
+              }
+            : v
+        )
       );
     } else {
       setTransaction((prev) => [
@@ -73,11 +78,15 @@ const Products = () => {
         {
           id,
           city,
-          diff,
+          diff_cbba: city === "cbba" ? diff : 0,
+          diff_sc: city === "sc" ? diff : 0,
         },
       ]);
     }
-    setTransaction((prev) => prev.filter((v) => v.diff !== 0));
+    focusRef.current = city + "-" + id;
+    setTransaction((prev) =>
+      prev.filter((v) => !(v.diff_cbba === 0 && v.diff_sc === 0))
+    );
   };
 
   useEffect(() => {
@@ -105,11 +114,17 @@ const Products = () => {
         }}
         button={{
           text: inTransaction ? "Cancelar transacción" : "Iniciar transacción",
-          fn: () => setInTransaction((prev) => !prev),
+          fn: () => {
+            if (inTransaction) {
+              setTransaction([]);
+            }
+            setInTransaction((prev) => !prev);
+          },
           icon: <Icon type="plusminus" />,
         }}
         reload={refetch}
         data={data}
+        disableButtons={inTransaction}
         columns={[
           {
             accessorFn: (row) => row.codigo,
@@ -121,6 +136,7 @@ const Products = () => {
             ),
             meta: {
               width: "88px",
+              sticky: true,
             },
           },
           {
@@ -225,34 +241,82 @@ const Products = () => {
           },
           //region STOCKS
           {
-            accessorKey: "stock_cbba",
+            accessorKey: !inTransaction ? "stock_cbba" : undefined,
             header: "Stock CBBA.",
             cell: ({ row: { original: v } }) => {
               const stock = v.stock_cbba;
-              const agotado = v.stock_cbba === 0;
-              const tProd = transaction.find(
-                (t) => t.id === v.id && t.city === "cbba"
-              );
+              const tProd = transaction.find((t) => t.id === v.id);
+              const agotado =
+                inTransaction && tProd
+                  ? v.stock_cbba + tProd.diff_cbba === 0
+                  : v.stock_cbba === 0;
+              const hasChanged = tProd
+                ? stock + tProd.diff_cbba !== stock
+                : false;
               return (
                 <div
                   className={twMerge(
-                    "flex flex-col items-center",
-                    agotado ? "text-rose-700" : "text-primary-950"
+                    "flex flex-col items-center transition-all duration-300",
+                    agotado
+                      ? "text-rose-700"
+                      : hasChanged
+                      ? "text-amber-600"
+                      : "text-primary-950"
                   )}
                 >
                   {inTransaction ? (
-                    <input
-                      id={`cbba-${v.id}`}
-                      className="no-arrows font-bold text-xl text-primary-950 w-full outline-none text-center bg-transparent border-b"
-                      value={tProd ? stock + tProd.diff : stock}
-                      onChange={(e) =>
-                        handleChange(v.id, "cbba", e.target.value)
-                      }
-                      onClick={(e) => e.stopPropagation()}
-                      type="number"
-                      min={0}
-                      onFocus={(e) => (focusRef.current = e.target.id)}
-                    />
+                    <div className="relative group">
+                      <input
+                        id={`cbba-${v.id}`}
+                        className="no-arrows font-bold text-xl w-full outline-none text-center bg-transparent border-b"
+                        value={tProd ? stock + tProd.diff_cbba : stock}
+                        onChange={(e) =>
+                          handleChange(v.id, "cbba", e.target.value)
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                        type="number"
+                        min={0}
+                        onFocus={(e) => (focusRef.current = e.target.id)}
+                      />
+                      <span className="text-primary-950 h-full hidden group-hover:block">
+                        <div className="absolute h-full aspect-square left-0 top-0 flex-1 p-1">
+                          <button
+                            tabIndex={-1}
+                            className="w-full flex items-center justify-center font-bold rounded-full border"
+                            onClick={() => {
+                              if (!agotado) {
+                                handleChange(
+                                  v.id,
+                                  "cbba",
+                                  tProd
+                                    ? String(stock + tProd.diff_cbba - 1)
+                                    : String(stock - 1)
+                                );
+                              }
+                            }}
+                          >
+                            -
+                          </button>
+                        </div>
+                        <div className="absolute h-full aspect-square right-0 top-0 flex-1 p-1">
+                          <button
+                            tabIndex={-1}
+                            className="w-full flex items-center justify-center font-bold rounded-full border "
+                            onClick={() => {
+                              handleChange(
+                                v.id,
+                                "cbba",
+                                tProd
+                                  ? String(stock + tProd.diff_cbba + 1)
+                                  : String(stock + 1)
+                              );
+                            }}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </span>
+                    </div>
                   ) : (
                     <strong className="font-bold text-xl border-b border-transparent">
                       {stock}{" "}
@@ -270,32 +334,82 @@ const Products = () => {
             },
           },
           {
-            accessorKey: "stock_sc",
+            accessorKey: !inTransaction ? "stock_sc" : undefined,
             header: "Stock SC.",
             cell: ({ row: { original: v } }) => {
               const stock = v.stock_sc;
-              const agotado = v.stock_sc === 0;
-              const tProd = transaction.find(
-                (t) => t.id === v.id && t.city === "sc"
-              );
+              const tProd = transaction.find((t) => t.id === v.id);
+              const agotado =
+                inTransaction && tProd
+                  ? v.stock_sc + tProd.diff_sc === 0
+                  : v.stock_sc === 0;
+              const hasChanged = tProd
+                ? stock + tProd.diff_sc !== stock
+                : false;
               return (
                 <div
                   className={twMerge(
                     "flex flex-col items-center",
-                    agotado ? "text-rose-700" : "text-primary-950"
+                    agotado
+                      ? "text-rose-700"
+                      : hasChanged
+                      ? "text-amber-600"
+                      : "text-primary-950"
                   )}
                 >
                   {inTransaction ? (
-                    <input
-                      id={`sc-${v.id}`}
-                      className="no-arrows font-bold text-xl text-primary-950 w-full outline-none text-center bg-transparent border-b"
-                      value={tProd ? stock + tProd.diff : stock}
-                      onChange={(e) => handleChange(v.id, "sc", e.target.value)}
-                      onClick={(e) => e.stopPropagation()}
-                      type="number"
-                      min={0}
-                      onFocus={(e) => (focusRef.current = e.target.id)}
-                    />
+                    <div className="relative group">
+                      <input
+                        id={`sc-${v.id}`}
+                        className="no-arrows font-bold text-xl w-full outline-none text-center bg-transparent border-b"
+                        value={tProd ? stock + tProd.diff_sc : stock}
+                        onChange={(e) =>
+                          handleChange(v.id, "sc", e.target.value)
+                        }
+                        onClick={(e) => e.stopPropagation()}
+                        type="number"
+                        min={0}
+                        onFocus={(e) => (focusRef.current = e.target.id)}
+                      />
+                      <span className="text-primary-950 h-full hidden group-hover:block">
+                        <div className="absolute h-full aspect-square left-0 top-0 flex-1 p-1">
+                          <button
+                            tabIndex={-1}
+                            className="w-full flex items-center justify-center font-bold rounded-full border"
+                            onClick={() => {
+                              if (!agotado) {
+                                handleChange(
+                                  v.id,
+                                  "sc",
+                                  tProd
+                                    ? String(stock + tProd.diff_sc - 1)
+                                    : String(stock - 1)
+                                );
+                              }
+                            }}
+                          >
+                            -
+                          </button>
+                        </div>
+                        <div className="absolute h-full aspect-square right-0 top-0 flex-1 p-1">
+                          <button
+                            tabIndex={-1}
+                            className="w-full flex items-center justify-center font-bold rounded-full border "
+                            onClick={() => {
+                              handleChange(
+                                v.id,
+                                "sc",
+                                tProd
+                                  ? String(stock + tProd.diff_sc + 1)
+                                  : String(stock + 1)
+                              );
+                            }}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </span>
+                    </div>
                   ) : (
                     <strong className="font-bold text-xl border-b border-transparent">
                       {v.stock_sc}{" "}
@@ -315,7 +429,7 @@ const Products = () => {
         ]}
       />
       {inTransaction && (
-        <div className="h-40 bg-white border border-gray-300 rounded-lg shadow-xl"></div>
+        <TransactionFooter productos={data || []} transaction={transaction} />
       )}
       {modal("Formulario de producto", (item) => (
         <Form

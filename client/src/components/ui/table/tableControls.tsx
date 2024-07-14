@@ -9,6 +9,7 @@ import { toastSuccess } from "@/utils/toasts";
 interface Props {
   filter: [string, React.Dispatch<React.SetStateAction<string>>];
   reload?: (...props: any) => Promise<any>;
+  disableButtons: boolean;
   add?: () => void;
   view: [TableView, React.Dispatch<React.SetStateAction<TableView>>];
   loading: boolean;
@@ -32,6 +33,7 @@ const TableControls = ({
   reports,
   show,
   button,
+  disableButtons,
 }: Props) => {
   const idSearch = useId();
   const [filterValue, setFilter] = filter;
@@ -54,7 +56,7 @@ const TableControls = ({
       <div className="flex gap-4">
         {!!add && (
           <ControlButton
-            disabled={viewValue !== "table"}
+            disabled={disableButtons || viewValue !== "table"}
             title="Añadir dato"
             onClick={add}
             icon={<Icon type="add" />}
@@ -105,7 +107,7 @@ const TableControls = ({
           {reports && (
             <>
               <ControlButton
-                disabled={loading}
+                disabled={disableButtons || loading}
                 title={viewValue === "PDF" ? "Ver tabla" : "Ver PDF"}
                 onClick={() =>
                   setView((old) => (old === "PDF" ? "table" : "PDF"))
@@ -125,7 +127,7 @@ const TableControls = ({
                 currentTableRef={tableCurrentRef}
               >
                 <ControlButton
-                  disabled={loading}
+                  disabled={disableButtons || loading}
                   title="Exportar Excel"
                   icon={<Icon type="excel" />}
                   text="Excel"
@@ -135,7 +137,7 @@ const TableControls = ({
           )}
           {!!reload && (
             <ControlButton
-              disabled={viewValue !== "table"}
+              disabled={disableButtons || viewValue !== "table"}
               title="Recargar datos"
               onClick={handleReload}
               icon={<Icon type="reload" />}
