@@ -14,7 +14,7 @@ interface Props {
 
 const Navbar = ({ isDashboard }: Props) => {
   const navigate = useNavigate();
-  const { setUser } = useUserContext();
+  const { user, setUser } = useUserContext();
 
   const { send, loading } = useRequest<null>(ENDPOINTS.LOGOUT, {
     method: "GET",
@@ -94,22 +94,24 @@ const Navbar = ({ isDashboard }: Props) => {
               </NavLink>
               <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
             </li>
-            <li className="flex flex-col items-center">
-              <NavLink
-                className={({ isActive }) =>
-                  twMerge(
-                    "px-4 transition-all duration-300",
-                    isActive
-                      ? "text-white [&+span]:scale-100"
-                      : "text-white/60 [&+span]:scale-0"
-                  )
-                }
-                to={ROUTES.USERS}
-              >
-                Usuarios
-              </NavLink>
-              <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
-            </li>
+            {user?.superadmin && (
+              <li className="flex flex-col items-center">
+                <NavLink
+                  className={({ isActive }) =>
+                    twMerge(
+                      "px-4 transition-all duration-300",
+                      isActive
+                        ? "text-white [&+span]:scale-100"
+                        : "text-white/60 [&+span]:scale-0"
+                    )
+                  }
+                  to={ROUTES.USERS}
+                >
+                  Usuarios
+                </NavLink>
+                <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
+              </li>
+            )}
             <li className="flex flex-col items-center">
               <NavLink
                 className={({ isActive }) =>
@@ -130,7 +132,7 @@ const Navbar = ({ isDashboard }: Props) => {
           <div className="flex items-center h-full border-l border-white/60 pl-2">
             <div className="w-48 overflow-hidden flex flex-col items-center">
               <p className="text-white font-bold line-clamp-1 text-center">
-                ¡Bienvenido admin!
+                ¡Bienvenido {user?.usuario}!
               </p>
               <select
                 value=""

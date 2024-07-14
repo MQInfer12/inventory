@@ -3,6 +3,7 @@ import ControlButton from "./controlButton";
 import { TableView } from "./tableContainer";
 import Icon from "@/components/icons/icon";
 import { twMerge } from "@/utils/twMerge";
+import { useId } from "react";
 
 interface Props {
   filter: [string, React.Dispatch<React.SetStateAction<string>>];
@@ -25,8 +26,15 @@ const TableControls = ({
   reports,
   show,
 }: Props) => {
+  const idSearch = useId();
   const [filterValue, setFilter] = filter;
   const [viewValue, setView] = view;
+
+  const handleEmpty = () => {
+    setFilter("");
+    const input = document.getElementById(idSearch);
+    input?.focus();
+  };
 
   return (
     <div className="w-full flex pb-4 gap-4 justify-between">
@@ -47,6 +55,7 @@ const TableControls = ({
               <Icon type="search" />
             </div>
             <input
+              id={idSearch}
               autoFocus
               disabled={viewValue !== "table"}
               className={twMerge(
@@ -61,7 +70,7 @@ const TableControls = ({
             {filterValue !== "" && (
               <div className="absolute right-0 top-2/4 -translate-y-2/4 aspect-square h-full p-1 flex items-center justify-center">
                 <button
-                  onClick={() => setFilter("")}
+                  onClick={handleEmpty}
                   className="border rounded-lg bg-black/20 text-white p-1 outline-none ring-0 ring-inset focus:ring-2 transition-all duration-300"
                 >
                   <Icon type="x" />

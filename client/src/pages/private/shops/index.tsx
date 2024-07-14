@@ -9,9 +9,10 @@ import { toastSuccess } from "@/utils/toasts";
 import { useRequest } from "@/hooks/useRequest";
 import { confirmAlert } from "@/utils/alerts";
 import { Tienda } from "./types/api";
+import { QUERYKEYS } from "@/constants/queryKeys";
 
 const Shops = () => {
-  const keys = ["tiendas"];
+  const keys = [QUERYKEYS.TIENDAS];
   const { data } = useGet<Tienda[]>(ENDPOINTS.TIENDA_INDEX, keys);
   const { modal, openModal, closeModal } = useModal<Tienda>();
   const { setQueryData } = useMutateGet();
@@ -31,7 +32,10 @@ const Shops = () => {
     <Page>
       <TableContainer
         add={() => openModal()}
-        onClickRow={(row) => openModal(row)}
+        onClickRow={{
+          fn: (row) => openModal(row),
+          disabled: (row) => row.id === current,
+        }}
         edit={{
           fn: (row) => openModal(row),
           disabled: (row) => row.id === current,

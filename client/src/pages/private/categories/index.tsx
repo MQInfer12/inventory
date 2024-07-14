@@ -9,9 +9,10 @@ import { useMutateGet } from "@/hooks/useMutateGet";
 import { toastSuccess } from "@/utils/toasts";
 import { useRequest } from "@/hooks/useRequest";
 import { confirmAlert } from "@/utils/alerts";
+import { QUERYKEYS } from "@/constants/queryKeys";
 
 const Categories = () => {
-  const keys = ["categorias"];
+  const keys = [QUERYKEYS.CATEGORIAS];
   const { data } = useGet<Categoria[]>(ENDPOINTS.CATEGORIA_INDEX, keys);
   const { modal, openModal, closeModal } = useModal<Categoria>();
   const { setQueryData } = useMutateGet();
@@ -33,7 +34,10 @@ const Categories = () => {
     <Page>
       <TableContainer
         add={() => openModal()}
-        onClickRow={(row) => openModal(row)}
+        onClickRow={{
+          fn: (row) => openModal(row),
+          disabled: (row) => row.id === current,
+        }}
         edit={{
           fn: (row) => openModal(row),
           disabled: (row) => row.id === current,

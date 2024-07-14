@@ -26,6 +26,7 @@ export const useRequest = <Res, Dto = undefined>(
     mutationFn: async (dto?: Dto): ApiResponse<Res> => {
       setCurrent(dto || null);
       const token = getAuthCookie();
+      
       const options = token
         ? {
             headers: {
@@ -54,8 +55,8 @@ export const useRequest = <Res, Dto = undefined>(
       }
     },
     onSuccess: (res) => {
-      if (res.status !== 200) return toastError(res.message);
       setCurrent(null);
+      if (res.status !== 200) return toastError(res.message);
       onSuccess?.(res);
     },
     onError: (e: AxiosError) => {

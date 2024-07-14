@@ -20,8 +20,8 @@ interface Props {
   setSorting: React.Dispatch<React.SetStateAction<any[]>>;
   data: any[];
   columns: ColumnDef<any, any>[];
-  onClickRow?: (row: any) => void;
   view: TableView;
+  onClickRow?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
   edit?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
   del?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
 }
@@ -56,7 +56,8 @@ const TanstackTable = forwardRef(
 
     const handleClickRow = (row: any) => {
       if (onClickRow) {
-        onClickRow(row);
+        if (onClickRow.disabled?.(row)) return;
+        onClickRow.fn(row);
       }
     };
 
@@ -64,25 +65,54 @@ const TanstackTable = forwardRef(
       return <TablePDF table={table} />;
     }
     return (
-      <div className="flex-1 overflow-auto w-full">
-        <table ref={tableRef} className="w-full flex flex-col gap-2 relative">
-          <thead className="sticky top-0">
-            {table.getHeaderGroups().map((group) => (
-              <tr key={group.id} className="flex bg-bg">
-                <th className="text-[12px] w-10 px-2 py-2 font-semibold text-primary-800 text-center select-none">
-                  #
-                </th>
-                {group.headers.map((header) => (
+      <table
+        ref={tableRef}
+        className="w-full flex flex-col gap-2 relative overflow-auto"
+      >
+        <thead className="sticky top-0">
+          {table.getHeaderGroups().map((group) => (
+            <tr key={group.id} className="flex bg-bg min-w-fit">
+              <th className="text-[12px] min-w-10 w-10 px-2 py-2 font-bold text-primary-900 text-center select-none">
+                #
+              </th>
+              {group.headers.map((header) => {
+                const width = header.column.columnDef.meta?.width;
+                const center = !!header.column.columnDef.meta?.center;
+                const isColspan = typeof width === "number";
+                return (
                   <th
-                    className="flex-1 px-2 py-2 text-sm font-semibold text-primary-800 text-start select-none hover:bg-gray-200 transition-all duration-300 cursor-pointer"
+                    className="px-2 py-2 text-sm font-bold text-primary-900 text-start select-none hover:bg-gray-200 transition-all duration-300 cursor-pointer"
                     key={header.id}
                     onClick={header.column.getToggleSortingHandler()}
+                    style={{
+                      flex:
+                        width === undefined
+                          ? `1 1 0%`
+                          : isColspan
+                          ? `${width} 1 0%`
+                          : undefined,
+                      width:
+                        width === undefined
+                          ? undefined
+                          : isColspan
+                          ? undefined
+                          : width,
+                      minWidth:
+                        width === undefined
+                          ? "200px"
+                          : isColspan
+                          ? undefined
+                          : width,
+                    }}
+                    title={header.column.columnDef.header?.toString()}
                   >
-                    <div className="flex">
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                    <div className={twMerge("flex", center && "justify-center")}>
+                      <p className="line-clamp-1">
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                      </p>
                       <div className="h-5 w-5">
                         {
                           {
@@ -94,76 +124,103 @@ const TanstackTable = forwardRef(
                       </div>
                     </div>
                   </th>
-                ))}
-                {(edit || del) && (
-                  <th className="text-sm w-40 px-2 py-2 font-semibold text-primary-800 text-center select-none">
-                    Acciones
-                  </th>
+                );
+              })}
+              {(edit || del) && (
+                <th className="min-w-40 w-40 text-sm px-2 py-2 font-bold text-primary-900 text-center select-none">
+                  Acciones
+                </th>
+              )}
+            </tr>
+          ))}
+        </thead>
+        <tbody className="flex flex-col gap-2">
+          {table.getRowModel().rows.map((row, i) => (
+            <tr
+              className={`flex transition-all duration-300 bg-white rounded-lg border hover:bg-primary-700/10 min-w-fit`}
+              key={row.id}
+            >
+              <td
+                className={twMerge(
+                  `min-w-10 w-10 px-2 py-2 text-[12px] text-center text-neutral-800`,
+                  onClickRow ? "cursor-pointer" : ""
                 )}
-              </tr>
-            ))}
-          </thead>
-          <tbody className="flex flex-col gap-2">
-            {table.getRowModel().rows.map((row, i) => (
-              <tr
-                className={`flex transition-all duration-300 bg-white rounded-lg border hover:bg-primary-700/10`}
-                key={row.id}
               >
-                <td
-                  className={twMerge(
-                    `w-10 px-2 py-2 text-[12px] text-center text-neutral-800`,
-                    onClickRow ? "cursor-pointer" : ""
-                  )}
-                >
-                  <div className="flex items-center h-full w-full justify-center">
-                    <p>{i + 1}</p>
-                  </div>
-                </td>
-                {row.getVisibleCells().map((cell) => (
+                <div className="flex items-center h-full w-full justify-center">
+                  <p>{i + 1}</p>
+                </div>
+              </td>
+              {row.getVisibleCells().map((cell) => {
+                const width = cell.column.columnDef.meta?.width;
+                const center = !!cell.column.columnDef.meta?.center;
+                const isColspan = typeof width === "number";
+                return (
                   <td
                     className={twMerge(
-                      `flex-1 px-2 py-2 text-sm text-neutral-800`,
+                      `px-2 py-2 text-sm text-neutral-800`,
                       onClickRow ? "cursor-pointer" : ""
                     )}
                     key={cell.id}
                     onClick={() => handleClickRow(row.original)}
+                    style={{
+                      flex:
+                        width === undefined
+                          ? `1 1 0%`
+                          : isColspan
+                          ? `${width} 1 0%`
+                          : undefined,
+                      width:
+                        width === undefined
+                          ? undefined
+                          : isColspan
+                          ? undefined
+                          : width,
+                      minWidth:
+                        width === undefined
+                          ? "200px"
+                          : isColspan
+                          ? undefined
+                          : width,
+                    }}
                   >
-                    <div className="flex items-center h-full w-full">
+                    <div className={twMerge("flex items-center h-full w-full", center && "justify-center")}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
                       )}
                     </div>
                   </td>
-                ))}
-                {(edit || del) && (
-                  <td className={`w-40 px-2 py-2 text-sm text-neutral-800`}>
-                    <div className="flex gap-2 justify-center items-center w-full h-full">
-                      {edit && (
-                        <ControlButton
-                          title="Editar"
-                          btnType="primary"
-                          icon={<Icon type="edit" />}
-                          onClick={() => edit.fn(row.original)}
-                          disabled={edit.disabled?.(row.original)}
-                        />
-                      )}
-                      {del && (
-                        <ControlButton
-                          title="Eliminar"
-                          icon={<Icon type="delete" />}
-                          onClick={() => del.fn(row.original)}
-                          disabled={del.disabled?.(row.original)}
-                        />
-                      )}
-                    </div>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                );
+              })}
+              {(edit || del) && (
+                <td
+                  className={`min-w-40 w-40 px-2 py-2 text-sm text-neutral-800`}
+                >
+                  <div className="flex gap-2 justify-center items-center w-full h-full">
+                    {edit && (
+                      <ControlButton
+                        title="Editar"
+                        btnType="primary"
+                        icon={<Icon type="edit" />}
+                        onClick={() => edit.fn(row.original)}
+                        disabled={edit.disabled?.(row.original)}
+                      />
+                    )}
+                    {del && (
+                      <ControlButton
+                        title="Eliminar"
+                        icon={<Icon type="delete" />}
+                        onClick={() => del.fn(row.original)}
+                        disabled={del.disabled?.(row.original)}
+                      />
+                    )}
+                  </div>
+                </td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     );
   }
 );

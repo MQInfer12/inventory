@@ -6,6 +6,7 @@ import { useState } from "react";
 import { API_TiendaDTO, Tienda } from "../types/api";
 import { FormEvent } from "@/types/formEvent";
 import { SuccessResponse } from "@/types/apiResponse";
+import Select from "@/components/ui/select";
 
 interface Props {
   item: Tienda | null;
@@ -21,7 +22,7 @@ const Form = ({ item, onSuccess }: Props) => {
     }
   );
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<API_TiendaDTO>({
     nombre: item?.nombre || "",
     descripcion: item?.descripcion || "",
     ciudad: item?.ciudad || "",
@@ -47,13 +48,16 @@ const Form = ({ item, onSuccess }: Props) => {
         title="Descripción"
         placeholder="Ingrese descripción"
       />
-      <Input
+      <Select
+        title="Ciudad"
         value={form.ciudad}
         onChange={(v) => setForm((prev) => ({ ...prev, ciudad: v }))}
-        title="Ciudad"
-        placeholder="Ingrese ciudad"
         required
-      />
+      >
+        <option value="">Seleccione una ciudad</option>
+        <option value="Cochabamba">Cochabamba</option>
+        <option value="Santa Cruz">Santa Cruz</option>
+      </Select>
       <div className="w-full mt-2">
         <Button
           disabled={loading}

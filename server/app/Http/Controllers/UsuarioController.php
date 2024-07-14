@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cookie;
 
 class UsuarioController extends Controller
 {
@@ -69,15 +66,19 @@ class UsuarioController extends Controller
             ]);
         }
 
-        $request->validate([
-            'usuario' => 'required',
-        ], [
-            'usuario.required' => 'El campo usuario es obligatorio.',
-        ]);
+        $error = "";
+        if(!$request->usuario) $error = "El usuario es obligatorio";
+        if($error != "") {
+            return response()->json([
+                "status" => 500,
+                "message" => $error,
+                "data" => null
+            ]);
+        }
 
         $user = Usuario::find($id);
         $user->usuario = $request->usuario;
-        if($request->password != "") {
+        if($request->password != null && $request->password != "") {
             $user->password = bcrypt($request->password);
         }
 
@@ -118,11 +119,11 @@ class UsuarioController extends Controller
             ]);
         }
 
-        $user = Usuario::destroy($id);
+        Usuario::destroy($id);
         return response()->json([
             "status" => 200,
             "message" => "Usuario eliminado correctamente",
-            "data" => $user
+            "data" => $id
         ]);
     }
 

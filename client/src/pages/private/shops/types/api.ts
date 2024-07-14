@@ -3,7 +3,7 @@ import { Timestamps } from "@/types/timestamps";
 export interface Tienda extends Timestamps {
   id: number;
   nombre: string;
-  descripcion: string;
+  descripcion: string | null;
   ciudad: string;
 }
 

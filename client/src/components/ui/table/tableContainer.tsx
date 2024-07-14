@@ -11,7 +11,7 @@ interface Props {
   reports?: boolean;
   reload?: () => void;
   add?: () => void;
-  onClickRow?: (row: any) => void;
+  onClickRow?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
   edit?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
   del?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
 }
@@ -45,7 +45,7 @@ const TableContainer = ({
         reports={reports}
         show={data ? data.length > 0 : false}
       />
-      <div className="flex flex-1 overflow-auto">
+      <div className="flex flex-1 overflow-auto w-full">
         {data ? (
           data.length > 0 ? (
             <TanstackTable
