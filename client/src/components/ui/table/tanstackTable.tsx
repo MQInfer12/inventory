@@ -69,7 +69,7 @@ const TanstackTable = forwardRef(
         ref={tableRef}
         className="w-full flex flex-col gap-2 relative overflow-x-auto overflow-y-scroll"
       >
-        <thead className="sticky top-0 z-10">
+        <thead className="sticky top-0 z-20">
           {table.getHeaderGroups().map((group) => (
             <tr key={group.id} className="flex bg-bg min-w-fit">
               <th className="text-[12px] min-w-10 w-10 px-2 py-2 font-bold text-primary-900 text-center select-none">

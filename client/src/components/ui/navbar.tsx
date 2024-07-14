@@ -46,7 +46,7 @@ const Navbar = ({ isDashboard }: Props) => {
       {isDashboard && (
         <div className="flex h-full items-center py-2 animate-[appear_1s]">
           <ul className="flex mr-3">
-            <li className="flex flex-col items-center">
+            <li className="text-sm flex flex-col items-center">
               <NavLink
                 className={({ isActive }) =>
                   twMerge(
@@ -62,7 +62,7 @@ const Navbar = ({ isDashboard }: Props) => {
               </NavLink>
               <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
             </li>
-            <li className="flex flex-col items-center">
+            <li className="text-sm flex flex-col items-center">
               <NavLink
                 className={({ isActive }) =>
                   twMerge(
@@ -78,7 +78,7 @@ const Navbar = ({ isDashboard }: Props) => {
               </NavLink>
               <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
             </li>
-            <li className="flex flex-col items-center">
+            <li className="text-sm flex flex-col items-center">
               <NavLink
                 className={({ isActive }) =>
                   twMerge(
@@ -95,7 +95,7 @@ const Navbar = ({ isDashboard }: Props) => {
               <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
             </li>
             {user?.superadmin && (
-              <li className="flex flex-col items-center">
+              <li className="text-sm flex flex-col items-center">
                 <NavLink
                   className={({ isActive }) =>
                     twMerge(
@@ -112,7 +112,7 @@ const Navbar = ({ isDashboard }: Props) => {
                 <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
               </li>
             )}
-            <li className="flex flex-col items-center">
+            <li className="text-sm flex flex-col items-center">
               <NavLink
                 className={({ isActive }) =>
                   twMerge(

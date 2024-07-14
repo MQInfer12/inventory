@@ -22,4 +22,7 @@ export enum ENDPOINTS {
   PRODUCTO_STORE = "producto",
   PRODUCTO_UPDATE = "producto/",
   PRODUCTO_DESTROY = "producto/",
+  
+  MOVIMIENTO_INDEX = "movimiento",
+  MOVIMIENTO_STORE = "movimiento",
 }

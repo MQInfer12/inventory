@@ -19,7 +19,6 @@ import TransactionFooter from "./components/transactionFooter";
 
 export interface Transaction {
   id: number;
-  city: "cbba" | "sc";
   diff_cbba: number;
   diff_sc: number;
 }
@@ -34,6 +33,31 @@ const Products = () => {
   const [transaction, setTransaction] = useState<Transaction[]>([]);
   const focusRef = useRef<any>(null);
 
+  const { send: sendTransaction } = useRequest<
+    Producto[],
+    {
+      data: Transaction[];
+    }
+  >(ENDPOINTS.MOVIMIENTO_STORE, {
+    onSuccess: ({ message, data }) => {
+      toastSuccess(message);
+      setQueryData<Producto[]>(keys, (old) =>
+        old.map((p) => {
+          const hasBeenModified = data.find((v) => v.id === p.id);
+          if (hasBeenModified) {
+            return {
+              ...p,
+              stock_cbba: hasBeenModified.stock_cbba,
+              stock_sc: hasBeenModified.stock_sc,
+            };
+          }
+          return p;
+        })
+      );
+      setTransaction([]);
+      setInTransaction(false);
+    },
+  });
   const { send, current } = useRequest<number, number>(
     ENDPOINTS.PRODUCTO_DESTROY,
     {
@@ -60,7 +84,6 @@ const Products = () => {
         break;
     }
     if (exist) {
-      console.log(exist, city, diff);
       setTransaction((prev) =>
         prev.map((v) =>
           v.id === id
@@ -77,7 +100,6 @@ const Products = () => {
         ...prev,
         {
           id,
-          city,
           diff_cbba: city === "cbba" ? diff : 0,
           diff_sc: city === "sc" ? diff : 0,
         },
@@ -86,6 +108,19 @@ const Products = () => {
     focusRef.current = city + "-" + id;
     setTransaction((prev) =>
       prev.filter((v) => !(v.diff_cbba === 0 && v.diff_sc === 0))
+    );
+  };
+
+  const handleSaveTransaction = () => {
+    confirmAlert(
+      () => {
+        sendTransaction({
+          data: transaction,
+        });
+      },
+      {
+        text: "Se hará el movimiento de inventario correspondiente.",
+      }
     );
   };
 
@@ -113,7 +148,7 @@ const Products = () => {
           disabled: (row) => row.id === current || inTransaction,
         }}
         button={{
-          text: inTransaction ? "Cancelar transacción" : "Iniciar transacción",
+          text: inTransaction ? "Cancelar movimiento" : "Iniciar movimiento",
           fn: () => {
             if (inTransaction) {
               setTransaction([]);
@@ -428,9 +463,12 @@ const Products = () => {
           },
         ]}
       />
-      {inTransaction && (
-        <TransactionFooter productos={data || []} transaction={transaction} />
-      )}
+      <TransactionFooter
+        open={inTransaction}
+        handleSave={handleSaveTransaction}
+        productos={data || []}
+        transaction={transaction}
+      />
       {modal("Formulario de producto", (item) => (
         <Form
           item={item}

@@ -41,4 +41,9 @@ class Producto extends Model
             'id_categoria'
         );
     }
+
+    public function movimientos()
+    {
+        return $this->hasMany(Movimiento::class, 'id_producto');
+    }
 }

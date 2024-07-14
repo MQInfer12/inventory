@@ -111,14 +111,16 @@ const Form = ({ item, onSuccess }: Props) => {
         placeholder="Ingrese detalle"
       />
       <div className="flex w-full flex-wrap gap-4">
-        <Input
-          value={form.stock_cbba}
-          onChange={(v) => setForm((prev) => ({ ...prev, stock_cbba: v }))}
-          title="Stock CBBA."
-          placeholder="Ingrese stock CBBA."
-          type="number"
-          required
-        />
+        {!item && (
+          <Input
+            value={form.stock_cbba}
+            onChange={(v) => setForm((prev) => ({ ...prev, stock_cbba: v }))}
+            title="Stock inicial CBBA."
+            placeholder="Ingrese stock CBBA."
+            type="number"
+            required
+          />
+        )}
         <Input
           value={form.precio_cbba}
           onChange={(v) => setForm((prev) => ({ ...prev, precio_cbba: v }))}
@@ -137,14 +139,16 @@ const Form = ({ item, onSuccess }: Props) => {
         />
       </div>
       <div className="flex w-full flex-wrap gap-4">
-        <Input
-          value={form.stock_sc}
-          onChange={(v) => setForm((prev) => ({ ...prev, stock_sc: v }))}
-          title="Stock SC."
-          placeholder="Ingrese stock SC."
-          type="number"
-          required
-        />
+        {!item && (
+          <Input
+            value={form.stock_sc}
+            onChange={(v) => setForm((prev) => ({ ...prev, stock_sc: v }))}
+            title="Stock inicial SC."
+            placeholder="Ingrese stock SC."
+            type="number"
+            required
+          />
+        )}
         <Input
           value={form.precio_sc}
           onChange={(v) => setForm((prev) => ({ ...prev, precio_sc: v }))}

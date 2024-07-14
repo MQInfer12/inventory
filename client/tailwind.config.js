@@ -20,6 +20,14 @@ export default {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
+        growH: {
+          "0%": { height: "0" },
+          "100%": { height: "208px" },
+        },
+        growHSM: {
+          "0%": { height: "0" },
+          "100%": { height: "304px" },
+        },
       },
     },
   },

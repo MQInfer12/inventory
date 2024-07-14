@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\FormularioController;
+use App\Http\Controllers\MovimientoController;
 use App\Http\Controllers\ProductoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,9 @@ Route::group(['middleware' => ["auth:sanctum"]], function () {
     Route::apiResource('/producto', ProductoController::class);
     Route::apiResource('/categoria', CategoriaController::class);
     Route::apiResource('/tienda', TiendaController::class);
+
+    Route::get('/movimiento', [MovimientoController::class, 'index']);
+    Route::post('/movimiento', [MovimientoController::class, 'store']);
 });
 
 Route::post('/login', [UsuarioController::class, 'login']);

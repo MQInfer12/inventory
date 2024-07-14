@@ -1,6 +1,6 @@
 import { ROUTES } from "@/constants/routes";
 import { ApiResponse, SuccessResponse } from "@/types/apiResponse";
-import { getAuthCookie } from "@/utils/authCookie";
+import { deleteAuthCookie, getAuthCookie } from "@/utils/authCookie";
 import { http } from "@/utils/http";
 import { toastError } from "@/utils/toasts";
 import { useMutation } from "@tanstack/react-query";
@@ -67,6 +67,7 @@ export const useRequest = <Res, Dto = undefined>(
         toastError(statusText);
       }
       if (status === 401) {
+        deleteAuthCookie();
         navigate(ROUTES.INDEX);
       }
     },
