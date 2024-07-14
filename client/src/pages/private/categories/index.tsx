@@ -13,7 +13,10 @@ import { QUERYKEYS } from "@/constants/queryKeys";
 
 const Categories = () => {
   const keys = [QUERYKEYS.CATEGORIAS];
-  const { data } = useGet<Categoria[]>(ENDPOINTS.CATEGORIA_INDEX, keys);
+  const { data, refetch } = useGet<Categoria[]>(
+    ENDPOINTS.CATEGORIA_INDEX,
+    keys
+  );
   const { modal, openModal, closeModal } = useModal<Categoria>();
   const { setQueryData } = useMutateGet();
 
@@ -46,6 +49,7 @@ const Categories = () => {
           fn: (row) => confirmAlert(() => send(row.id)),
           disabled: (row) => row.id === current,
         }}
+        reload={refetch}
         columns={[
           {
             accessorKey: "descripcion",

@@ -10,6 +10,8 @@ import IconUpDown from "./iconUpDown";
 import IconDelete from "./iconDelete";
 import IconEdit from "./iconEdit";
 import IconEmpty from "./iconEmpty";
+import IconPlusMinus from "./iconPlusMinus";
+import IconPhotoAdd from "./iconPhotoAdd";
 
 type IconType =
   | "add"
@@ -23,7 +25,9 @@ type IconType =
   | "down"
   | "edit"
   | "delete"
-  | "empty";
+  | "empty"
+  | "plusminus"
+  | "photoadd";
 
 interface Props {
   type: IconType;
@@ -43,7 +47,9 @@ const Icon = ({ type }: Props) => {
       down: <IconUpDown down />,
       delete: <IconDelete />,
       edit: <IconEdit />,
-      empty: <IconEmpty />
+      empty: <IconEmpty />,
+      plusminus: <IconPlusMinus />,
+      photoadd: <IconPhotoAdd />
     }),
     []
   );

@@ -8,16 +8,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductoController extends Controller
 {
-
-    public function index()
-    {
-        return response()->json([
-            "status" => 200,
-            "message" => "Productos obtenidos exitosamente",
-            "data" => Producto::with('tienda')->get()
-        ]);
-    }
-
     private function generateRandomString($length = 24)
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -37,14 +27,32 @@ class ProductoController extends Controller
         $val = str_replace(',', '.', $val);
         return $val ? doubleval($val) : null;
     }
+
+    public function index()
+    {
+        $productos =  Producto::orderBy('id', 'asc')->with('tienda')->get();
+        foreach ($productos as $producto) {
+            $producto->porcentaje = $this->to_double_or_null($producto->porcentaje);
+            $producto->piezas = $this->to_double_or_null($producto->piezas);
+            $producto->precio_cbba = $this->to_double_or_null($producto->precio_cbba);
+            $producto->precio_oferta_cbba = $this->to_double_or_null($producto->precio_oferta_cbba);
+            $producto->precio_sc = $this->to_double_or_null($producto->precio_sc);
+            $producto->precio_oferta_sc = $this->to_double_or_null($producto->precio_oferta_sc);
+        }
+        return response()->json([
+            "status" => 200,
+            "message" => "Productos obtenidos exitosamente",
+            "data" => $productos
+        ]);
+    }
     
     public function store(Request $request)
     {
         $error = "";
         if(!$request->codigo) $error = "El código es obligatorio";
         if(!$request->descripcion) $error = "La descripción es obligatoria";
-        if(!$request->stock_cbba) $error = "Ambos stocks son obligatorios";
-        if(!$request->stock_sc) $error = "Ambos stocks son obligatorios";
+        if($request->stock_cbba == null) $error = "Ambos stocks son obligatorios";
+        if($request->stock_sc == null) $error = "Ambos stocks son obligatorios";
         if($error != "") {
             return response()->json([
                 "status" => 500,
@@ -54,6 +62,16 @@ class ProductoController extends Controller
         }
 
         $producto = new Producto();
+
+        $existCodigo = Producto::where('codigo', $request->codigo)->first();
+        if($existCodigo) {
+            return response()->json([
+                "status" => 500,
+                "message" => "Ya existe un producto con este código",
+                "data" => null
+            ]);
+        }
+
         $producto->codigo = $request->codigo;
         $producto->descripcion = $request->descripcion;
         $producto->detalle = $request->detalle;
@@ -117,12 +135,21 @@ class ProductoController extends Controller
         $error = "";
         if(!$request->codigo) $error = "El código es obligatorio";
         if(!$request->descripcion) $error = "La descripción es obligatoria";
-        if(!$request->stock_cbba) $error = "Ambos stocks son obligatorios";
-        if(!$request->stock_sc) $error = "Ambos stocks son obligatorios";
+        if($request->stock_cbba == null) $error = "Ambos stocks son obligatorios";
+        if($request->stock_sc == null) $error = "Ambos stocks son obligatorios";
         if($error != "") {
             return response()->json([
                 "status" => 500,
                 "message" => $error,
+                "data" => null
+            ]);
+        }
+
+        $existCodigo = Producto::where('codigo', $request->codigo)->where('id', "!=", $id)->first();
+        if($existCodigo) {
+            return response()->json([
+                "status" => 500,
+                "message" => "Ya existe un producto con este código",
                 "data" => null
             ]);
         }
@@ -169,7 +196,7 @@ class ProductoController extends Controller
         $producto = Producto::destroy($id);
         return response()->json([
             "status" => $producto > 0 ? 200 : 404,
-            "message" => $producto > 0 ? "Producto eliminada exitosamente" : "Error al eliminar el producto",
+            "message" => $producto > 0 ? "Producto eliminado exitosamente" : "Error al eliminar el producto",
             "data" => $id
         ]);
     }

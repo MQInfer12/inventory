@@ -12,7 +12,7 @@ class TiendaController extends Controller
         return response()->json([
             "status" => 200,
             "message" => "Tiendas obtenidas exitosamente",
-            "data" => Tienda::all()
+            "data" => Tienda::orderBy('id', 'asc')->get()
         ]);
     }
 

@@ -4,16 +4,22 @@ import { TableView } from "./tableContainer";
 import Icon from "@/components/icons/icon";
 import { twMerge } from "@/utils/twMerge";
 import { useId } from "react";
+import { toastSuccess } from "@/utils/toasts";
 
 interface Props {
   filter: [string, React.Dispatch<React.SetStateAction<string>>];
-  reload?: () => void;
+  reload?: (...props: any) => Promise<any>;
   add?: () => void;
   view: [TableView, React.Dispatch<React.SetStateAction<TableView>>];
   loading: boolean;
   tableCurrentRef: HTMLTableElement | null;
   reports: boolean;
   show: boolean;
+  button?: {
+    text: string;
+    icon: JSX.Element;
+    fn: () => void;
+  };
 }
 
 const TableControls = ({
@@ -25,6 +31,7 @@ const TableControls = ({
   tableCurrentRef,
   reports,
   show,
+  button,
 }: Props) => {
   const idSearch = useId();
   const [filterValue, setFilter] = filter;
@@ -36,18 +43,35 @@ const TableControls = ({
     input?.focus();
   };
 
+  const handleReload = async () => {
+    if (!reload) return;
+    await reload();
+    toastSuccess("Recargado correctamente");
+  };
+
   return (
     <div className="w-full flex pb-4 gap-4 justify-between">
-      {!!add && (
-        <ControlButton
-          disabled={viewValue !== "table"}
-          title="Añadir dato"
-          onClick={add}
-          icon={<Icon type="add" />}
-          btnType="primary"
-          text="Añadir"
-        />
-      )}
+      <div className="flex gap-4">
+        {!!add && (
+          <ControlButton
+            disabled={viewValue !== "table"}
+            title="Añadir dato"
+            onClick={add}
+            icon={<Icon type="add" />}
+            btnType="primary"
+            text="Añadir"
+          />
+        )}
+        {button && (
+          <ControlButton
+            disabled={viewValue !== "table"}
+            title={button.text}
+            onClick={button.fn}
+            icon={button.icon}
+            text={button.text}
+          />
+        )}
+      </div>
       {show && (
         <div className="flex gap-4">
           <div className="relative">
@@ -78,14 +102,6 @@ const TableControls = ({
               </div>
             )}
           </div>
-          {!!reload && (
-            <ControlButton
-              disabled={viewValue !== "table"}
-              title="Recargar datos"
-              onClick={reload}
-              icon={<Icon type="reload" />}
-            />
-          )}
           {reports && (
             <>
               <ControlButton
@@ -116,6 +132,14 @@ const TableControls = ({
                 />
               </DownloadTableExcel>
             </>
+          )}
+          {!!reload && (
+            <ControlButton
+              disabled={viewValue !== "table"}
+              title="Recargar datos"
+              onClick={handleReload}
+              icon={<Icon type="reload" />}
+            />
           )}
         </div>
       )}

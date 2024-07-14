@@ -10,11 +10,10 @@ class UsuarioController extends Controller
 {
     public function index()
     {
-        $users = Usuario::all();
         return response()->json([
             "status" => 200,
             "message" => "Usuarios obtenidos correctamente",
-            "data" => $users
+            "data" => Usuario::orderBy('id', 'asc')->get()
         ]);
     }
 

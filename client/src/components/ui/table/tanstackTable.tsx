@@ -67,9 +67,9 @@ const TanstackTable = forwardRef(
     return (
       <table
         ref={tableRef}
-        className="w-full flex flex-col gap-2 relative overflow-auto"
+        className="w-full flex flex-col gap-2 relative overflow-x-auto overflow-y-scroll"
       >
-        <thead className="sticky top-0">
+        <thead className="sticky top-0 z-10">
           {table.getHeaderGroups().map((group) => (
             <tr key={group.id} className="flex bg-bg min-w-fit">
               <th className="text-[12px] min-w-10 w-10 px-2 py-2 font-bold text-primary-900 text-center select-none">
@@ -106,7 +106,9 @@ const TanstackTable = forwardRef(
                     }}
                     title={header.column.columnDef.header?.toString()}
                   >
-                    <div className={twMerge("flex", center && "justify-center")}>
+                    <div
+                      className={twMerge("flex", center && "justify-center")}
+                    >
                       <p className="line-clamp-1">
                         {flexRender(
                           header.column.columnDef.header,
@@ -137,13 +139,19 @@ const TanstackTable = forwardRef(
         <tbody className="flex flex-col gap-2">
           {table.getRowModel().rows.map((row, i) => (
             <tr
-              className={`flex transition-all duration-300 bg-white rounded-lg border hover:bg-primary-700/10 min-w-fit`}
+              className={twMerge(
+                `flex transition-all duration-300 bg-white rounded-lg border min-w-fit`,
+                onClickRow
+                  ? onClickRow.disabled?.(row)
+                    ? ""
+                    : "hover:bg-primary-700/10 cursor-pointer"
+                  : ""
+              )}
               key={row.id}
             >
               <td
                 className={twMerge(
-                  `min-w-10 w-10 px-2 py-2 text-[12px] text-center text-neutral-800`,
-                  onClickRow ? "cursor-pointer" : ""
+                  `min-w-10 w-10 px-2 py-2 text-[12px] text-center text-neutral-800`
                 )}
               >
                 <div className="flex items-center h-full w-full justify-center">
@@ -157,8 +165,7 @@ const TanstackTable = forwardRef(
                 return (
                   <td
                     className={twMerge(
-                      `px-2 py-2 text-sm text-neutral-800`,
-                      onClickRow ? "cursor-pointer" : ""
+                      `px-2 py-2 text-sm text-neutral-800`
                     )}
                     key={cell.id}
                     onClick={() => handleClickRow(row.original)}
@@ -183,7 +190,12 @@ const TanstackTable = forwardRef(
                           : width,
                     }}
                   >
-                    <div className={twMerge("flex items-center h-full w-full", center && "justify-center")}>
+                    <div
+                      className={twMerge(
+                        "flex items-center h-full w-full",
+                        center && "justify-center"
+                      )}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

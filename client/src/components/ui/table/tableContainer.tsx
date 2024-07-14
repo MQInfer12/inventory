@@ -9,11 +9,16 @@ interface Props {
   data: any[] | undefined;
   columns: ColumnDef<any, any>[];
   reports?: boolean;
-  reload?: () => void;
+  reload?: (...props: any) => Promise<any>;
   add?: () => void;
   onClickRow?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
   edit?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
   del?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
+  button?: {
+    text: string;
+    icon: JSX.Element;
+    fn: () => void;
+  };
 }
 
 export type TableView = "table" | "PDF";
@@ -26,6 +31,7 @@ const TableContainer = ({
   add,
   onClickRow,
   del,
+  button,
   edit,
 }: Props) => {
   const [sorting, setSorting] = useState<any[]>([]);
@@ -44,6 +50,7 @@ const TableContainer = ({
         view={[view, setView]}
         reports={reports}
         show={data ? data.length > 0 : false}
+        button={button}
       />
       <div className="flex flex-1 overflow-auto w-full">
         {data ? (

@@ -15,7 +15,7 @@ import { QUERYKEYS } from "@/constants/queryKeys";
 const Users = () => {
   const keys = [QUERYKEYS.USUARIOS];
   const { user, setUser } = useUserContext();
-  const { data } = useGet<Usuario[]>(ENDPOINTS.USUARIO_INDEX, keys);
+  const { data, refetch } = useGet<Usuario[]>(ENDPOINTS.USUARIO_INDEX, keys);
   const { modal, openModal, closeModal } = useModal<Usuario>();
   const { setQueryData } = useMutateGet();
 
@@ -50,6 +50,7 @@ const Users = () => {
           fn: (row) => confirmAlert(() => send(row.id)),
           disabled: (row) => row.id === current || row.superadmin,
         }}
+        reload={refetch}
         columns={[
           {
             accessorFn: (row) =>

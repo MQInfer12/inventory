@@ -12,7 +12,7 @@ class CategoriaController extends Controller
         return response()->json([
             "status" => 200,
             "message" => "Categoría creada exitosamente",
-            "data" => Categoria::all()
+            "data" => Categoria::orderBy('id', 'asc')->get()
         ]);
     }
 

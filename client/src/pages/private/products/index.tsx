@@ -12,12 +12,31 @@ import { Producto } from "./types/api";
 import { QUERYKEYS } from "@/constants/queryKeys";
 import ZoomImage from "@/components/ui/zoomImage";
 import { getHttpImage } from "@/utils/http";
+import { twMerge } from "@/utils/twMerge";
+import Icon from "@/components/icons/icon";
+import {
+  ElementRef,
+  MutableRefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
+interface Transaction {
+  id: number;
+  city: "cbba" | "sc";
+  diff: number;
+}
 
 const Products = () => {
   const keys = [QUERYKEYS.PRODUCTOS];
-  const { data } = useGet<Producto[]>(ENDPOINTS.PRODUCTO_INDEX, keys);
+  const { data, refetch } = useGet<Producto[]>(ENDPOINTS.PRODUCTO_INDEX, keys);
   const { modal, openModal, closeModal } = useModal<Producto>();
   const { setQueryData } = useMutateGet();
+
+  const [inTransaction, setInTransaction] = useState(false);
+  const [transaction, setTransaction] = useState<Transaction[]>([]);
+  const focusRef = useRef<any>(null);
 
   const { send, current } = useRequest<number, number>(
     ENDPOINTS.PRODUCTO_DESTROY,
@@ -30,28 +49,78 @@ const Products = () => {
     }
   );
 
+  const handleChange = (id: number, city: "cbba" | "sc", value: string) => {
+    const product = data?.find((v) => v.id === id);
+    if (!product) return;
+    const val = value === "" ? "0" : value;
+    const exist = transaction.find((v) => v.id === id && v.city === city);
+    let diff = 0;
+    switch (city) {
+      case "cbba":
+        diff = Number(val) - product.stock_cbba;
+        break;
+      case "sc":
+        diff = Number(val) - product.stock_sc;
+        break;
+    }
+    if (exist) {
+      setTransaction((prev) =>
+        prev.map((v) => (v.id === id && v.city === city ? { ...v, diff } : v))
+      );
+    } else {
+      setTransaction((prev) => [
+        ...prev,
+        {
+          id,
+          city,
+          diff,
+        },
+      ]);
+    }
+    setTransaction((prev) => prev.filter((v) => v.diff !== 0));
+  };
+
+  useEffect(() => {
+    if (focusRef.current) {
+      const element = document.getElementById(focusRef.current);
+      element?.focus();
+    }
+  }, [transaction]);
+
   return (
     <Page>
       <TableContainer
         add={() => openModal()}
         onClickRow={{
           fn: (row) => openModal(row),
-          disabled: (row) => row.id === current,
+          disabled: (row) => row.id === current || inTransaction,
         }}
         edit={{
           fn: (row) => openModal(row),
-          disabled: (row) => row.id === current,
+          disabled: (row) => row.id === current || inTransaction,
         }}
         del={{
           fn: (row) => confirmAlert(() => send(row.id)),
-          disabled: (row) => row.id === current,
+          disabled: (row) => row.id === current || inTransaction,
         }}
+        button={{
+          text: inTransaction ? "Cancelar transacción" : "Iniciar transacción",
+          fn: () => setInTransaction((prev) => !prev),
+          icon: <Icon type="plusminus" />,
+        }}
+        reload={refetch}
+        data={data}
         columns={[
           {
-            accessorKey: "codigo",
+            accessorFn: (row) => row.codigo,
             header: "Código",
+            cell: ({ row: { original: v } }) => (
+              <p title={v.codigo} className="text-ellipsis overflow-hidden">
+                {v.codigo}
+              </p>
+            ),
             meta: {
-              width: "120px",
+              width: "88px",
             },
           },
           {
@@ -102,14 +171,11 @@ const Products = () => {
           },
           {
             header: "Precio CBBA.",
-            accessorFn: (row) => row.precio_cbba,
+            accessorKey: "precio_cbba",
             cell: ({ row: { original: v } }) => (
               <div className="flex w-full justify-end">
                 <div className="flex flex-col items-end">
-                  <strong
-                    title={v.descripcion}
-                    className="font-bold text-primary-950 text-xl w-full text-center"
-                  >
+                  <strong className="font-bold text-primary-950 text-xl w-full text-center">
                     {v.precio_cbba || "-"}{" "}
                     <span className="font-normal opacity-60 text-[12px]">
                       Bs.
@@ -132,14 +198,11 @@ const Products = () => {
           },
           {
             header: "Precio SC.",
-            accessorFn: (row) => row.precio_sc,
+            accessorKey: "precio_sc",
             cell: ({ row: { original: v } }) => (
               <div className="flex gap-2 w-full justify-end">
                 <div className="flex flex-col items-end">
-                  <strong
-                    title={v.descripcion}
-                    className="font-bold text-primary-950 text-xl w-full text-center"
-                  >
+                  <strong className="font-bold text-primary-950 text-xl w-full text-center">
                     {v.precio_sc || "-"}{" "}
                     <span className="font-normal opacity-60 text-[12px]">
                       Bs.
@@ -160,20 +223,47 @@ const Products = () => {
               center: true,
             },
           },
+          //region STOCKS
           {
             accessorKey: "stock_cbba",
             header: "Stock CBBA.",
-            cell: ({ row: { original: v } }) => (
-              <strong
-                title={v.descripcion}
-                className="line-clamp-2 font-bold text-primary-950 text-xl w-full text-center"
-              >
-                {v.stock_cbba}{" "}
-                <span className="font-normal opacity-60 text-[12px]">
-                  unidades
-                </span>
-              </strong>
-            ),
+            cell: ({ row: { original: v } }) => {
+              const stock = v.stock_cbba;
+              const agotado = v.stock_cbba === 0;
+              const tProd = transaction.find(
+                (t) => t.id === v.id && t.city === "cbba"
+              );
+              return (
+                <div
+                  className={twMerge(
+                    "flex flex-col items-center",
+                    agotado ? "text-rose-700" : "text-primary-950"
+                  )}
+                >
+                  {inTransaction ? (
+                    <input
+                      id={`cbba-${v.id}`}
+                      className="no-arrows font-bold text-xl text-primary-950 w-full outline-none text-center bg-transparent border-b"
+                      value={tProd ? stock + tProd.diff : stock}
+                      onChange={(e) =>
+                        handleChange(v.id, "cbba", e.target.value)
+                      }
+                      onClick={(e) => e.stopPropagation()}
+                      type="number"
+                      min={0}
+                      onFocus={(e) => (focusRef.current = e.target.id)}
+                    />
+                  ) : (
+                    <strong className="font-bold text-xl border-b border-transparent">
+                      {stock}{" "}
+                    </strong>
+                  )}
+                  <small className="font-normal opacity-60 text-[12px]">
+                    unidades
+                  </small>
+                </div>
+              );
+            },
             meta: {
               width: "140px",
               center: true,
@@ -182,25 +272,51 @@ const Products = () => {
           {
             accessorKey: "stock_sc",
             header: "Stock SC.",
-            cell: ({ row: { original: v } }) => (
-              <strong
-                title={v.descripcion}
-                className="line-clamp-2 font-bold text-primary-950 text-xl w-full text-center"
-              >
-                {v.stock_sc}{" "}
-                <span className="font-normal opacity-60 text-[12px]">
-                  unidades
-                </span>
-              </strong>
-            ),
+            cell: ({ row: { original: v } }) => {
+              const stock = v.stock_sc;
+              const agotado = v.stock_sc === 0;
+              const tProd = transaction.find(
+                (t) => t.id === v.id && t.city === "sc"
+              );
+              return (
+                <div
+                  className={twMerge(
+                    "flex flex-col items-center",
+                    agotado ? "text-rose-700" : "text-primary-950"
+                  )}
+                >
+                  {inTransaction ? (
+                    <input
+                      id={`sc-${v.id}`}
+                      className="no-arrows font-bold text-xl text-primary-950 w-full outline-none text-center bg-transparent border-b"
+                      value={tProd ? stock + tProd.diff : stock}
+                      onChange={(e) => handleChange(v.id, "sc", e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      type="number"
+                      min={0}
+                      onFocus={(e) => (focusRef.current = e.target.id)}
+                    />
+                  ) : (
+                    <strong className="font-bold text-xl border-b border-transparent">
+                      {v.stock_sc}{" "}
+                    </strong>
+                  )}
+                  <small className="font-normal opacity-60 text-[12px]">
+                    unidades
+                  </small>
+                </div>
+              );
+            },
             meta: {
               width: "140px",
               center: true,
             },
           },
         ]}
-        data={data}
       />
+      {inTransaction && (
+        <div className="h-40 bg-white border border-gray-300 rounded-lg shadow-xl"></div>
+      )}
       {modal("Formulario de producto", (item) => (
         <Form
           item={item}

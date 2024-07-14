@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 export const useGet = <Res,>(endpoint: ENDPOINTS, keys: string[]) => {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: keys,
     queryFn: async (): Promise<Res> => {
       const token = getAuthCookie();
@@ -21,5 +21,5 @@ export const useGet = <Res,>(endpoint: ENDPOINTS, keys: string[]) => {
     },
   });
 
-  return { data, loading: isLoading };
+  return { data, loading: isLoading, refetch };
 };

@@ -47,7 +47,7 @@ const FileInput = ({ defaultSrc, state }: Props) => {
         <ControlButton
           text="Cambiar"
           type="button"
-          icon={<Icon type="reload" />}
+          icon={<Icon type="photoadd" />}
           onClick={selectInput}
         />
       </div>

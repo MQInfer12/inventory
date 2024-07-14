@@ -13,7 +13,7 @@ import { QUERYKEYS } from "@/constants/queryKeys";
 
 const Shops = () => {
   const keys = [QUERYKEYS.TIENDAS];
-  const { data } = useGet<Tienda[]>(ENDPOINTS.TIENDA_INDEX, keys);
+  const { data, refetch } = useGet<Tienda[]>(ENDPOINTS.TIENDA_INDEX, keys);
   const { modal, openModal, closeModal } = useModal<Tienda>();
   const { setQueryData } = useMutateGet();
 
@@ -44,6 +44,7 @@ const Shops = () => {
           fn: (row) => confirmAlert(() => send(row.id)),
           disabled: (row) => row.id === current,
         }}
+        reload={refetch}
         columns={[
           {
             accessorKey: "nombre",
