@@ -28,6 +28,11 @@ svg {
   height: 8px;
 }
 
+.scroll-mini::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
 ::-webkit-scrollbar-track {
   @apply bg-gray-200;
   border-radius: 4px;

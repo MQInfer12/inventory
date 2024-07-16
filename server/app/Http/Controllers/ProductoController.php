@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Producto;
+use App\Models\ProductoCategoria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -30,7 +31,7 @@ class ProductoController extends Controller
 
     public function index()
     {
-        $productos =  Producto::orderBy('id', 'asc')->with('tienda')->get();
+        $productos =  Producto::orderBy('id', 'asc')->with('tienda')->with('categorias')->get();
         foreach ($productos as $producto) {
             $producto->porcentaje = $this->to_double_or_null($producto->porcentaje);
             $producto->piezas = $this->to_double_or_null($producto->piezas);
@@ -97,7 +98,23 @@ class ProductoController extends Controller
 
         $producto->save();
 
+        $categorias = json_decode($request->categorias, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return response()->json([
+                "status" => 500,
+                "message" => "Formato de categorías inválido",
+                "data" => null
+            ]);
+        }
+        foreach($categorias as $idCategoria){
+            $producto_categoria = new ProductoCategoria();
+            $producto_categoria->id_producto = $producto->id;
+            $producto_categoria->id_categoria = $idCategoria;
+            $producto_categoria->save();
+        }
+
         $producto->load('tienda');
+        $producto->load('categorias');
 
         return response()->json([
             "status" => 200,
@@ -108,7 +125,7 @@ class ProductoController extends Controller
 
     public function show(int $id)
     {
-        $tienda = Producto::with('tienda')->where('id', $id)->first();
+        $tienda = Producto::with('tienda')->with('categorias')->where('id', $id)->first();
 
         if(!$tienda) return response()->json([
             "status" => 404,
@@ -181,8 +198,30 @@ class ProductoController extends Controller
         }
 
         $producto->save();
-        
+
+        $categorias = json_decode($request->categorias, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return response()->json([
+                "status" => 500,
+                "message" => "Formato de categorías inválido",
+                "data" => null
+            ]);
+        }
+        $categoriasActuales = $producto->categorias->pluck('id')->toArray();
+        $categoriasParaAñadir = array_diff($categorias, $categoriasActuales);
+        $categoriasParaEliminar = array_diff($categoriasActuales, $categorias);
+        foreach ($categoriasParaAñadir as $idCategoria) {
+            $producto_categoria = new ProductoCategoria();
+            $producto_categoria->id_producto = $producto->id;
+            $producto_categoria->id_categoria = $idCategoria;
+            $producto_categoria->save();
+        }
+        ProductoCategoria::where('id_producto', $producto->id)
+            ->whereIn('id_categoria', $categoriasParaEliminar)
+            ->delete();
+
         $producto->load('tienda');
+        $producto->load('categorias');
 
         return response()->json([
             "status" => 200,

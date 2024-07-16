@@ -12,6 +12,8 @@ import { Tienda } from "../../shops/types/api";
 import { QUERYKEYS } from "@/constants/queryKeys";
 import FileInput from "@/components/ui/fileInput";
 import { getHttpImage } from "@/utils/http";
+import Multicheck from "@/components/ui/multicheck";
+import { Categoria } from "../../categories/types/api";
 
 interface Props {
   item: Producto | null;
@@ -22,6 +24,10 @@ const Form = ({ item, onSuccess }: Props) => {
   const { data: tiendas } = useGet<Tienda[]>(ENDPOINTS.TIENDA_INDEX, [
     QUERYKEYS.TIENDAS,
   ]);
+  const { data: categorias, loading: loadingCategorias } = useGet<Categoria[]>(
+    ENDPOINTS.CATEGORIA_INDEX,
+    [QUERYKEYS.CATEGORIAS]
+  );
   const { send, loading } = useRequest<Producto, FormData>(
     item
       ? ENDPOINTS.PRODUCTO_UPDATE + item.id + "?_method=PUT"
@@ -51,6 +57,7 @@ const Form = ({ item, onSuccess }: Props) => {
       ? String(item.precio_oferta_sc)
       : "",
     id_tienda: item?.id_tienda ? String(item.id_tienda) : "",
+    categorias: item?.categorias.map((v) => v.id) || [],
   });
 
   const handleSend = (e: FormEvent) => {
@@ -61,7 +68,10 @@ const Form = ({ item, onSuccess }: Props) => {
       formData.append("foto", file);
     }
     for (const key in form) {
-      formData.append(key, form[key]);
+      const value = Array.isArray(form[key])
+        ? JSON.stringify(form[key])
+        : form[key];
+      formData.append(key, value);
     }
     send(formData);
   };
@@ -109,6 +119,23 @@ const Form = ({ item, onSuccess }: Props) => {
         onChange={(v) => setForm((prev) => ({ ...prev, detalle: v }))}
         title="Detalle"
         placeholder="Ingrese detalle"
+      />
+      <Multicheck
+        options={
+          categorias?.map((v) => ({
+            value: String(v.id),
+            text: v.descripcion,
+          })) || []
+        }
+        value={form.categorias.map((id) => String(id))}
+        onChange={(v) => {
+          setForm((prev) => ({
+            ...prev,
+            categorias: v.map((id) => Number(id)),
+          }));
+        }}
+        title="Categorías"
+        loading={loadingCategorias}
       />
       <div className="flex w-full flex-wrap gap-4">
         {!item && (

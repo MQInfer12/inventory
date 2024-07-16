@@ -1,5 +1,6 @@
 import { Timestamps } from "@/types/timestamps";
 import { Tienda } from "../../shops/types/api";
+import { Categoria } from "../../categories/types/api";
 
 export interface Producto extends Timestamps {
   id: number;
@@ -17,10 +18,11 @@ export interface Producto extends Timestamps {
   precio_sc: number | null;
   precio_oferta_sc: number | null;
   tienda: Tienda | null;
+  categorias: Categoria[];
 }
 
 export interface API_ProductoDTO {
-  [key: string]: string;
+  [key: string]: string | number[];
   id_tienda: string;
   codigo: string;
   descripcion: string;
@@ -34,4 +36,5 @@ export interface API_ProductoDTO {
   precio_oferta_cbba: string;
   precio_sc: string;
   precio_oferta_sc: string;
+  categorias: number[];
 }
