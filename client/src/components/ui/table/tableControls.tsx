@@ -20,6 +20,7 @@ interface Props {
     text: string;
     icon: JSX.Element;
     fn: () => void;
+    type?: "primary" | "secondary";
   };
 }
 
@@ -52,10 +53,11 @@ const TableControls = ({
   };
 
   return (
-    <div className="w-full flex pb-4 gap-4 justify-between">
-      <div className="flex gap-4">
+    <div className="w-full flex flex-wrap pb-4 gap-4 max-[872px]:gap-2 items-end">
+      <div className="flex gap-4 max-[872px]:gap-2">
         {!!add && (
           <ControlButton
+            hideOnScreen
             disabled={disableButtons || viewValue !== "table"}
             title="Añadir dato"
             onClick={add}
@@ -66,17 +68,64 @@ const TableControls = ({
         )}
         {button && (
           <ControlButton
+            hideOnScreen
             disabled={viewValue !== "table"}
             title={button.text}
             onClick={button.fn}
             icon={button.icon}
             text={button.text}
+            btnType={button.type || "secondary"}
           />
         )}
       </div>
       {show && (
-        <div className="flex gap-4">
-          <div className="relative">
+        <>
+          <div className="flex-[2_1_0] flex justify-end">
+            <div className="flex items-end gap-4 max-[872px]:gap-2">
+              {!!reload && (
+                <ControlButton
+                  disabled={disableButtons || viewValue !== "table"}
+                  title="Recargar datos"
+                  onClick={handleReload}
+                  icon={<Icon type="reload" />}
+                />
+              )}
+              {reports && (
+                <>
+                  <ControlButton
+                    hideOnScreen
+                    disabled={disableButtons || loading}
+                    title={viewValue === "PDF" ? "Ver tabla" : "Ver PDF"}
+                    onClick={() =>
+                      setView((old) => (old === "PDF" ? "table" : "PDF"))
+                    }
+                    icon={
+                      viewValue === "PDF" ? (
+                        <Icon type="list" />
+                      ) : (
+                        <Icon type="pdf" />
+                      )
+                    }
+                    text="PDF"
+                  />
+                  <DownloadTableExcel
+                    filename="tabla"
+                    sheet="tabla"
+                    currentTableRef={tableCurrentRef}
+                  >
+                    <ControlButton
+                      hideOnScreen
+                      disabled={disableButtons || loading}
+                      title="Exportar Excel"
+                      icon={<Icon type="excel" />}
+                      text="Excel"
+                    />
+                  </DownloadTableExcel>
+                </>
+              )}
+            </div>
+          </div>
+          <div className="relative flex-1">
             <div className="absolute left-0 top-2/4 -translate-y-2/4 aspect-square h-full p-2 pointer-events-none text-primary-700">
               <Icon type="search" />
             </div>
@@ -85,7 +134,7 @@ const TableControls = ({
               autoFocus
               disabled={viewValue !== "table"}
               className={twMerge(
-                "w-64 px-4 pl-8 rounded-lg h-8 outline-none text-sm border border-solid border-slate-300 text-neutral-700 placeholder:text-neutral-400 disabled:bg-slate-200 ring-primary-700/50 transition-all duration-300 ring-inset ring-0 focus:ring-2",
+                "w-full min-w-80 px-4 pl-8 rounded-lg h-8 outline-none text-sm border border-solid border-slate-300 text-neutral-700 placeholder:text-neutral-400 disabled:bg-slate-200 ring-primary-700/50 transition-all duration-300 ring-inset ring-0 focus:ring-2",
                 filterValue !== "" && "pr-8"
               )}
               type="text"
@@ -104,46 +153,7 @@ const TableControls = ({
               </div>
             )}
           </div>
-          {reports && (
-            <>
-              <ControlButton
-                disabled={disableButtons || loading}
-                title={viewValue === "PDF" ? "Ver tabla" : "Ver PDF"}
-                onClick={() =>
-                  setView((old) => (old === "PDF" ? "table" : "PDF"))
-                }
-                icon={
-                  viewValue === "PDF" ? (
-                    <Icon type="list" />
-                  ) : (
-                    <Icon type="pdf" />
-                  )
-                }
-                text="PDF"
-              />
-              <DownloadTableExcel
-                filename="tabla"
-                sheet="tabla"
-                currentTableRef={tableCurrentRef}
-              >
-                <ControlButton
-                  disabled={disableButtons || loading}
-                  title="Exportar Excel"
-                  icon={<Icon type="excel" />}
-                  text="Excel"
-                />
-              </DownloadTableExcel>
-            </>
-          )}
-          {!!reload && (
-            <ControlButton
-              disabled={disableButtons || viewValue !== "table"}
-              title="Recargar datos"
-              onClick={handleReload}
-              icon={<Icon type="reload" />}
-            />
-          )}
-        </div>
+        </>
       )}
     </div>
   );

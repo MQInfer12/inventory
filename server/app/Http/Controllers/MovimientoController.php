@@ -4,16 +4,55 @@ namespace App\Http\Controllers;
 
 use App\Models\Movimiento;
 use App\Models\Producto;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class MovimientoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $fechaInicio = $request->query('fechaInicio');
+        $fechaFinal = $request->query('fechaFinal');
+
+        $fechaInicioCarbon = null;
+        $fechaFinalCarbon = null;
+
+        if($fechaInicio) {
+            $fechaInicioCarbon = Carbon::parse($fechaInicio)->startOfDay();
+        }
+        if($fechaFinal) {
+            $fechaFinalCarbon = Carbon::parse($fechaFinal)->endOfDay();
+        }
+
+        if ($fechaInicioCarbon && $fechaFinalCarbon) {
+            if ($fechaInicioCarbon->gt($fechaFinalCarbon)) {
+                return response()->json([
+                    "status" => 500,
+                    "message" => "La fecha de inicio no puede ser mayor que la fecha final",
+                    "data" => []
+                ]);
+            }
+            if ($fechaFinalCarbon->lt($fechaInicioCarbon)) {
+                return response()->json([
+                    "status" => 500,
+                    "message" => "La fecha final no puede ser menor que la fecha de inicio",
+                    "data" => []
+                ]);
+            }
+        }
+
+        $query = Movimiento::with('producto')->orderBy('fecha', 'desc');
+        if ($fechaInicioCarbon) {
+            $query->where('fecha', '>=', $fechaInicioCarbon);
+        }
+        if ($fechaFinalCarbon) {
+            $query->where('fecha', '<=', $fechaFinalCarbon);
+        }
+        $movimientos = $query->get();
         return response()->json([
             "status" => 200,
             "message" => "Movimientos obtenidos correctamente",
-            "data" => Movimiento::orderBy('id', 'asc')->get()
+            "data" => $movimientos
         ]);
     }
 
@@ -29,7 +68,7 @@ class MovimientoController extends Controller
     */
     public function store(Request $request)
     {
-        $currentDateTime = now();
+        $currentDateTime = now()->subHours(4);
         $productos = [];
         foreach ($request->data as $transaction) {
             $id_producto = $transaction['id'];

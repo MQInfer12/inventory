@@ -52,14 +52,14 @@ const Login = () => {
       <Navbar />
       <section
         className={twMerge(
-          "w-full h-full flex flex-col items-center justify-center relative isolate bg-bg-800 transition-all duration-1000",
+          "w-full h-full flex flex-col items-center justify-center relative isolate bg-bg-800 transition-all duration-1000 px-10",
           logged ? "-translate-y-full" : "translate-y-0"
         )}
       >
         <div className="flex flex-col items-center mb-40">
           <img src={Logo} className="w-14 h-auto" alt="app-logo" />
           <h2 className="text-4xl text-white mt-6">Iniciar sesión</h2>
-          <p className="text-white/80 mt-8">
+          <p className="text-white/80 mt-8 text-center">
             ¡Inicia sesión y empieza a manejar tu inventario!
           </p>
           <form className="mt-12 flex flex-col gap-4 w-72">

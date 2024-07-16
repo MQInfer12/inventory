@@ -313,7 +313,7 @@ const Products = () => {
                         min={0}
                         onFocus={(e) => (focusRef.current = e.target.id)}
                       />
-                      <span className="text-primary-950 h-full hidden group-hover:block">
+                      <span className="text-primary-950 h-full hidden group-hover:block max-lg:block">
                         <div className="absolute h-full aspect-square left-0 top-0 flex-1 p-1">
                           <button
                             tabIndex={-1}
@@ -406,7 +406,7 @@ const Products = () => {
                         min={0}
                         onFocus={(e) => (focusRef.current = e.target.id)}
                       />
-                      <span className="text-primary-950 h-full hidden group-hover:block">
+                      <span className="text-primary-950 h-full hidden group-hover:block max-lg:block">
                         <div className="absolute h-full aspect-square left-0 top-0 flex-1 p-1">
                           <button
                             tabIndex={-1}

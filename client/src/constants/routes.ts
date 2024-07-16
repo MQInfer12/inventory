@@ -7,3 +7,13 @@ export enum ROUTES {
   SHOPS = ROUTES.HOME + "/shops",
   REPORTS = ROUTES.HOME + "/reports",
 }
+
+export const ROUTENAMES: Record<ROUTES, string> = {
+  [ROUTES.INDEX]: "Inicio",
+  [ROUTES.HOME]: "Home",
+  [ROUTES.PRODUCTS]: "Productos",
+  [ROUTES.USERS]: "Usuarios",
+  [ROUTES.CATEGORIES]: "Categorías",
+  [ROUTES.SHOPS]: "Tiendas",
+  [ROUTES.REPORTS]: "Reportes",
+} as const;

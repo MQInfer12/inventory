@@ -34,7 +34,9 @@ const TransactionFooter = ({
           <ul
             className={twMerge(
               "flex-1 border rounded-lg h-full flex flex-col p-2 gap-2 bg-bg",
-              transaction.length === 0 ? "overflow-hidden items-center justify-center" : "overflow-y-auto overflow-x-hidden"
+              transaction.length === 0
+                ? "overflow-hidden items-center justify-center"
+                : "overflow-y-auto overflow-x-hidden"
             )}
           >
             {transaction.length > 0 ? (
@@ -42,7 +44,7 @@ const TransactionFooter = ({
                 const product = productos.find((p) => p.id === v.id);
                 if (!product) return null;
                 return (
-                  <li className="flex items-center gap-2">
+                  <li key={product.id} className="flex items-center gap-2">
                     <div className="min-w-16">
                       <ZoomImage
                         width="64px"

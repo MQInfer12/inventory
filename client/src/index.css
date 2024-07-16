@@ -29,7 +29,8 @@ svg {
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-200/40;
+  @apply bg-gray-200;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {

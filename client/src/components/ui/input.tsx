@@ -9,6 +9,7 @@ interface Props {
   type?: string;
   dark?: boolean;
   required?: boolean;
+  disabled?: boolean;
 }
 
 const Input = ({
@@ -19,6 +20,7 @@ const Input = ({
   type = "text",
   dark,
   required,
+  disabled,
 }: Props) => {
   const id = useId();
 
@@ -43,9 +45,11 @@ const Input = ({
           "form-input text-sm w-full bg-bg-300 rounded-xl pl-4 py-2 outline-none ring-inset ring-0 focus:ring-2 transition-all duration-300 pr-10 border placeholder:font-medium font-medium",
           dark
             ? "bg-bg-200 text-white border-bg-800 placeholder:text-white/20 ring-primary-700"
-            : "bg-white text-black/80 border-gray-300 placeholder:text-black/40 ring-primary-700/50"
+            : "bg-white text-black/80 border-gray-300 placeholder:text-black/40 ring-primary-700/50",
+          "disabled:bg-gray-200"
         )}
         placeholder={placeholder}
+        disabled={disabled}
       />
     </div>
   );

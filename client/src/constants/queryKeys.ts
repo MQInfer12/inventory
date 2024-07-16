@@ -3,4 +3,5 @@ export enum QUERYKEYS {
   PRODUCTOS = "productos",
   TIENDAS = "tiendas",
   USUARIOS = "usuarios",
+  MOVIMIENTOS = "movimientos",
 }

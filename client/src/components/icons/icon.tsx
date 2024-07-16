@@ -13,6 +13,10 @@ import IconEmpty from "./iconEmpty";
 import IconPlusMinus from "./iconPlusMinus";
 import IconPhotoAdd from "./iconPhotoAdd";
 import IconArrowRight from "./iconArrowRight";
+import IconFilter from "./iconFilter";
+import IconCalendarToday from "./iconCalendarToday";
+import IconCalendarConfig from "./iconCalendarConfig";
+import IconCalendarAlways from "./iconCalendarAlways";
 
 type IconType =
   | "add"
@@ -24,12 +28,18 @@ type IconType =
   | "list"
   | "up"
   | "down"
+  | "left"
+  | "right"
   | "edit"
   | "delete"
   | "empty"
   | "plusminus"
   | "photoadd"
-  | "arrowright";
+  | "arrowright"
+  | "filter"
+  | "calendartoday"
+  | "calendaralways"
+  | "calendarconfig";
 
 interface Props {
   type: IconType;
@@ -45,14 +55,20 @@ const Icon = ({ type }: Props) => {
       reload: <IconReload />,
       search: <IconSearch />,
       x: <IconX />,
-      up: <IconUpDown />,
-      down: <IconUpDown down />,
+      up: <IconUpDown type="up" />,
+      down: <IconUpDown type="down" />,
+      left: <IconUpDown type="left" />,
+      right: <IconUpDown type="right" />,
       delete: <IconDelete />,
       edit: <IconEdit />,
       empty: <IconEmpty />,
       plusminus: <IconPlusMinus />,
       photoadd: <IconPhotoAdd />,
-      arrowright: <IconArrowRight />
+      arrowright: <IconArrowRight />,
+      filter: <IconFilter />,
+      calendartoday: <IconCalendarToday />,
+      calendarconfig: <IconCalendarConfig />,
+      calendaralways: <IconCalendarAlways />,
     }),
     []
   );

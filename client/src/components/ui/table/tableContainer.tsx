@@ -5,26 +5,28 @@ import { ColumnDef } from "@tanstack/react-table";
 import Loader from "../loader/loader";
 import Nothing from "../loader/nothing";
 
-interface Props {
-  data: any[] | undefined;
-  columns: ColumnDef<any, any>[];
+interface Props<T> {
+  data: T[] | undefined;
+  columns: ColumnDef<T, any>[];
   disableButtons?: boolean;
   reports?: boolean;
   reload?: (...props: any) => Promise<any>;
   add?: () => void;
-  onClickRow?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
-  edit?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
-  del?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
+  onClickRow?: { fn: (row: T) => void; disabled?: (row: T) => boolean };
+  edit?: { fn: (row: T) => void; disabled?: (row: T) => boolean };
+  del?: { fn: (row: T) => void; disabled?: (row: T) => boolean };
   button?: {
     text: string;
     icon: JSX.Element;
     fn: () => void;
+    type?: "primary" | "secondary";
   };
+  distinctOn?: string;
 }
 
 export type TableView = "table" | "PDF";
 
-const TableContainer = ({
+const TableContainer = <T,>({
   data,
   columns,
   reports = true,
@@ -34,8 +36,9 @@ const TableContainer = ({
   del,
   button,
   edit,
-  disableButtons = false
-}: Props) => {
+  distinctOn,
+  disableButtons = false,
+}: Props<T>) => {
   const [sorting, setSorting] = useState<any[]>([]);
   const [filter, setFilter] = useState("");
   const [view, setView] = useState<TableView>("table");
@@ -70,6 +73,7 @@ const TableContainer = ({
               view={view}
               del={del}
               edit={edit}
+              distinctOn={distinctOn}
             />
           ) : (
             <Nothing />
