@@ -37,6 +37,7 @@ const Reports = () => {
     },
     save: false,
   });
+
   const { modal, openModal, closeModal } = useModal();
 
   return (
@@ -85,16 +86,17 @@ const Reports = () => {
           text: "Filtros",
           type: "primary",
         }}
+        opacityOn={(row) => !row.producto}
         columns={[
           {
-            accessorFn: (row) => row.producto.codigo,
+            accessorFn: (row) => row.producto?.codigo,
             header: "Código",
             cell: ({ row: { original: v } }) => (
               <p
-                title={v.producto.codigo}
+                title={v.producto?.codigo}
                 className="text-ellipsis overflow-hidden"
               >
-                {v.producto.codigo}
+                {v.producto?.codigo || "N/A"}
               </p>
             ),
             meta: {
@@ -107,7 +109,7 @@ const Reports = () => {
               <div className="w-full flex justify-center">
                 <ZoomImage
                   title="Foto del producto"
-                  src={getHttpImage(v.producto.foto)}
+                  src={getHttpImage(v.producto?.foto)}
                   width="64px"
                   height="64px"
                 />
@@ -119,17 +121,17 @@ const Reports = () => {
           },
           {
             accessorFn: (row) =>
-              row.producto.descripcion + " " + row.producto.detalle,
+              row.producto?.descripcion + " " + row.producto?.detalle,
             header: "Descripción",
             cell: ({ row: { original: v } }) => {
-              const detalle = v.producto.detalle || null;
+              const detalle = v.producto?.detalle || null;
               return (
                 <div className="flex flex-col gap-[2px]">
                   <strong
-                    title={v.producto.descripcion}
+                    title={v.producto?.descripcion || "Producto eliminado"}
                     className="line-clamp-2 font-semibold text-black/80 text-balance"
                   >
-                    {v.producto.descripcion}
+                    {v.producto?.descripcion || "Producto eliminado"}
                   </strong>
                   <p className="line-clamp-1 text-black/60 font-medium">
                     {detalle && (

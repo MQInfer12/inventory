@@ -22,6 +22,7 @@ interface Props<T> {
     type?: "primary" | "secondary";
   };
   distinctOn?: string;
+  opacityOn?: (row: T) => boolean;
 }
 
 export type TableView = "table" | "PDF";
@@ -38,6 +39,7 @@ const TableContainer = <T,>({
   edit,
   distinctOn,
   disableButtons = false,
+  opacityOn
 }: Props<T>) => {
   const [sorting, setSorting] = useState<any[]>([]);
   const [filter, setFilter] = useState("");
@@ -74,6 +76,7 @@ const TableContainer = <T,>({
               del={del}
               edit={edit}
               distinctOn={distinctOn}
+              opacityOn={opacityOn}
             />
           ) : (
             <Nothing />

@@ -193,6 +193,15 @@ class ProductoController extends Controller
 
     public function destroy(int $id)
     {
+        $producto = Producto::where('id', $id)->first();
+        if(!$producto) return response()->json([
+            "status" => 404,
+            "message" => "Producto no encontrado",
+            "data" => null
+        ]);
+        if ($producto->foto) {
+            Storage::delete('public/' . $producto->foto);
+        }
         $producto = Producto::destroy($id);
         return response()->json([
             "status" => $producto > 0 ? 200 : 404,

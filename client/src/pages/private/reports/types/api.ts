@@ -7,5 +7,5 @@ export interface Movimiento extends Timestamps {
   cantidad_cbba: number;
   cantidad_sc: number;
   fecha: string;
-  producto: Producto;
+  producto: Producto | null;
 }

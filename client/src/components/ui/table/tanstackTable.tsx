@@ -25,6 +25,7 @@ interface Props {
   edit?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
   del?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
   distinctOn?: string;
+  opacityOn?: (row: any) => boolean;
 }
 
 const TanstackTable = forwardRef(
@@ -41,6 +42,7 @@ const TanstackTable = forwardRef(
       del,
       edit,
       distinctOn,
+      opacityOn,
     }: Props,
     tableRef: React.ForwardedRef<HTMLTableElement>
   ) => {
@@ -151,6 +153,7 @@ const TanstackTable = forwardRef(
               if (lastValue !== row.original[distinctOn]) counter++;
               lastValue = row.original[distinctOn];
             }
+            const withOpacity = !!opacityOn?.(row.original);
             return (
               <tr
                 className={twMerge(
@@ -160,7 +163,8 @@ const TanstackTable = forwardRef(
                       ? ""
                       : "hover:bg-primary-50 cursor-pointer"
                     : "",
-                  distinctOn ? classes[counter % classes.length] : "bg-white"
+                  distinctOn ? classes[counter % classes.length] : "bg-white",
+                  withOpacity && "opacity-40"
                 )}
                 key={row.id}
               >
