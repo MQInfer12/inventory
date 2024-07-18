@@ -8,7 +8,7 @@ import { ROUTES } from "@/constants/routes";
 import { useRequest } from "@/hooks/useRequest";
 import { twMerge } from "@/utils/twMerge";
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { API_LoginDTO, API_LoginRes } from "./types/api";
 import { setAuthCookie } from "@/utils/authCookie";
 import { useUserContext } from "@/context/userContext";
@@ -18,7 +18,7 @@ import { FormEvent } from "@/types/formEvent";
 const Login = () => {
   const navigate = useNavigate();
 
-  const { state, setUserLogin } = useUserContext();
+  const { setUserLogin } = useUserContext();
   const [logged, setLogged] = useState(false);
   const [form, setForm] = useState({
     usuario: "",
@@ -45,8 +45,6 @@ const Login = () => {
     send(form);
   };
 
-  if (state === "loading" || state === "logged")
-    return <Navigate to={ROUTES.HOME} />;
   return (
     <>
       <Navbar />
@@ -57,7 +55,7 @@ const Login = () => {
         )}
       >
         <div className="flex flex-col items-center mb-40">
-          <img src={Logo} className="w-14 h-auto" alt="app-logo" />
+          <img src={Logo} className="black-logo w-14 h-auto" alt="app-logo" />
           <h2 className="text-4xl text-white mt-6">Iniciar sesión</h2>
           <p className="text-white/80 mt-8 text-center">
             ¡Inicia sesión y empieza a manejar tu inventario!

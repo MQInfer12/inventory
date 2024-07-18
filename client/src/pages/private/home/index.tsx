@@ -1,13 +1,8 @@
 import { ROUTES } from "@/constants/routes";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 const Home = () => {
-  const navigate = useNavigate();
-  useEffect(() => {
-    navigate(ROUTES.PRODUCTS);
-  }, []);
-  return null;
+  return <Navigate to={ROUTES.PRODUCTS} />;
 };
 
 export default Home;

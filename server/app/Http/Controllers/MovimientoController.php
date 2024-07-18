@@ -13,6 +13,7 @@ class MovimientoController extends Controller
     {
         $fechaInicio = $request->query('fechaInicio');
         $fechaFinal = $request->query('fechaFinal');
+        $categorias = $request->query('categories');
 
         $fechaInicioCarbon = null;
         $fechaFinalCarbon = null;
@@ -48,6 +49,21 @@ class MovimientoController extends Controller
         if ($fechaFinalCarbon) {
             $query->where('fecha', '<=', $fechaFinalCarbon);
         }
+
+        if ($categorias) {
+            $categorias = json_decode($categorias, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json([
+                    "status" => 500,
+                    "message" => "Formato de categorías inválido",
+                    "data" => null
+                ]);
+            }
+            $query->whereHas('producto.categorias', function ($q) use ($categorias) {
+                $q->whereIn('id_categoria', $categorias);
+            });
+        }
+
         $movimientos = $query->get();
         return response()->json([
             "status" => 200,

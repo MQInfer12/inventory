@@ -80,7 +80,7 @@ const TableControls = ({
       </div>
       {show && (
         <>
-          <div className="flex-[2_1_0] flex justify-end">
+          <div className="flex-[9999_1_0] flex justify-end">
             <div className="flex items-end gap-4 max-[872px]:gap-2">
               {!!reload && (
                 <ControlButton
@@ -125,7 +125,7 @@ const TableControls = ({
               )}
             </div>
           </div>
-          <div className="relative flex-1">
+          <div className="relative flex-[1_1_0]">
             <div className="absolute left-0 top-2/4 -translate-y-2/4 aspect-square h-full p-2 pointer-events-none text-primary-700">
               <Icon type="search" />
             </div>

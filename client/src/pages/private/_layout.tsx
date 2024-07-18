@@ -5,11 +5,16 @@ import { ROUTES } from "@/constants/routes";
 import { useUserContext } from "@/context/userContext";
 import { useRequest } from "@/hooks/useRequest";
 import { User } from "@/types/user";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 
-const Layout = () => {
+interface Props {
+  initialRoute: string;
+}
+
+const Layout = ({ initialRoute }: Props) => {
   const { setUser, state } = useUserContext();
+  const [loadedRoute, setLoadedRoute] = useState(false);
 
   const { send } = useRequest<User>(ENDPOINTS.ME, {
     method: "GET",
@@ -24,6 +29,12 @@ const Layout = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!loadedRoute && state !== "loading") {
+      setLoadedRoute(true);
+    }
+  }, [state]);
+
   if (state === "unlogged") return <Navigate to={ROUTES.INDEX} />;
   if (state === "loading")
     return (
@@ -31,6 +42,7 @@ const Layout = () => {
         <Loader text="Cargando datos de usuario..." />
       </div>
     );
+  if (!loadedRoute) return <Navigate to={initialRoute} />;
   return (
     <>
       <Navbar isDashboard />

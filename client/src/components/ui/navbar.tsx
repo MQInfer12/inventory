@@ -48,10 +48,14 @@ const Navbar = ({ isDashboard }: Props) => {
       )}
     >
       <div className="h-full px-12 relative flex items-center justify-between max-lg:px-4">
-        <div className="flex items-center">
-          <img src={Logo} alt="app-logo" />
-          <h1 className="text-white font-semibold max-[872px]:hidden">
-            ecruitify
+        <div className="flex items-center h-full gap-2">
+          <div className="black-logo h-10">
+            <img src={Logo} alt="app-logo" className="h-full" />
+          </div>
+          <h1 className="text-white font-semibold max-[872px]:hidden flex flex-col leading-none items-center text-sm">
+            <span>MULTIESTILOS</span>
+            <span>HOGAR</span>
+            <span className="text-xs">S.R.L.</span>
           </h1>
         </div>
         {isDashboard && (

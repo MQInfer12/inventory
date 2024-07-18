@@ -21,12 +21,14 @@ const Reports = () => {
     fechaFinal: getTodayUtc(),
     mode: "hoy",
   });
+  const [cats, setCats] = useState<number[]>([]);
   const [reloadCounter, setReloadCounter] = useState(0);
 
   const [keys, setKeys] = useState([
     QUERYKEYS.MOVIMIENTOS,
     fechas.fechaInicio,
     fechas.fechaFinal,
+    JSON.stringify(cats),
     String(reloadCounter),
   ]);
 
@@ -34,6 +36,7 @@ const Reports = () => {
     params: {
       fechaInicio: fechas.fechaInicio,
       fechaFinal: fechas.fechaFinal,
+      categories: cats.length > 0 ? JSON.stringify(cats) : "",
     },
     save: false,
   });
@@ -45,9 +48,10 @@ const Reports = () => {
       {modal("Filtros del reporte", () => (
         <Form
           defaultFechas={fechas}
-          onClose={(result) => {
-            const startDate = new Date(result.fechaInicio);
-            const endDate = new Date(result.fechaFinal);
+          defaultCats={cats}
+          onClose={(fechasRes, catsRes) => {
+            const startDate = new Date(fechasRes.fechaInicio);
+            const endDate = new Date(fechasRes.fechaFinal);
             if (startDate > endDate) {
               return toastError(
                 "La fecha de inicio no puede ser mayor que la fecha final"
@@ -58,11 +62,13 @@ const Reports = () => {
                 "La fecha final no puede ser menor que la fecha de inicio"
               );
             }
-            setFechas(result);
+            setFechas(fechasRes);
+            setCats(catsRes);
             setKeys([
               QUERYKEYS.MOVIMIENTOS,
-              result.fechaInicio,
-              result.fechaFinal,
+              fechasRes.fechaInicio,
+              fechasRes.fechaFinal,
+              JSON.stringify(catsRes),
               String(reloadCounter),
             ]);
             closeModal();
