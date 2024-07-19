@@ -39,6 +39,7 @@ const Form = ({ item, onSuccess }: Props) => {
   );
 
   const fileState = useState<File | null>(null);
+
   const [form, setForm] = useState<API_ProductoDTO>({
     codigo: item?.codigo || "",
     descripcion: item?.descripcion || "",
@@ -46,16 +47,18 @@ const Form = ({ item, onSuccess }: Props) => {
     foto: item?.foto || "",
     piezas: item?.piezas ? String(item.piezas) : "",
     porcentaje: item?.porcentaje ? String(item.porcentaje) : "",
-    stock_cbba: item?.stock_cbba ? String(item.stock_cbba) : "",
+
+    stock_cbba: item ? String(item.stock_cbba) : "",
     precio_cbba: item?.precio_cbba ? String(item.precio_cbba) : "",
     precio_oferta_cbba: item?.precio_oferta_cbba
       ? String(item.precio_oferta_cbba)
       : "",
-    stock_sc: item?.stock_sc ? String(item.stock_sc) : "",
+    stock_sc: item ? String(item.stock_sc) : "",
     precio_sc: item?.precio_sc ? String(item.precio_sc) : "",
     precio_oferta_sc: item?.precio_oferta_sc
       ? String(item.precio_oferta_sc)
       : "",
+
     id_tienda: item?.id_tienda ? String(item.id_tienda) : "",
     categorias: item?.categorias.map((v) => v.id) || [],
   });

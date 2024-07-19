@@ -40,4 +40,5 @@ Route::group(['middleware' => ["auth:sanctum"]], function () {
     Route::post('/movimiento', [MovimientoController::class, 'store']);
 });
 
+Route::get('/', [UsuarioController::class, 'index_route']);
 Route::post('/login', [UsuarioController::class, 'login']);

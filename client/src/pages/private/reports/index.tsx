@@ -14,6 +14,7 @@ import { useState } from "react";
 import { CalendarStateMode } from "./components/calendar";
 import { getTodayUtc } from "@/utils/getTodayUtc";
 import { toastError } from "@/utils/toasts";
+import FontedText from "@/components/ui/table/pdf/fontedText";
 
 const Reports = () => {
   const [fechas, setFechas] = useState<CalendarStateMode>({
@@ -21,14 +22,19 @@ const Reports = () => {
     fechaFinal: getTodayUtc(),
     mode: "hoy",
   });
-  const [cats, setCats] = useState<number[]>([]);
+  const [cats, setCats] = useState<
+    {
+      id: number;
+      name: string;
+    }[]
+  >([]);
   const [reloadCounter, setReloadCounter] = useState(0);
 
   const [keys, setKeys] = useState([
     QUERYKEYS.MOVIMIENTOS,
     fechas.fechaInicio,
     fechas.fechaFinal,
-    JSON.stringify(cats),
+    JSON.stringify(cats.map((c) => c.id)),
     String(reloadCounter),
   ]);
 
@@ -36,7 +42,7 @@ const Reports = () => {
     params: {
       fechaInicio: fechas.fechaInicio,
       fechaFinal: fechas.fechaFinal,
-      categories: cats.length > 0 ? JSON.stringify(cats) : "",
+      categories: cats.length > 0 ? JSON.stringify(cats.map((c) => c.id)) : "",
     },
     save: false,
   });
@@ -48,7 +54,7 @@ const Reports = () => {
       {modal("Filtros del reporte", () => (
         <Form
           defaultFechas={fechas}
-          defaultCats={cats}
+          defaultCats={cats.map((c) => c.id)}
           onClose={(fechasRes, catsRes) => {
             const startDate = new Date(fechasRes.fechaInicio);
             const endDate = new Date(fechasRes.fechaFinal);
@@ -68,7 +74,7 @@ const Reports = () => {
               QUERYKEYS.MOVIMIENTOS,
               fechasRes.fechaInicio,
               fechasRes.fechaFinal,
-              JSON.stringify(catsRes),
+              JSON.stringify(catsRes.map((c) => c.id)),
               String(reloadCounter),
             ]);
             closeModal();
@@ -76,12 +82,14 @@ const Reports = () => {
         />
       ))}
       <TableContainer
+        name="Movimientos"
         reload={async () => {
           setReloadCounter((prev) => prev + 1);
           setKeys([
             QUERYKEYS.MOVIMIENTOS,
             fechas.fechaInicio,
             fechas.fechaFinal,
+            JSON.stringify(cats.map((c) => c.id)),
             String(reloadCounter + 1),
           ]);
         }}
@@ -93,18 +101,39 @@ const Reports = () => {
           type: "primary",
         }}
         opacityOn={(row) => !row.producto}
-        columns={[
+        pdfData={[
+          {
+            title: "Fecha",
+            value:
+              fechas.fechaInicio && fechas.fechaFinal
+                ? `Desde ${fechas.fechaInicio} hasta ${fechas.fechaFinal}`
+                : fechas.fechaInicio
+                ? `Desde ${fechas.fechaInicio}`
+                : fechas.fechaFinal
+                ? `Hasta ${fechas.fechaFinal}`
+                : "Siempre",
+          },
+          {
+            title: "Categorías",
+            value:
+              cats.length > 0 ? cats.map((c) => c.name).join(", ") : "Todas",
+          },
+        ]}
+        columns={(isPDF) => [
           {
             accessorFn: (row) => row.producto?.codigo,
             header: "Código",
-            cell: ({ row: { original: v } }) => (
-              <p
-                title={v.producto?.codigo}
-                className="text-ellipsis overflow-hidden"
-              >
-                {v.producto?.codigo || "N/A"}
-              </p>
-            ),
+            cell: ({ row: { original: v } }) =>
+              !isPDF ? (
+                <p
+                  title={v.producto?.codigo}
+                  className="text-ellipsis overflow-hidden"
+                >
+                  {v.producto?.codigo || "N/A"}
+                </p>
+              ) : (
+                <FontedText>{v.producto?.codigo}</FontedText>
+              ),
             meta: {
               width: "88px",
             },
@@ -123,6 +152,7 @@ const Reports = () => {
             ),
             meta: {
               width: "80px",
+              showPDF: false,
             },
           },
           {
@@ -131,7 +161,7 @@ const Reports = () => {
             header: "Descripción",
             cell: ({ row: { original: v } }) => {
               const detalle = v.producto?.detalle || null;
-              return (
+              return !isPDF ? (
                 <div className="flex flex-col gap-[2px]">
                   <strong
                     title={v.producto?.descripcion || "Producto eliminado"}
@@ -145,6 +175,10 @@ const Reports = () => {
                     )}
                   </p>
                 </div>
+              ) : (
+                <FontedText>
+                  {v.producto?.descripcion || "Producto eliminado"}
+                </FontedText>
               );
             },
           },
@@ -152,7 +186,7 @@ const Reports = () => {
             accessorKey: "cantidad_cbba",
             header: "Mov. CBBA.",
             cell: ({ row: { original: v } }) => {
-              return (
+              return !isPDF ? (
                 <div
                   className={twMerge(
                     "flex flex-col items-center transition-all duration-300",
@@ -169,6 +203,14 @@ const Reports = () => {
                     unidades
                   </small>
                 </div>
+              ) : (
+                <FontedText>
+                  {v.cantidad_cbba === 0
+                    ? ``
+                    : `${v.cantidad_cbba > 0 ? "+" : ""}${
+                        v.cantidad_cbba
+                      } unidades`}
+                </FontedText>
               );
             },
             meta: {
@@ -180,7 +222,7 @@ const Reports = () => {
             accessorKey: "cantidad_sc",
             header: "Mov. SC.",
             cell: ({ row: { original: v } }) => {
-              return (
+              return !isPDF ? (
                 <div
                   className={twMerge(
                     "flex flex-col items-center transition-all duration-300",
@@ -197,6 +239,14 @@ const Reports = () => {
                     unidades
                   </small>
                 </div>
+              ) : (
+                <FontedText>
+                  {v.cantidad_sc === 0
+                    ? ``
+                    : `${v.cantidad_sc > 0 ? "+" : ""}${
+                        v.cantidad_sc
+                      } unidades`}
+                </FontedText>
               );
             },
             meta: {
@@ -208,7 +258,7 @@ const Reports = () => {
             accessorKey: "fecha",
             header: "Fecha",
             cell: ({ row: { original: v } }) => {
-              return (
+              return !isPDF ? (
                 <div className="flex flex-col items-center transition-all duration-300 text-primary-950">
                   <strong className="font-bold text-base border-b border-transparent">
                     {v.fecha.split(" ")[0]}{" "}
@@ -217,6 +267,13 @@ const Reports = () => {
                     {v.fecha.split(" ")[1]}
                   </small>
                 </div>
+              ) : (
+                <FontedText>
+                  {v.fecha.split(" ")[0]}{" "}
+                  <FontedText style={{ fontSize: 8 }}>
+                    {v.fecha.split(" ")[1]}
+                  </FontedText>
+                </FontedText>
               );
             },
             meta: {

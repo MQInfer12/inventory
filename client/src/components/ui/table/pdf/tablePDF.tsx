@@ -1,32 +1,28 @@
-import {
-  Document,
-  PDFViewer,
-  Page,
-  StyleSheet,
-  View,
-} from "@react-pdf/renderer";
+import { StyleSheet, View } from "@react-pdf/renderer";
 import TablePDFRow from "./tablePDFRow";
 import TablePDFHeader from "./tablePDFHeader";
 import { Table } from "@tanstack/react-table";
+import PDFLayout from "./pdfLayout";
 
 interface Props {
+  name: string;
   table: Table<any>;
+  data: {
+    title: string;
+    value: string;
+  }[];
 }
 
-const TablePDF = ({ table }: Props) => {
+const TablePDF = ({ table, data, name }: Props) => {
   return (
-    <PDFViewer width={"100%"} height={"100%"}>
-      <Document>
-        <Page>
-          <View style={styles.tableContainer}>
-            {table.getHeaderGroups().map((group) => (
-              <TablePDFHeader key={group.id} headers={group.headers} />
-            ))}
-            <TablePDFRow rows={table.getRowModel().rows} />
-          </View>
-        </Page>
-      </Document>
-    </PDFViewer>
+    <PDFLayout data={data} title={name}>
+      <View style={styles.tableContainer}>
+        {table.getHeaderGroups().map((group) => (
+          <TablePDFHeader key={group.id} headers={group.headers} />
+        ))}
+        <TablePDFRow rows={table.getRowModel().rows} />
+      </View>
+    </PDFLayout>
   );
 };
 
@@ -36,6 +32,6 @@ const styles = StyleSheet.create({
   tableContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    padding: 20
+    marginTop: 8,
   },
 });

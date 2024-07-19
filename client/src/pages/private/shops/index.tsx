@@ -31,6 +31,7 @@ const Shops = () => {
   return (
     <Page>
       <TableContainer
+        name="Tiendas"
         add={() => openModal()}
         onClickRow={{
           fn: (row) => openModal(row),

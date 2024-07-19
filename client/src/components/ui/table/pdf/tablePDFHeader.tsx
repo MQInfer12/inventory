@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import { StyleSheet, View } from "@react-pdf/renderer";
 import { Header, flexRender } from "@tanstack/react-table";
+import FontedText from "./fontedText";
 
 interface Props {
   headers: Header<any, unknown>[];
@@ -8,11 +9,15 @@ interface Props {
 const TablePDFHeader = ({ headers }: Props) => {
   return (
     <View style={styles.row}>
-      {headers.map((header) => (
-        <Text key={header.id} style={styles.header}>
-          {flexRender(header.column.columnDef.header, header.getContext())}
-        </Text>
-      ))}
+      {headers.map((header) => {
+        const showPDF = header.column.columnDef.meta?.showPDF ?? true;
+        if (!showPDF) return null;
+        return (
+          <FontedText key={header.id} style={styles.header}>
+            {flexRender(header.column.columnDef.header, header.getContext())}
+          </FontedText>
+        );
+      })}
     </View>
   );
 };
@@ -34,5 +39,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     paddingVertical: 2,
     color: "#262626",
+    fontWeight: 700,
   },
 });

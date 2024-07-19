@@ -36,6 +36,7 @@ const Categories = () => {
   return (
     <Page>
       <TableContainer
+        name="Categorías"
         add={() => openModal()}
         onClickRow={{
           fn: (row) => openModal(row),

@@ -19,5 +19,21 @@ Route::get("/", function () {
 });
 
 /* Route::get('/foo', function () {
-    return bcrypt("123456");
+    Artisan::call("storage:link");
+    return "foo";
+}); */
+
+/* Route::get('/a', function () {
+    $res = Artisan::call("migrate:reset");
+    return $res;
+});
+
+Route::get('/b', function () {
+    $res = Artisan::call("migrate");
+    return $res;
+});
+
+Route::get('/c', function () {
+    $res = Artisan::call("db:seed");
+    return $res;
 }); */

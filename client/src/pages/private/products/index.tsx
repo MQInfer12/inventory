@@ -16,6 +16,7 @@ import { twMerge } from "@/utils/twMerge";
 import Icon from "@/components/icons/icon";
 import { useEffect, useRef, useState } from "react";
 import TransactionFooter from "./components/transactionFooter";
+import { Text } from "@react-pdf/renderer";
 
 export interface Transaction {
   id: number;
@@ -134,6 +135,7 @@ const Products = () => {
   return (
     <Page>
       <TableContainer
+        name="Productos"
         add={() => openModal()}
         onClickRow={{
           fn: (row) => openModal(row),
@@ -160,43 +162,51 @@ const Products = () => {
         reload={refetch}
         data={data}
         disableButtons={inTransaction}
-        columns={[
+        columns={(isPDF) => [
+          //region CÓDIGO
           {
             accessorFn: (row) => row.codigo,
             header: "Código",
-            cell: ({ row: { original: v } }) => (
-              <p title={v.codigo} className="text-ellipsis overflow-hidden">
-                {v.codigo}
-              </p>
-            ),
+            cell: ({ row: { original: v } }) =>
+              isPDF ? (
+                <Text>{v.codigo}</Text>
+              ) : (
+                <p title={v.codigo} className="text-ellipsis overflow-hidden">
+                  {v.codigo}
+                </p>
+              ),
             meta: {
               width: "88px",
               sticky: true,
             },
           },
+          //region FOTO
           {
             header: "Foto",
-            cell: ({ row: { original: v } }) => (
-              <div className="w-full flex justify-center">
-                <ZoomImage
-                  title="Foto del producto"
-                  src={getHttpImage(v.foto)}
-                  width="64px"
-                  height="64px"
-                />
-              </div>
-            ),
+            cell: ({ row: { original: v } }) =>
+              !isPDF && (
+                <div className="w-full flex justify-center">
+                  <ZoomImage
+                    title="Foto del producto"
+                    src={getHttpImage(v.foto)}
+                    width="64px"
+                    height="64px"
+                  />
+                </div>
+              ),
             meta: {
               width: "80px",
+              showPDF: false,
             },
           },
+          //region DESCRIPCIÓN
           {
             accessorFn: (row) => row.descripcion + " " + row.detalle,
             header: "Descripción",
             cell: ({ row: { original: v } }) => {
               const tienda = v.tienda ? `${v.tienda.nombre} ` : null;
               const detalle = v.detalle || null;
-              return (
+              return !isPDF ? (
                 <div className="flex flex-col gap-[2px]">
                   <strong
                     title={v.descripcion}
@@ -217,31 +227,42 @@ const Products = () => {
                     )}
                   </p>
                 </div>
+              ) : (
+                <Text>{v.descripcion}</Text>
               );
             },
           },
+          //region PRECIOS
           {
             header: "Precio CBBA.",
             accessorKey: "precio_cbba",
-            cell: ({ row: { original: v } }) => (
-              <div className="flex w-full justify-end">
-                <div className="flex flex-col items-end">
-                  <strong className="font-bold text-primary-950 text-xl w-full text-center">
-                    {v.precio_cbba || "-"}{" "}
-                    <span className="font-normal opacity-60 text-[12px]">
+            cell: ({ row: { original: v } }) =>
+              !isPDF ? (
+                <div className="flex w-full justify-end">
+                  <div className="flex flex-col items-end">
+                    <strong className="font-bold text-primary-950 text-xl w-full text-center">
+                      {v.precio_cbba || "-"}{" "}
+                      <span className="font-normal opacity-60 text-[12px]">
+                        Bs.
+                      </span>
+                    </strong>
+                    <span className="ont-normal opacity-60 text-[12px]">
+                      /{" "}
+                      <span className="text-primary-700 font-bold">
+                        {v.precio_oferta_cbba || "-"}
+                      </span>{" "}
                       Bs.
                     </span>
-                  </strong>
-                  <span className="ont-normal opacity-60 text-[12px]">
-                    /{" "}
-                    <span className="text-primary-700 font-bold">
-                      {v.precio_oferta_cbba || "-"}
-                    </span>{" "}
-                    Bs.
-                  </span>
+                  </div>
                 </div>
-              </div>
-            ),
+              ) : (
+                <Text>
+                  {v.precio_cbba || "-"} Bs. /{" "}
+                  <Text style={{ fontSize: 8 }}>
+                    {v.precio_oferta_cbba || "-"} Bs.
+                  </Text>
+                </Text>
+              ),
             meta: {
               width: "140px",
               center: true,
@@ -250,25 +271,33 @@ const Products = () => {
           {
             header: "Precio SC.",
             accessorKey: "precio_sc",
-            cell: ({ row: { original: v } }) => (
-              <div className="flex gap-2 w-full justify-end">
-                <div className="flex flex-col items-end">
-                  <strong className="font-bold text-primary-950 text-xl w-full text-center">
-                    {v.precio_sc || "-"}{" "}
+            cell: ({ row: { original: v } }) =>
+              !isPDF ? (
+                <div className="flex gap-2 w-full justify-end">
+                  <div className="flex flex-col items-end">
+                    <strong className="font-bold text-primary-950 text-xl w-full text-center">
+                      {v.precio_sc || "-"}{" "}
+                      <span className="font-normal opacity-60 text-[12px]">
+                        Bs.
+                      </span>
+                    </strong>
                     <span className="font-normal opacity-60 text-[12px]">
+                      /{" "}
+                      <span className="text-primary-700 font-bold">
+                        {v.precio_oferta_sc || "-"}
+                      </span>{" "}
                       Bs.
                     </span>
-                  </strong>
-                  <span className="font-normal opacity-60 text-[12px]">
-                    /{" "}
-                    <span className="text-primary-700 font-bold">
-                      {v.precio_oferta_sc || "-"}
-                    </span>{" "}
-                    Bs.
-                  </span>
+                  </div>
                 </div>
-              </div>
-            ),
+              ) : (
+                <Text>
+                  {v.precio_sc || "-"} Bs. /{" "}
+                  <Text style={{ fontSize: 8 }}>
+                    {v.precio_oferta_sc || "-"} Bs.
+                  </Text>
+                </Text>
+              ),
             meta: {
               width: "140px",
               center: true,
@@ -288,7 +317,7 @@ const Products = () => {
               const hasChanged = tProd
                 ? stock + tProd.diff_cbba !== stock
                 : false;
-              return (
+              return !isPDF ? (
                 <div
                   className={twMerge(
                     "flex flex-col items-center transition-all duration-300",
@@ -361,6 +390,8 @@ const Products = () => {
                     unidades
                   </small>
                 </div>
+              ) : (
+                <Text>{stock > 0 ? `${stock} unidades` : "Agotado"}</Text>
               );
             },
             meta: {
@@ -381,7 +412,7 @@ const Products = () => {
               const hasChanged = tProd
                 ? stock + tProd.diff_sc !== stock
                 : false;
-              return (
+              return !isPDF ? (
                 <div
                   className={twMerge(
                     "flex flex-col items-center",
@@ -454,6 +485,8 @@ const Products = () => {
                     unidades
                   </small>
                 </div>
+              ) : (
+                <Text>{stock > 0 ? `${stock} unidades` : "Agotado"}</Text>
               );
             },
             meta: {

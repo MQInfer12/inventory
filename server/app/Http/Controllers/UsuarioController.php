@@ -8,6 +8,15 @@ use Illuminate\Support\Facades\Hash;
 
 class UsuarioController extends Controller
 {
+    public function index_route()
+    {
+        return response()->json([
+            "status" => 200,
+            "message" => "Inventario backend working",
+            "data" => null
+        ]);
+    }
+
     public function index()
     {
         return response()->json([

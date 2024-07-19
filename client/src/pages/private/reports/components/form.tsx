@@ -11,7 +11,13 @@ import { QUERYKEYS } from "@/constants/queryKeys";
 interface Props {
   defaultFechas: CalendarStateMode;
   defaultCats: number[];
-  onClose: (fechas: CalendarStateMode, categorias: number[]) => void;
+  onClose: (
+    fechas: CalendarStateMode,
+    categorias: {
+      name: string;
+      id: number;
+    }[]
+  ) => void;
 }
 
 const Form = ({ defaultFechas, defaultCats, onClose }: Props) => {
@@ -25,7 +31,13 @@ const Form = ({ defaultFechas, defaultCats, onClose }: Props) => {
 
   const handleSend = (e: FormEvent) => {
     e.preventDefault();
-    onClose(fechas, cats);
+    onClose(
+      fechas,
+      cats.map((c) => ({
+        id: c,
+        name: categorias?.find((v) => v.id === c)?.descripcion || "",
+      }))
+    );
   };
 
   return (

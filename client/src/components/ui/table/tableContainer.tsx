@@ -7,7 +7,7 @@ import Nothing from "../loader/nothing";
 
 interface Props<T> {
   data: T[] | undefined;
-  columns: ColumnDef<T, any>[];
+  columns: ColumnDef<T, any>[] | ((isPDF: boolean) => ColumnDef<T, any>[]);
   disableButtons?: boolean;
   reports?: boolean;
   reload?: (...props: any) => Promise<any>;
@@ -23,6 +23,11 @@ interface Props<T> {
   };
   distinctOn?: string;
   opacityOn?: (row: T) => boolean;
+  name: string;
+  pdfData?: {
+    title: string;
+    value: string;
+  }[];
 }
 
 export type TableView = "table" | "PDF";
@@ -39,12 +44,32 @@ const TableContainer = <T,>({
   edit,
   distinctOn,
   disableButtons = false,
-  opacityOn
+  opacityOn,
+  name,
+  pdfData = [],
 }: Props<T>) => {
   const [sorting, setSorting] = useState<any[]>([]);
   const [filter, setFilter] = useState("");
   const [view, setView] = useState<TableView>("table");
   const tableRef = useRef<HTMLTableElement>(null);
+
+  const _pdfData = [...pdfData];
+
+  if (filter.trim() !== "") {
+    _pdfData.push({
+      title: "Búsqueda",
+      value: `"${filter}"`,
+    });
+  }
+  if (sorting.length > 0) {
+    const str: string = sorting[0].id;
+    const formatted = str.split("_").join(" ");
+    const capitalized = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    _pdfData.push({
+      title: "Orden",
+      value: `${capitalized} (${sorting[0].desc ? "desc" : "asc"})`,
+    });
+  }
 
   return (
     <div className="flex-1 flex flex-col overflow-auto">
@@ -65,7 +90,9 @@ const TableContainer = <T,>({
           data.length > 0 ? (
             <TanstackTable
               ref={tableRef}
-              columns={columns}
+              columns={
+                Array.isArray(columns) ? columns : columns(view === "PDF")
+              }
               data={data}
               filter={filter}
               setFilter={setFilter}
@@ -77,6 +104,8 @@ const TableContainer = <T,>({
               edit={edit}
               distinctOn={distinctOn}
               opacityOn={opacityOn}
+              name={name}
+              pdfData={_pdfData}
             />
           ) : (
             <Nothing />

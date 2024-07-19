@@ -12,5 +12,6 @@ declare module "@tanstack/react-table" {
     width?: number | string;
     center?: boolean;
     sticky?: boolean;
+    showPDF?: boolean;
   }
 }

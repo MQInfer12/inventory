@@ -14,6 +14,7 @@ import { twMerge } from "@/utils/twMerge";
 import ControlButton from "./controlButton";
 
 interface Props {
+  name: string;
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
   sorting: any[];
@@ -26,6 +27,10 @@ interface Props {
   del?: { fn: (row: any) => void; disabled?: (row: any) => boolean };
   distinctOn?: string;
   opacityOn?: (row: any) => boolean;
+  pdfData: {
+    title: string;
+    value: string;
+  }[];
 }
 
 const TanstackTable = forwardRef(
@@ -43,6 +48,8 @@ const TanstackTable = forwardRef(
       edit,
       distinctOn,
       opacityOn,
+      name,
+      pdfData
     }: Props,
     tableRef: React.ForwardedRef<HTMLTableElement>
   ) => {
@@ -69,7 +76,7 @@ const TanstackTable = forwardRef(
     let counter = 0;
     const classes = ["bg-primary-600/20", "bg-primary-700/10"];
     if (view === "PDF") {
-      return <TablePDF table={table} />;
+      return <TablePDF name={name} data={pdfData} table={table} />;
     }
     return (
       <table

@@ -21,12 +21,12 @@ class ProductoController extends Controller
     }
     private function to_int_or_null($val) 
     {
-        return $val ? doubleval($val) : null;
+        return $val != null ? intval($val) : null;
     }
     private function to_double_or_null($val) 
     {
         $val = str_replace(',', '.', $val);
-        return $val ? doubleval($val) : null;
+        return $val != null ? doubleval($val) : null;
     }
 
     public function index()
@@ -83,10 +83,28 @@ class ProductoController extends Controller
         $producto->porcentaje = $this->to_double_or_null($request->porcentaje);
         $producto->piezas = $this->to_double_or_null($request->piezas);
 
-        $producto->precio_cbba = $this->to_double_or_null($request->precio_cbba);
-        $producto->precio_oferta_cbba = $this->to_double_or_null($request->precio_oferta_cbba);
-        $producto->precio_sc = $this->to_double_or_null($request->precio_sc);
-        $producto->precio_oferta_sc = $this->to_double_or_null($request->precio_oferta_sc);
+        $precio_cbba = $this->to_double_or_null($request->precio_cbba);
+        $precio_oferta_cbba = $this->to_double_or_null($request->precio_oferta_cbba);
+        $precio_sc = $this->to_double_or_null($request->precio_sc);
+        $precio_oferta_sc = $this->to_double_or_null($request->precio_oferta_sc);
+
+        $error = "";
+        if($precio_cbba != null && $precio_cbba < 0) $error = "Los precios tienen que ser valores positivos";
+        if($precio_oferta_cbba != null && $precio_oferta_cbba < 0) $error = "Los precios tienen que ser valores positivos";
+        if($precio_sc != null && $precio_sc < 0) $error = "Los precios tienen que ser valores positivos";
+        if($precio_oferta_sc != null && $precio_oferta_sc < 0) $error = "Los precios tienen que ser valores positivos";
+        if($error != "") {
+            return response()->json([
+                "status" => 500,
+                "message" => $error,
+                "data" => null
+            ]);
+        }
+
+        $producto->precio_cbba = $precio_cbba;
+        $producto->precio_oferta_cbba = $precio_oferta_cbba;
+        $producto->precio_sc = $precio_sc;
+        $producto->precio_oferta_sc = $precio_oferta_sc;
 
         $producto->id_tienda = $this->to_int_or_null($request->id_tienda);
 
@@ -181,10 +199,28 @@ class ProductoController extends Controller
         $producto->porcentaje = $this->to_double_or_null($request->porcentaje);
         $producto->piezas = $this->to_double_or_null($request->piezas);
 
-        $producto->precio_cbba = $this->to_double_or_null($request->precio_cbba);
-        $producto->precio_oferta_cbba = $this->to_double_or_null($request->precio_oferta_cbba);
-        $producto->precio_sc = $this->to_double_or_null($request->precio_sc);
-        $producto->precio_oferta_sc = $this->to_double_or_null($request->precio_oferta_sc);
+        $precio_cbba = $this->to_double_or_null($request->precio_cbba);
+        $precio_oferta_cbba = $this->to_double_or_null($request->precio_oferta_cbba);
+        $precio_sc = $this->to_double_or_null($request->precio_sc);
+        $precio_oferta_sc = $this->to_double_or_null($request->precio_oferta_sc);
+
+        $error = "";
+        if($precio_cbba != null && $precio_cbba < 0) $error = "Los precios tienen que ser valores positivos";
+        if($precio_oferta_cbba != null && $precio_oferta_cbba < 0) $error = "Los precios tienen que ser valores positivos";
+        if($precio_sc != null && $precio_sc < 0) $error = "Los precios tienen que ser valores positivos";
+        if($precio_oferta_sc != null && $precio_oferta_sc < 0) $error = "Los precios tienen que ser valores positivos";
+        if($error != "") {
+            return response()->json([
+                "status" => 500,
+                "message" => $error,
+                "data" => null
+            ]);
+        }
+
+        $producto->precio_cbba = $precio_cbba;
+        $producto->precio_oferta_cbba = $precio_oferta_cbba;
+        $producto->precio_sc = $precio_sc;
+        $producto->precio_oferta_sc = $precio_oferta_sc;
 
         $producto->id_tienda = $this->to_int_or_null($request->id_tienda);
 

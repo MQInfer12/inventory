@@ -35,6 +35,7 @@ const Users = () => {
   return (
     <Page>
       <TableContainer
+        name="Usuarios"
         add={() => openModal()}
         onClickRow={{
           fn: (row) => openModal(row),
