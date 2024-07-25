@@ -9,6 +9,8 @@ import { twMerge } from "@/utils/twMerge";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import Icon from "../icons/icon";
 import { useState } from "react";
+import { confirmAlert } from "@/utils/alerts";
+import { useCityContext } from "@/context/cityContext";
 
 interface Props {
   isDashboard?: boolean;
@@ -19,6 +21,7 @@ const Navbar = ({ isDashboard }: Props) => {
   const { user, setUser } = useUserContext();
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
+  const { city, cityName, setCity } = useCityContext();
 
   const { send, loading } = useRequest<null>(ENDPOINTS.LOGOUT, {
     method: "GET",
@@ -32,8 +35,16 @@ const Navbar = ({ isDashboard }: Props) => {
 
   const handleOptions = (e: React.ChangeEvent<HTMLSelectElement>) => {
     switch (e.target.value) {
+      case "changeCity":
+        setCity(city === "cbba" ? "sc" : "cbba");
+        break;
       case "logout":
-        return send();
+        confirmAlert(send, {
+          type: "question",
+          title: "¿Cerrar sesión?",
+          text: "La sesión va a terminar y tendrás que volver a iniciarla",
+        });
+        break;
     }
   };
 
@@ -157,17 +168,25 @@ const Navbar = ({ isDashboard }: Props) => {
             </ul>
             <div className="flex items-center h-full border-l border-white/30 pl-4 max-[872px]:border-r max-[872px]:border-l-0 max-[872px]:pr-4">
               <div className="overflow-hidden flex flex-col items-center">
-                <p className="text-primary-600 font-semibold hidden max-[872px]:block">
-                  {ROUTENAMES[pathname as ROUTES]}
+                <p className="text-primary-600 font-semibold">
+                  {cityName}
+                  <span className="hidden max-[872px]:inline opacity-40">
+                    {" "}
+                    -{" "}
+                  </span>
+                  <span className="hidden max-[872px]:inline text-primary-300">
+                    {ROUTENAMES[pathname as ROUTES]}
+                  </span>
                 </p>
                 <select
                   value=""
                   onChange={handleOptions}
-                  className="max-w-48 font-bold text-ellipsis bg-bg-800 text-white/80 outline-none ring-0 ring-inset focus:ring-2 transition-all duration-300 rounded-md text-sm hover:opacity-80 cursor-pointer"
+                  className="max-w-48 text-center font-bold text-ellipsis bg-bg-800 text-white/80 outline-none ring-0 ring-inset focus:ring-2 transition-all duration-300 rounded-md text-sm hover:opacity-80 cursor-pointer"
                 >
                   <option disabled value="">
                     {loading ? "Cargando..." : `¡Bienvenido ${user?.usuario}!`}
                   </option>
+                  <option value="changeCity">Cambiar ciudad</option>
                   <option value="logout">Cerrar sesión</option>
                 </select>
               </div>

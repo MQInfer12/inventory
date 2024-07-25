@@ -11,9 +11,11 @@ import Users from "./pages/private/users";
 import { useUserContext } from "./context/userContext";
 import Redirect from "./pages/public/redirect";
 import { useMemo } from "react";
+import { useCityContext } from "./context/cityContext";
 
 const RoutesComponent = () => {
   const { user, state } = useUserContext();
+  const { city } = useCityContext();
   const initialRoute = useMemo(() => window.location.hash.replace("#", ""), []);
 
   return (
@@ -28,7 +30,10 @@ const RoutesComponent = () => {
             <Route path={ROUTES.HOME} element={<Home />} />
             {state !== "loading" && (
               <>
-                <Route path={ROUTES.PRODUCTS} element={<Products />} />
+                <Route
+                  path={ROUTES.PRODUCTS}
+                  element={<Products key={city} />}
+                />
                 <Route path={ROUTES.CATEGORIES} element={<Categories />} />
                 <Route path={ROUTES.SHOPS} element={<Shops />} />
                 <Route path={ROUTES.REPORTS} element={<Reports />} />

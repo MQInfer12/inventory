@@ -42,7 +42,7 @@ class MovimientoController extends Controller
             }
         }
 
-        $query = Movimiento::with('producto')->orderBy('fecha', 'desc');
+        $query = Movimiento::with('producto')->with('producto.categorias')->orderBy('fecha', 'desc');
         if ($fechaInicioCarbon) {
             $query->where('fecha', '>=', $fechaInicioCarbon);
         }

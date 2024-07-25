@@ -6,6 +6,7 @@ import { twMerge } from "@/utils/twMerge";
 import ZoomImage from "@/components/ui/zoomImage";
 import { getHttpImage } from "@/utils/http";
 import { useDelayUnmount } from "@/hooks/useDelayUnmount";
+import { useCityContext } from "@/context/cityContext";
 
 interface Props {
   open: boolean;
@@ -20,6 +21,7 @@ const TransactionFooter = ({
   productos,
   transaction,
 }: Props) => {
+  const { city, cityName } = useCityContext();
   const render = useDelayUnmount(open, 300);
   if (!render) return null;
   return (
@@ -61,41 +63,48 @@ const TransactionFooter = ({
                         {product.codigo} - {product.descripcion}
                       </strong>
                       <p className="text-xs font-semibold text-black/70">
-                        Stock CBBA:{" "}
-                        {v.diff_cbba !== 0 ? (
-                          <>
-                            <span className="text-primary-800 font-bold">
-                              {product.stock_cbba}
-                            </span>{" "}
-                            {">"}{" "}
-                            <span className="text-primary-800 font-bold">
-                              {product.stock_cbba + v.diff_cbba}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-primary-800 font-bold">
-                            Sin cambios
-                          </span>
-                        )}
+                        {cityName}
                       </p>
-                      <p className="text-xs font-semibold text-black/70">
-                        Stock SC:{" "}
-                        {v.diff_sc !== 0 ? (
-                          <>
+                      {city === "cbba" && (
+                        <p className="text-xs font-semibold text-black/70">
+                          Stock:{" "}
+                          {v.diff_cbba !== 0 ? (
+                            <>
+                              <span className="text-primary-800 font-bold">
+                                {product.stock_cbba}
+                              </span>{" "}
+                              {">"}{" "}
+                              <span className="text-primary-800 font-bold">
+                                {product.stock_cbba + v.diff_cbba}
+                              </span>
+                            </>
+                          ) : (
                             <span className="text-primary-800 font-bold">
-                              {product.stock_sc}
-                            </span>{" "}
-                            {">"}{" "}
-                            <span className="text-primary-800 font-bold">
-                              {product.stock_sc + v.diff_sc}
+                              Sin cambios
                             </span>
-                          </>
-                        ) : (
-                          <span className="text-primary-800 font-bold">
-                            Sin cambios
-                          </span>
-                        )}
-                      </p>
+                          )}
+                        </p>
+                      )}
+                      {city === "sc" && (
+                        <p className="text-xs font-semibold text-black/70">
+                          Stock:{" "}
+                          {v.diff_sc !== 0 ? (
+                            <>
+                              <span className="text-primary-800 font-bold">
+                                {product.stock_sc}
+                              </span>{" "}
+                              {">"}{" "}
+                              <span className="text-primary-800 font-bold">
+                                {product.stock_sc + v.diff_sc}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-primary-800 font-bold">
+                              Sin cambios
+                            </span>
+                          )}
+                        </p>
+                      )}
                     </div>
                   </li>
                 );

@@ -15,6 +15,7 @@ import { getTodayUtc } from "@/utils/getTodayUtc";
 import { tailwindColors } from "@/utils/tailwindConfig";
 import { useUserContext } from "@/context/userContext";
 import Logo from "@/assets/logo.png";
+import { formatDate } from "@/utils/formatDate";
 
 Font.register({
   family: "Montserrat",
@@ -139,7 +140,7 @@ const PDFLayout = ({ children, title, data }: Props) => {
                   title="Creado por"
                   value={user ? user.usuario : "Anónimo"}
                 />
-                <PDFData title="Fecha" value={getTodayUtc()} />
+                <PDFData title="Creado el" value={formatDate(getTodayUtc())} />
               </View>
             </View>
             {p}

@@ -250,6 +250,14 @@ const Calendar = ({
           <ControlButton
             type="button"
             full
+            icon={<Icon type="calendarconfig" />}
+            title="Personalizado"
+            onClick={() => handleMode("personalizado")}
+            btnType={mode === "personalizado" ? "primary" : "secondary"}
+          />
+          <ControlButton
+            type="button"
+            full
             icon={<Icon type="calendartoday" />}
             title="Hoy"
             onClick={() => handleMode("hoy")}
@@ -262,14 +270,6 @@ const Calendar = ({
             title="Siempre"
             onClick={() => handleMode("siempre")}
             btnType={mode === "siempre" ? "primary" : "secondary"}
-          />
-          <ControlButton
-            type="button"
-            full
-            icon={<Icon type="calendarconfig" />}
-            title="Personalizado"
-            onClick={() => handleMode("personalizado")}
-            btnType={mode === "personalizado" ? "primary" : "secondary"}
           />
         </div>
         <div>
