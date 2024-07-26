@@ -47,7 +47,7 @@ const Multicheck = ({
       </p>
       <div
         className={twMerge(
-          "scroll-mini form-input h-[38px] text-sm w-full bg-bg-300 rounded-xl px-2 py-1 outline-none ring-inset ring-0 focus:ring-2 transition-all duration-300 border placeholder:font-medium font-medium",
+          "scroll-mini form-input h-[38px] text-sm w-full bg-bg-300 rounded-lg px-2 py-1 outline-none ring-inset ring-0 focus:ring-2 transition-all duration-300 border placeholder:font-medium font-medium",
           dark
             ? "bg-bg-200 text-white border-bg-800 placeholder:text-white/20 ring-primary-700"
             : "bg-white text-black/80 border-gray-300 placeholder:text-black/40 ring-primary-700/50",

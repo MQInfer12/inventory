@@ -20,4 +20,9 @@ class Usuario extends Authenticatable
     ];
     
     protected $hidden = ["password"];
+
+    public function movimientos()
+    {
+        return $this->hasMany(Movimiento::class, 'id_usuario');
+    }
 }

@@ -42,7 +42,7 @@ const Input = ({
         type={type}
         onChange={(e) => onChange(e.target.value)}
         className={twMerge(
-          "form-input text-sm w-full bg-bg-300 rounded-xl pl-4 py-2 outline-none ring-inset ring-0 focus:ring-2 transition-all duration-300 pr-10 border placeholder:font-medium font-medium",
+          "form-input text-sm w-full bg-bg-300 rounded-lg pl-4 py-2 outline-none ring-inset ring-0 focus:ring-2 transition-all duration-300 pr-10 border placeholder:font-medium font-medium",
           dark
             ? "bg-bg-200 text-white border-bg-800 placeholder:text-white/20 ring-primary-700"
             : "bg-white text-black/80 border-gray-300 placeholder:text-black/40 ring-primary-700/50",

@@ -37,6 +37,7 @@ const Navbar = ({ isDashboard }: Props) => {
     switch (e.target.value) {
       case "changeCity":
         setCity(city === "cbba" ? "sc" : "cbba");
+        toastSuccess("Se cambió de ciudad exitosamente");
         break;
       case "logout":
         confirmAlert(send, {
@@ -106,6 +107,23 @@ const Navbar = ({ isDashboard }: Props) => {
                         : "text-white/60 [&+span]:scale-0"
                     )
                   }
+                  to={ROUTES.REPORTS}
+                >
+                  Movimientos
+                </NavLink>
+                <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
+              </li>
+              <li className="text-sm flex flex-col items-center">
+                <NavLink
+                  onClick={handleLink}
+                  className={({ isActive }) =>
+                    twMerge(
+                      "px-4 transition-all duration-300",
+                      isActive
+                        ? "text-white [&+span]:scale-100"
+                        : "text-white/60 [&+span]:scale-0"
+                    )
+                  }
                   to={ROUTES.CATEGORIES}
                 >
                   Categorías
@@ -148,23 +166,6 @@ const Navbar = ({ isDashboard }: Props) => {
                   <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
                 </li>
               )}
-              <li className="text-sm flex flex-col items-center">
-                <NavLink
-                  onClick={handleLink}
-                  className={({ isActive }) =>
-                    twMerge(
-                      "px-4 transition-all duration-300",
-                      isActive
-                        ? "text-white [&+span]:scale-100"
-                        : "text-white/60 [&+span]:scale-0"
-                    )
-                  }
-                  to={ROUTES.REPORTS}
-                >
-                  Reportes
-                </NavLink>
-                <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
-              </li>
             </ul>
             <div className="flex items-center h-full border-l border-white/30 pl-4 max-[872px]:border-r max-[872px]:border-l-0 max-[872px]:pr-4">
               <div className="overflow-hidden flex flex-col items-center">

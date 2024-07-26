@@ -14,7 +14,6 @@ import PDFData from "./pdfData";
 import { getTodayUtc } from "@/utils/getTodayUtc";
 import { tailwindColors } from "@/utils/tailwindConfig";
 import { useUserContext } from "@/context/userContext";
-import Logo from "@/assets/logo.png";
 import { formatDate } from "@/utils/formatDate";
 
 Font.register({
@@ -89,7 +88,7 @@ const PDFLayout = ({ children, title, data }: Props) => {
                       height: "100%",
                       objectFit: "cover",
                     }}
-                    src={Logo}
+                    source={import.meta.env.BASE_URL + "assets/logo.png"}
                   />
                 </View>
                 <Text

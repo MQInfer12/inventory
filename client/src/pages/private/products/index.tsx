@@ -186,7 +186,7 @@ const Products = () => {
                   </p>
                 ),
               meta: {
-                width: "88px",
+                width: "90px",
                 sticky: true,
               },
             },

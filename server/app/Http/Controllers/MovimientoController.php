@@ -42,7 +42,7 @@ class MovimientoController extends Controller
             }
         }
 
-        $query = Movimiento::with('producto')->with('producto.categorias')->orderBy('fecha', 'desc');
+        $query = Movimiento::with('producto')->with('producto.categorias')->with('usuario')->orderBy('fecha', 'desc');
         if ($fechaInicioCarbon) {
             $query->where('fecha', '>=', $fechaInicioCarbon);
         }
@@ -84,6 +84,7 @@ class MovimientoController extends Controller
     */
     public function store(Request $request)
     {
+        $user = auth()->user();
         $currentDateTime = now()->subHours(4);
         $productos = [];
         foreach ($request->data as $transaction) {
@@ -103,8 +104,11 @@ class MovimientoController extends Controller
             $movimiento = new Movimiento();
             $movimiento->id_producto = $id_producto;
             $movimiento->cantidad_cbba = $diff_cbba;
+            $movimiento->actual_cbba = $producto->stock_cbba + $diff_cbba;
             $movimiento->cantidad_sc = $diff_sc;
+            $movimiento->actual_sc = $producto->stock_sc + $diff_sc;
             $movimiento->fecha = $currentDateTime;
+            $movimiento->id_usuario = $user->id;
 
             $producto->stock_cbba += $movimiento->cantidad_cbba;
             $producto->stock_sc += $movimiento->cantidad_sc;

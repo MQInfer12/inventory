@@ -9,7 +9,7 @@ const Button = ({ disabled, text, onClick }: Props) => {
     <button
       onClick={onClick}
       disabled={disabled}
-      className="w-full bg-primary-700 text-white rounded-xl py-2 outline-none ring-primary-900 ring-inset ring-0 focus:ring-2 transition-all duration-300 disabled:grayscale"
+      className="w-full bg-primary-700 text-white rounded-lg py-2 outline-none ring-white border border-primary-700 ring-inset ring-0 focus:ring-2 transition-all duration-300 disabled:grayscale"
     >
       {text}
     </button>

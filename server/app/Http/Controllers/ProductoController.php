@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Movimiento;
 use App\Models\Producto;
 use App\Models\ProductoCategoria;
 use Illuminate\Http\Request;
@@ -130,6 +131,18 @@ class ProductoController extends Controller
             $producto_categoria->id_categoria = $idCategoria;
             $producto_categoria->save();
         }
+
+        $user = auth()->user();
+
+        $movimiento = new Movimiento();
+        $movimiento->id_producto = $producto->id;
+        $movimiento->id_usuario = $user->id;
+        $movimiento->cantidad_cbba = 0;
+        $movimiento->cantidad_sc = 0;
+        $movimiento->actual_cbba = intval($request->stock_cbba);
+        $movimiento->actual_sc = intval($request->stock_sc);
+        $movimiento->fecha = now()->subHours(4);
+        $movimiento->save();
 
         $producto->load('tienda');
         $producto->load('categorias');

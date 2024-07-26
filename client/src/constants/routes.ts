@@ -15,5 +15,5 @@ export const ROUTENAMES: Record<ROUTES, string> = {
   [ROUTES.USERS]: "Usuarios",
   [ROUTES.CATEGORIES]: "Categorías",
   [ROUTES.SHOPS]: "Tiendas",
-  [ROUTES.REPORTS]: "Reportes",
+  [ROUTES.REPORTS]: "Movimientos",
 } as const;

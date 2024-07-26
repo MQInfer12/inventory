@@ -11,12 +11,21 @@ class Movimiento extends Model
 
     protected $fillable = [
         "id_producto",
-        "cantidad",
+        "id_usuario",
+        "cantidad_cbba",
+        "cantidad_sc",
+        "actual_cbba",
+        "actual_sc",
         "fecha",
     ];
 
     public function producto()
     {
         return $this->belongsTo(Producto::class, 'id_producto');
+    }
+
+    public function usuario()
+    {
+        return $this->belongsTo(Usuario::class, 'id_usuario');
     }
 }

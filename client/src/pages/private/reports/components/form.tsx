@@ -7,6 +7,8 @@ import { Categoria } from "../../categories/types/api";
 import { useGet } from "@/hooks/useGet";
 import { ENDPOINTS } from "@/constants/endpoints";
 import { QUERYKEYS } from "@/constants/queryKeys";
+import ControlButton from "@/components/ui/table/controlButton";
+import Icon from "@/components/icons/icon";
 
 interface Props {
   defaultFechas: CalendarStateMode;
@@ -44,20 +46,38 @@ const Form = ({ defaultFechas, defaultCats, onClose }: Props) => {
     <form className="flex flex-col gap-4 max-w-full">
       <div className="flex flex-wrap gap-4 max-w-[560px]">
         <Calendar fechas={fechas} setFechas={setFechas} />
-        <Multicheck
-          title={`Categorías (${cats.length > 0 ? "Personalizado" : "Todas"})`}
-          options={
-            categorias?.map((v) => ({
-              value: String(v.id),
-              text: v.descripcion,
-            })) || []
-          }
-          value={cats.map((v) => String(v))}
-          onChange={(v) => {
-            setCats(v.map((id) => Number(id)));
-          }}
-          loading={loadingCategorias}
-        />
+        <div className="w-full flex gap-4">
+          <div className="flex items-end">
+            <ControlButton
+              title="Todas"
+              type="button"
+              btnType={cats.length > 0 ? "secondary" : "primary"}
+              icon={
+                <Icon
+                  type={cats.length > 0 ? "dialpad_false" : "dialpad_true"}
+                />
+              }
+              onClick={() => setCats([])}
+              size="input"
+            />
+          </div>
+          <Multicheck
+            title={`Categorías (${
+              cats.length > 0 ? "Personalizado" : "Todas"
+            })`}
+            options={
+              categorias?.map((v) => ({
+                value: String(v.id),
+                text: v.descripcion,
+              })) || []
+            }
+            value={cats.map((v) => String(v))}
+            onChange={(v) => {
+              setCats(v.map((id) => Number(id)));
+            }}
+            loading={loadingCategorias}
+          />
+        </div>
         <Button text="Buscar" onClick={handleSend} />
       </div>
     </form>

@@ -17,6 +17,7 @@ import IconFilter from "./iconFilter";
 import IconCalendarToday from "./iconCalendarToday";
 import IconCalendarConfig from "./iconCalendarConfig";
 import IconCalendarAlways from "./iconCalendarAlways";
+import IconDial from "./iconDial";
 
 type IconType =
   | "add"
@@ -39,7 +40,9 @@ type IconType =
   | "filter"
   | "calendartoday"
   | "calendaralways"
-  | "calendarconfig";
+  | "calendarconfig"
+  | "dialpad_false"
+  | "dialpad_true";
 
 interface Props {
   type: IconType;
@@ -69,6 +72,8 @@ const Icon = ({ type }: Props) => {
       calendartoday: <IconCalendarToday />,
       calendarconfig: <IconCalendarConfig />,
       calendaralways: <IconCalendarAlways />,
+      dialpad_false: <IconDial />,
+      dialpad_true: <IconDial full />,
     }),
     []
   );

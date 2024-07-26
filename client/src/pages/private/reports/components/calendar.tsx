@@ -174,7 +174,7 @@ const Calendar = ({
           </div>
           <div
             className={
-              "h-full grid grid-cols-7 grid-rows-7 border rounded-md p-1 bg-white"
+              "h-full grid grid-cols-7 grid-rows-7 border border-gray-300 rounded-lg p-1 bg-white"
             }
           >
             {DIAS.map((dia, i) => (
@@ -246,11 +246,12 @@ const Calendar = ({
         </div>
       </div>
       <div className="flex-1 flex flex-col gap-4">
-        <div className="flex gap-4">
+        <div className="flex flex-col gap-4">
           <ControlButton
             type="button"
             full
             icon={<Icon type="calendarconfig" />}
+            text="Personalizado"
             title="Personalizado"
             onClick={() => handleMode("personalizado")}
             btnType={mode === "personalizado" ? "primary" : "secondary"}
@@ -259,6 +260,7 @@ const Calendar = ({
             type="button"
             full
             icon={<Icon type="calendartoday" />}
+            text="Hoy"
             title="Hoy"
             onClick={() => handleMode("hoy")}
             btnType={mode === "hoy" ? "primary" : "secondary"}
@@ -267,30 +269,37 @@ const Calendar = ({
             type="button"
             full
             icon={<Icon type="calendaralways" />}
+            text="Siempre"
             title="Siempre"
             onClick={() => handleMode("siempre")}
             btnType={mode === "siempre" ? "primary" : "secondary"}
           />
         </div>
-        <div>
-          <Input
-            title="Fecha de inicio"
-            value={fechaInicio}
-            type="date"
-            required
-            onChange={(e) => setFechas((prev) => ({ ...prev, fechaInicio: e }))}
-            disabled={mode === "hoy" || mode === "siempre"}
-          />
-        </div>
-        <div>
-          <Input
-            title="Fecha final"
-            value={fechaFinal}
-            type="date"
-            required
-            onChange={(e) => setFechas((prev) => ({ ...prev, fechaFinal: e }))}
-            disabled={mode === "hoy" || mode === "siempre"}
-          />
+        <div className="flex flex-col gap-4">
+          <div>
+            <Input
+              title="Fecha de inicio"
+              value={fechaInicio}
+              type="date"
+              required
+              onChange={(e) =>
+                setFechas((prev) => ({ ...prev, fechaInicio: e }))
+              }
+              disabled={mode === "hoy" || mode === "siempre"}
+            />
+          </div>
+          <div>
+            <Input
+              title="Fecha final"
+              value={fechaFinal}
+              type="date"
+              required
+              onChange={(e) =>
+                setFechas((prev) => ({ ...prev, fechaFinal: e }))
+              }
+              disabled={mode === "hoy" || mode === "siempre"}
+            />
+          </div>
         </div>
       </div>
     </div>

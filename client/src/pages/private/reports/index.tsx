@@ -55,8 +55,6 @@ const Reports = () => {
 
   const { modal, openModal, closeModal } = useModal();
 
-  console.log(data);
-
   return (
     <Page>
       {modal("Filtros del reporte", () => (
@@ -102,13 +100,16 @@ const Reports = () => {
           ]);
         }}
         data={data?.filter((v) => {
-          if (city === "cbba") {
-            return v.cantidad_cbba !== 0;
-          }
-          if (city === "sc") {
-            return v.cantidad_sc !== 0;
-          }
-          return true;
+          //! NO SE ENTIENDE PERO FUNCIONA EL FILTRO
+
+          const x = city === "cbba";
+          const y = v.cantidad_cbba !== 0;
+          const z = v.cantidad_sc !== 0;
+
+          const condition1 = y === z;
+          const condition2 = x === y;
+
+          return condition1 || condition2;
         })}
         button={{
           fn: () => openModal(),
@@ -160,7 +161,7 @@ const Reports = () => {
                   <FontedText>{v.producto?.codigo}</FontedText>
                 ),
               meta: {
-                width: "88px",
+                width: "90px",
               },
             },
             {
@@ -237,88 +238,184 @@ const Reports = () => {
                 width: "180px",
               },
             },
+            {
+              accessorFn: (row) => row.usuario?.usuario || "Usuario eliminado",
+              header: "Usuario",
+              cell: ({ row: { original: v } }) => {
+                return !isPDF ? (
+                  <p className="text-sm font-medium text-black/80 line-clamp-1">
+                    {v.usuario?.usuario || "Usuario eliminado"}
+                  </p>
+                ) : (
+                  <FontedText>
+                    {v.usuario?.usuario || "Usuario eliminado"}
+                  </FontedText>
+                );
+              },
+              meta: {
+                width: "160px",
+              },
+            },
           ]);
 
           if (city === "cbba") {
-            columns.push({
-              accessorKey: "cantidad_cbba",
-              header: "Movimiento",
-              cell: ({ row: { original: v } }) => {
-                return !isPDF ? (
-                  <div
-                    className={twMerge(
-                      "flex flex-col items-center transition-all duration-300",
-                      v.cantidad_cbba === 0
-                        ? "text-primary-950/60"
-                        : "text-primary-950"
-                    )}
-                  >
-                    <strong className="font-bold text-xl border-b border-transparent">
-                      {v.cantidad_cbba > 0 && "+"}
-                      {v.cantidad_cbba}{" "}
-                    </strong>
-                    <small className="font-normal opacity-60 text-[12px]">
-                      unidades
-                    </small>
-                  </div>
-                ) : (
-                  <FontedText>
-                    {v.cantidad_cbba === 0
-                      ? ``
-                      : `${v.cantidad_cbba > 0 ? "+" : ""}${
-                          v.cantidad_cbba
-                        } unidades`}
-                  </FontedText>
-                );
+            columns.push(
+              {
+                accessorKey: "cantidad_cbba",
+                header: "Movimiento",
+                cell: ({ row: { original: v } }) => {
+                  return !isPDF ? (
+                    <div
+                      className={twMerge(
+                        "flex flex-col items-center transition-all duration-300",
+                        "text-primary-950"
+                      )}
+                    >
+                      <strong className="font-bold text-xl border-b border-transparent">
+                        {v.cantidad_cbba !== 0 ? (
+                          <>
+                            {v.cantidad_cbba > 0 && "+"}
+                            {v.cantidad_cbba}{" "}
+                          </>
+                        ) : (
+                          "Creado"
+                        )}
+                      </strong>
+                      {v.cantidad_cbba !== 0 && (
+                        <small className="font-normal opacity-60 text-[12px]">
+                          unidades
+                        </small>
+                      )}
+                    </div>
+                  ) : (
+                    <FontedText>
+                      {v.cantidad_cbba === 0
+                        ? `Creado`
+                        : `${v.cantidad_cbba > 0 ? "+" : ""}${
+                            v.cantidad_cbba
+                          } unidades`}
+                    </FontedText>
+                  );
+                },
+                meta: {
+                  width: "128px",
+                  center: true,
+                },
               },
-              meta: {
-                width: "128px",
-                center: true,
-              },
-            });
+              {
+                accessorKey: "actual_cbba",
+                header: "Total",
+                cell: ({ row: { original: v } }) => {
+                  const stock = v.actual_cbba;
+                  const agotado = stock === 0;
+                  return !isPDF ? (
+                    <div
+                      className={twMerge(
+                        "flex flex-col items-center transition-all duration-300",
+                        agotado ? "text-rose-700" : "text-primary-950"
+                      )}
+                    >
+                      <strong className="font-bold text-xl border-b border-transparent">
+                        {stock}{" "}
+                      </strong>
+                      <small className="font-normal opacity-60 text-[12px]">
+                        unidades
+                      </small>
+                    </div>
+                  ) : (
+                    <FontedText>
+                      {stock > 0 ? `${stock} unidades` : "Agotado"}
+                    </FontedText>
+                  );
+                },
+                meta: {
+                  width: "100px",
+                  center: true,
+                },
+              }
+            );
           }
 
           if (city === "sc") {
-            columns.push({
-              accessorKey: "cantidad_sc",
-              header: "Movimiento",
-              cell: ({ row: { original: v } }) => {
-                return !isPDF ? (
-                  <div
-                    className={twMerge(
-                      "flex flex-col items-center transition-all duration-300",
-                      v.cantidad_sc === 0
-                        ? "text-primary-950/40"
-                        : "text-primary-950"
-                    )}
-                  >
-                    <strong className="font-bold text-xl border-b border-transparent">
-                      {v.cantidad_sc > 0 && "+"}
-                      {v.cantidad_sc}{" "}
-                    </strong>
-                    <small className="font-normal opacity-60 text-[12px]">
-                      unidades
-                    </small>
-                  </div>
-                ) : (
-                  <FontedText>
-                    {v.cantidad_sc === 0
-                      ? ``
-                      : `${v.cantidad_sc > 0 ? "+" : ""}${
-                          v.cantidad_sc
-                        } unidades`}
-                  </FontedText>
-                );
+            columns.push(
+              {
+                accessorKey: "cantidad_sc",
+                header: "Movimiento",
+                cell: ({ row: { original: v } }) => {
+                  return !isPDF ? (
+                    <div
+                      className={twMerge(
+                        "flex flex-col items-center transition-all duration-300",
+                        "text-primary-950"
+                      )}
+                    >
+                      <strong className="font-bold text-xl border-b border-transparent">
+                        {v.cantidad_sc !== 0 ? (
+                          <>
+                            {v.cantidad_sc > 0 && "+"}
+                            {v.cantidad_sc}{" "}
+                          </>
+                        ) : (
+                          "Creado"
+                        )}
+                      </strong>
+                      {v.cantidad_sc !== 0 && (
+                        <small className="font-normal opacity-60 text-[12px]">
+                          unidades
+                        </small>
+                      )}
+                    </div>
+                  ) : (
+                    <FontedText>
+                      {v.cantidad_sc === 0
+                        ? `Creado`
+                        : `${v.cantidad_sc > 0 ? "+" : ""}${
+                            v.cantidad_sc
+                          } unidades`}
+                    </FontedText>
+                  );
+                },
+                meta: {
+                  width: "128px",
+                  center: true,
+                },
               },
-              meta: {
-                width: "128px",
-                center: true,
-              },
-            });
+              {
+                accessorKey: "actual_sc",
+                header: "Total",
+                cell: ({ row: { original: v } }) => {
+                  const stock = v.actual_sc;
+                  const agotado = stock === 0;
+                  return !isPDF ? (
+                    <div
+                      className={twMerge(
+                        "flex flex-col items-center transition-all duration-300",
+                        agotado ? "text-rose-700" : "text-primary-950"
+                      )}
+                    >
+                      <strong className="font-bold text-xl border-b border-transparent">
+                        {stock}{" "}
+                      </strong>
+                      <small className="font-normal opacity-60 text-[12px]">
+                        unidades
+                      </small>
+                    </div>
+                  ) : (
+                    <FontedText>
+                      {stock > 0 ? `${stock} unidades` : "Agotado"}
+                    </FontedText>
+                  );
+                },
+                meta: {
+                  width: "100px",
+                  center: true,
+                },
+              }
+            );
           }
 
           columns.push({
-            accessorKey: "fecha",
+            accessorFn: (row) => formatDate(row.fecha.split(" ")[0]),
             header: "Fecha",
             cell: ({ row: { original: v } }) => {
               return !isPDF ? (
