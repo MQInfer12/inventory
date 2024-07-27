@@ -144,6 +144,120 @@ const Reports = () => {
               cats.length > 0 ? cats.map((c) => c.name).join(", ") : "Todas",
           },
         ]}
+        sheetData={[
+          {
+            title: "Descripción",
+            value: (row) => row.producto?.descripcion || "-",
+            style: {
+              fontWeight: 700,
+            },
+          },
+          {
+            title: "Categorías",
+            value: (row) =>
+              row.producto?.categorias
+                .map((cat) => cat.descripcion)
+                .join(", ") || "",
+          },
+          {
+            title: "Cantidad inicial",
+            value: (row) =>
+              city === "cbba"
+                ? String(row.actual_cbba - row.cantidad_cbba)
+                : String(row.actual_sc - row.cantidad_sc),
+          },
+          {
+            title: "Código",
+            value: (row) => row.producto?.codigo || "-",
+            style: {
+              color: "red",
+            },
+          },
+          {
+            title: "%",
+            value: (row) =>
+              row.producto?.porcentaje ? String(row.producto.porcentaje) : "",
+          },
+          {
+            title: "Tienda",
+            value: (row) => row.producto?.tienda?.nombre || "",
+          },
+          {
+            title: "Ciudad",
+            value: () => cityName,
+          },
+          {
+            title: "Precio",
+            value: (row) =>
+              row.producto
+                ? city === "cbba"
+                  ? String(row.producto.precio_cbba || "")
+                  : String(row.producto.precio_sc || "")
+                : "",
+          },
+          {
+            title: "Precio oferta",
+            value: (row) =>
+              row.producto
+                ? city === "cbba"
+                  ? String(row.producto.precio_oferta_cbba || "")
+                  : String(row.producto.precio_oferta_sc || "")
+                : "",
+          },
+          {
+            title: "Usuario",
+            value: (row) => row.usuario?.usuario || "-",
+          },
+          {
+            title: "Fecha",
+            value: (row) => formatDate(row.fecha.split(" ")[0]),
+          },
+          {
+            title: "Hora",
+            value: (row) => row.fecha.split(" ")[1],
+          },
+          {
+            title: "Entrada",
+            value: (row) =>
+              city === "cbba"
+                ? row.cantidad_cbba > 0
+                  ? String(row.cantidad_cbba)
+                  : "0"
+                : row.cantidad_sc > 0
+                ? String(row.cantidad_sc)
+                : "0",
+          },
+          {
+            title: "Salida",
+            value: (row) =>
+              city === "cbba"
+                ? row.cantidad_cbba < 0
+                  ? String(row.cantidad_cbba)
+                  : "0"
+                : row.cantidad_sc < 0
+                ? String(row.cantidad_sc)
+                : "0",
+          },
+          {
+            title: "Saldo",
+            value: (row) =>
+              city === "cbba" ? String(row.actual_cbba) : String(row.actual_sc),
+          },
+          {
+            title: "",
+            value: (row) =>
+              city === "cbba"
+                ? row.actual_cbba === 0
+                  ? "Agotado"
+                  : ""
+                : row.actual_sc === 0
+                ? "Agotado"
+                : "",
+            style: {
+              color: "red",
+            },
+          },
+        ]}
         columns={(isPDF) => {
           const columns = createColumns<Movimiento>([
             {
@@ -162,6 +276,7 @@ const Reports = () => {
                 ),
               meta: {
                 width: "90px",
+                sticky: true,
               },
             },
             {
@@ -202,9 +317,7 @@ const Reports = () => {
                     </p>
                   </div>
                 ) : (
-                  <FontedText>
-                    {v.producto?.descripcion || "Producto eliminado"}
-                  </FontedText>
+                  <FontedText>{v.producto?.descripcion || "-"}</FontedText>
                 );
               },
             },
@@ -217,6 +330,7 @@ const Reports = () => {
                   <div className="flex gap-1 flex-wrap max-h-14 overflow-auto px-1">
                     {v.producto?.categorias.map((cat) => (
                       <strong
+                        key={cat.id}
                         title={v.producto?.categorias
                           .map((v) => v.descripcion)
                           .join(", ")}

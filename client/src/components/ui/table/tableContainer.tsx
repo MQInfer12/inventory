@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { CSSProperties, useEffect, useId, useState } from "react";
 import TableControls from "./tableControls";
 import TanstackTable from "./tanstackTable";
 import { ColumnDef } from "@tanstack/react-table";
@@ -28,6 +28,11 @@ interface Props<T> {
     title: string;
     value: string;
   }[];
+  sheetData?: {
+    title: string;
+    value: (row: T) => string;
+    style?: CSSProperties;
+  }[];
 }
 
 export type TableView = "table" | "PDF";
@@ -47,11 +52,15 @@ const TableContainer = <T,>({
   opacityOn,
   name,
   pdfData = [],
+  sheetData,
 }: Props<T>) => {
+  const id = useId();
   const [sorting, setSorting] = useState<any[]>([]);
   const [filter, setFilter] = useState("");
   const [view, setView] = useState<TableView>("table");
-  const tableRef = useRef<HTMLTableElement>(null);
+  const [tableCurrentRef, setTableCurrentRef] = useState<HTMLElement | null>(
+    null
+  );
 
   const _pdfData = [...pdfData];
 
@@ -71,10 +80,20 @@ const TableContainer = <T,>({
     });
   }
 
+  const excelTableId = `table-excel-${id}`;
+  useEffect(() => {
+    if (data && data.length > 0) {
+      const excelTable = document.getElementById(excelTableId);
+      if (excelTable) {
+        setTableCurrentRef(excelTable);
+      }
+    }
+  }, [data]);
+
   return (
     <div className="flex-1 flex flex-col overflow-auto">
       <TableControls
-        tableCurrentRef={tableRef.current}
+        tableCurrentRef={tableCurrentRef}
         loading={!data}
         filter={[filter, setFilter]}
         reload={reload}
@@ -89,7 +108,8 @@ const TableContainer = <T,>({
         {data ? (
           data.length > 0 ? (
             <TanstackTable
-              ref={tableRef}
+              excelTableId={excelTableId}
+              sheetData={sheetData}
               columns={
                 Array.isArray(columns) ? columns : columns(view === "PDF")
               }

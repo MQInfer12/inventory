@@ -168,6 +168,72 @@ const Products = () => {
             value: cityName,
           },
         ]}
+        sheetData={[
+          {
+            title: "Descripción",
+            value: (row) => row.descripcion,
+            style: {
+              fontWeight: 700,
+            },
+          },
+          {
+            title: "Categorías",
+            value: (row) =>
+              row.categorias.map((cat) => cat.descripcion).join(", "),
+          },
+          {
+            title: "Código",
+            value: (row) => row.codigo,
+            style: {
+              color: "red",
+            },
+          },
+          {
+            title: "%",
+            value: (row) => String(row.porcentaje || ""),
+          },
+          {
+            title: "Tienda",
+            value: (row) => row.tienda?.nombre || "",
+          },
+          {
+            title: "Ciudad",
+            value: () => cityName,
+          },
+          {
+            title: "Precio",
+            value: (row) =>
+              city === "cbba"
+                ? String(row.precio_cbba || "")
+                : String(row.precio_sc || ""),
+          },
+          {
+            title: "Precio oferta",
+            value: (row) =>
+              city === "cbba"
+                ? String(row.precio_oferta_cbba || "")
+                : String(row.precio_oferta_sc || ""),
+          },
+          {
+            title: "Cantidad",
+            value: (row) =>
+              city === "cbba" ? String(row.stock_cbba) : String(row.stock_sc),
+          },
+          {
+            title: "",
+            value: (row) =>
+              city === "cbba"
+                ? row.stock_cbba === 0
+                  ? "Agotado"
+                  : ""
+                : row.stock_sc === 0
+                ? "Agotado"
+                : "",
+            style: {
+              color: "red",
+            },
+          },
+        ]}
         reload={refetch}
         data={data}
         disableButtons={inTransaction}
@@ -252,6 +318,7 @@ const Products = () => {
                   <div className="flex gap-1 flex-wrap max-h-14 overflow-auto px-1">
                     {v.categorias.map((cat) => (
                       <strong
+                        key={cat.id}
                         title={v.categorias
                           .map((v) => v.descripcion)
                           .join(", ")}

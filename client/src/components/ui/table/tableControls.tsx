@@ -1,4 +1,4 @@
-import { DownloadTableExcel } from "react-export-table-to-excel";
+import { useDownloadExcel } from "react-export-table-to-excel";
 import ControlButton from "./controlButton";
 import { TableView } from "./tableContainer";
 import Icon from "@/components/icons/icon";
@@ -13,7 +13,7 @@ interface Props {
   add?: () => void;
   view: [TableView, React.Dispatch<React.SetStateAction<TableView>>];
   loading: boolean;
-  tableCurrentRef: HTMLTableElement | null;
+  tableCurrentRef: HTMLElement | null;
   reports: boolean;
   show: boolean;
   button?: {
@@ -51,6 +51,12 @@ const TableControls = ({
     await reload();
     toastSuccess("Recargado correctamente");
   };
+
+  const { onDownload } = useDownloadExcel({
+    filename: "tabla",
+    sheet: "Datos",
+    currentTableRef: tableCurrentRef,
+  });
 
   return (
     <div className="w-full flex flex-wrap pb-4 gap-4 max-[872px]:gap-2 items-end">
@@ -108,19 +114,14 @@ const TableControls = ({
                     }
                     text="PDF"
                   />
-                  <DownloadTableExcel
-                    filename="tabla"
-                    sheet="tabla"
-                    currentTableRef={tableCurrentRef}
-                  >
-                    <ControlButton
-                      hideOnScreen
-                      disabled={disableButtons || loading}
-                      title="Exportar Excel"
-                      icon={<Icon type="excel" />}
-                      text="Excel"
-                    />
-                  </DownloadTableExcel>
+                  <ControlButton
+                    hideOnScreen
+                    disabled={disableButtons || loading}
+                    title="Exportar Excel"
+                    icon={<Icon type="excel" />}
+                    text="Excel"
+                    onClick={onDownload}
+                  />
                 </>
               )}
             </div>
