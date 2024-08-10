@@ -42,6 +42,43 @@ class TiendaController extends Controller
         ]);
     }
 
+    public function storeMany(Request $request)
+    {
+        $tiendas = $request->tiendas;
+
+        if (!$tiendas || !is_array($tiendas)) {
+            return response()->json([
+                "status" => 400,
+                "message" => "Se requiere un array de tiendas",
+                "data" => null
+            ]);
+        }
+
+        $response = [];
+        foreach($tiendas as $t) 
+        {
+            if (!$t) {
+                return response()->json([
+                    "status" => 500,
+                    "message" => "La tienda es requerida",
+                    "data" => null
+                ]);
+            }
+            
+            $tienda = new Tienda();
+            $tienda->nombre = $t;
+            $tienda->ciudad = "Santa Cruz";
+            $tienda->save();
+            $response[] = $tienda;
+        }
+
+        return response()->json([
+            "status" => 200,
+            "message" => "Tiendas creadas exitosamente",
+            "data" => $response
+        ]);
+    }
+
     public function show(int $id)
     {
         $tienda = Tienda::where('id', $id)->first();

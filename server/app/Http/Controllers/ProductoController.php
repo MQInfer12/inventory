@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Categoria;
 use App\Models\Movimiento;
 use App\Models\Producto;
 use App\Models\ProductoCategoria;
+use App\Models\Tienda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -151,6 +153,76 @@ class ProductoController extends Controller
             "status" => 200,
             "message" => "Producto creado exitosamente",
             "data" => $producto
+        ]);
+    }
+
+    public function storeMany(Request $request)
+    {
+        $productos = $request->productos;
+
+        if (!$productos || !is_array($productos)) {
+            return response()->json([
+                "status" => 400,
+                "message" => "Se requiere un array de productos",
+                "data" => null
+            ]);
+        }
+
+        $tiendas = Tienda::all();
+        $categorias = Categoria::all();
+
+        $response = [];
+        foreach($productos as $p) 
+        {
+            $producto = new Producto();
+            //CARGAR LOS CODIGOS NULLS DESPUÉS
+            $producto->codigo = strval($p['CODIGO']);
+            $producto->descripcion = $p['DESCRIPCION'];
+            $producto->detalle = null;
+            $producto->foto = null;
+            $producto->porcentaje = $p['%'];
+            $producto->piezas = null;
+
+            //TODO: PRECIOS ESTÁ DESORDENADO
+            $producto->precio_cbba = $p['PRECIO SANTA CRUZ'];
+            $producto->precio_oferta_cbba = $p['PRECIO OFERTA'];
+            $producto->precio_sc = $p['PRECIO SANTA CRUZ'];
+            $producto->precio_oferta_sc = $p['PRECIO OFERTA'];
+
+            $producto->stock_cbba = 0;
+            $producto->stock_sc = $p['SALDO'];
+
+            $producto->id_tienda = null;
+            $tienda = $p['TIENDA'];
+            if($tienda) 
+            {
+                $t = $tiendas->firstWhere('nombre', $tienda);
+                if ($t) {
+                    $producto->id_tienda = $t->id;
+                }
+            }
+            
+            $producto->save();
+
+            $categoria = $p['CATEGORIA'];
+            if($categoria) 
+            {
+                $c = $categorias->firstWhere('descripcion', $categoria);
+                if ($c) {
+                    $rel = new ProductoCategoria();
+                    $rel->id_producto = $producto->id;
+                    $rel->id_categoria = $c->id;
+                    $rel->save();
+                }
+            }
+
+            $response[] = $producto;
+        }
+
+        return response()->json([
+            "status" => 200,
+            "message" => "Tiendas creadas exitosamente",
+            "data" => $response
         ]);
     }
 

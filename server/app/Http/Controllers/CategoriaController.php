@@ -39,6 +39,42 @@ class CategoriaController extends Controller
         ]);
     }
 
+    public function storeMany(Request $request)
+    {
+        $categories = $request->categories;
+
+        if (!$categories || !is_array($categories)) {
+            return response()->json([
+                "status" => 400,
+                "message" => "Se requiere un array de categorías",
+                "data" => null
+            ]);
+        }
+
+        $response = [];
+        foreach($categories as $categorie) 
+        {
+            if (!$categorie) {
+                return response()->json([
+                    "status" => 500,
+                    "message" => "La categoría es requerida",
+                    "data" => null
+                ]);
+            }
+            
+            $categoria = new Categoria();
+            $categoria->descripcion = $categorie;
+            $categoria->save();
+            $response[] = $categoria;
+        }
+
+        return response()->json([
+            "status" => 200,
+            "message" => "Categoría creada exitosamente",
+            "data" => $response
+        ]);
+    }
+
     public function show(int $id)
     {
         $categoria = Categoria::where('id', $id)->first();
