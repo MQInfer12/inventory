@@ -22,6 +22,7 @@ interface Props {
     fn: () => void;
     type?: "primary" | "secondary";
   };
+  extraJSX?: React.ReactNode;
 }
 
 const TableControls = ({
@@ -35,6 +36,7 @@ const TableControls = ({
   show,
   button,
   disableButtons,
+  extraJSX,
 }: Props) => {
   const idSearch = useId();
   const [filterValue, setFilter] = filter;
@@ -60,7 +62,7 @@ const TableControls = ({
 
   return (
     <div className="w-full flex flex-wrap pb-4 gap-4 max-[872px]:gap-2 items-end">
-      <div className="flex gap-4 max-[872px]:gap-2">
+      <div className="flex gap-4 max-[872px]:gap-2 items-center">
         {!!add && (
           <ControlButton
             hideOnScreen
@@ -83,6 +85,7 @@ const TableControls = ({
             btnType={button.type || "secondary"}
           />
         )}
+        {extraJSX}
       </div>
       {show && (
         <>

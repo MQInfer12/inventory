@@ -37,6 +37,10 @@ const RoutesComponent = () => {
                 <Route path={ROUTES.CATEGORIES} element={<Categories />} />
                 <Route path={ROUTES.SHOPS} element={<Shops />} />
                 <Route path={ROUTES.REPORTS} element={<Reports />} />
+                <Route
+                  path={ROUTES.REPORTS + "/:idProduct"}
+                  element={<Reports />}
+                />
                 {user?.superadmin && (
                   <Route path={ROUTES.USERS} element={<Users />} />
                 )}

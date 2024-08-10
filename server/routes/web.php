@@ -23,7 +23,7 @@ Route::get("/", function () {
     return "foo";
 }); */
 
-/* Route::get('/a', function () {
+Route::get('/a', function () {
     $res = Artisan::call("migrate:reset");
     return $res;
 });
@@ -36,4 +36,4 @@ Route::get('/b', function () {
 Route::get('/c', function () {
     $res = Artisan::call("db:seed");
     return $res;
-}); */
+});

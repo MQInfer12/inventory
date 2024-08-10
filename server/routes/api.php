@@ -38,6 +38,7 @@ Route::group(['middleware' => ["auth:sanctum"]], function () {
 
     Route::get('/movimiento', [MovimientoController::class, 'index']);
     Route::post('/movimiento', [MovimientoController::class, 'store']);
+    Route::get('/movimiento/{idProduct}', [MovimientoController::class, 'show']);
 });
 
 Route::get('/', [UsuarioController::class, 'index_route']);

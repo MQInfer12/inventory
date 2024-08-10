@@ -9,7 +9,13 @@ use Illuminate\Http\Request;
 
 class MovimientoController extends Controller
 {
-    public function index(Request $request)
+    private function to_double_or_null($val) 
+    {
+        $val = str_replace(',', '.', $val);
+        return $val != null ? doubleval($val) : null;
+    }
+
+    public function index(Request $request, $productId = null)
     {
         $fechaInicio = $request->query('fechaInicio');
         $fechaFinal = $request->query('fechaFinal');
@@ -64,11 +70,53 @@ class MovimientoController extends Controller
             });
         }
 
+        if ($productId) {
+            $query->where('id_producto', $productId);
+        }
+
         $movimientos = $query->get();
         return response()->json([
             "status" => 200,
             "message" => "Movimientos obtenidos correctamente",
             "data" => $movimientos
+        ]);
+    }
+
+    public function show(Request $request, int $idProduct)
+    {
+        $producto = Producto::with('tienda')->with('categorias')->where('id', $idProduct)->first();
+
+        if(!$producto) return response()->json([
+            "status" => 404,
+            "message" => "Producto no encontrado",
+            "data" => null
+        ]);
+
+        $producto->porcentaje = $this->to_double_or_null($producto->porcentaje);
+        $producto->piezas = $this->to_double_or_null($producto->piezas);
+        $producto->precio_cbba = $this->to_double_or_null($producto->precio_cbba);
+        $producto->precio_oferta_cbba = $this->to_double_or_null($producto->precio_oferta_cbba);
+        $producto->precio_sc = $this->to_double_or_null($producto->precio_sc);
+        $producto->precio_oferta_sc = $this->to_double_or_null($producto->precio_oferta_sc);
+
+        $indexResponse = $this->index($request, $idProduct);
+
+        $indexData = $indexResponse->getData();
+        if ($indexData->status != 200) {
+            return response()->json([
+                "status" => $indexData->status,
+                "message" => $indexData->message,
+                "data" => null
+            ]);
+        }
+
+        return response()->json([
+            "status" => 200,
+            "message" => "Producto y movimientos obtenidos correctamente",
+            "data" => [
+                "producto" => $producto,
+                "movimientos" => $indexData->data
+            ]
         ]);
     }
 

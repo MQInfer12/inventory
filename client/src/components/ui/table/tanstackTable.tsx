@@ -38,6 +38,11 @@ interface Props {
     style?: CSSProperties;
   }[];
   excelTableId: string;
+  rowButton?: {
+    icon: JSX.Element;
+    fn: (row: any) => void;
+    disabled?: (row: any) => boolean;
+  };
 }
 
 const TanstackTable = ({
@@ -57,6 +62,7 @@ const TanstackTable = ({
   pdfData,
   sheetData,
   excelTableId,
+  rowButton,
 }: Props) => {
   const table = useReactTable({
     data,
@@ -156,7 +162,12 @@ const TanstackTable = ({
                   );
                 })}
                 {(edit || del) && (
-                  <th className="min-w-40 w-40 text-sm px-2 py-2 font-bold text-primary-900 text-center select-none">
+                  <th
+                    className={twMerge(
+                      "text-sm px-2 py-2 font-bold text-primary-900 text-center select-none",
+                      rowButton ? "min-w-60 w-60" : "min-w-40 w-40"
+                    )}
+                  >
                     Acciones
                   </th>
                 )}
@@ -243,7 +254,10 @@ const TanstackTable = ({
                   })}
                   {(edit || del) && (
                     <td
-                      className={`min-w-40 w-40 px-2 py-2 text-sm text-neutral-800`}
+                      className={twMerge(
+                        `px-2 py-2 text-sm text-neutral-800`,
+                        rowButton ? "min-w-60 w-60" : "min-w-40 w-40"
+                      )}
                     >
                       <div className="flex gap-2 justify-center items-center w-full h-full">
                         {edit && (
@@ -261,6 +275,14 @@ const TanstackTable = ({
                             icon={<Icon type="delete" />}
                             onClick={() => del.fn(row.original)}
                             disabled={del.disabled?.(row.original)}
+                          />
+                        )}
+                        {rowButton && (
+                          <ControlButton
+                            title="Eliminar"
+                            icon={rowButton.icon}
+                            onClick={() => rowButton.fn(row.original)}
+                            disabled={rowButton.disabled?.(row.original)}
                           />
                         )}
                       </div>

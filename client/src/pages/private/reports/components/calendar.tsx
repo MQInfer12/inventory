@@ -6,7 +6,7 @@ import { twMerge } from "@/utils/twMerge";
 import dayjs, { Dayjs } from "dayjs";
 import { useCallback, useEffect, useState } from "react";
 
-type CalendarMode = "hoy" | "siempre" | "personalizado";
+export type CalendarMode = "hoy" | "siempre" | "personalizado";
 
 export interface CalendarStateMode {
   fechaInicio: string;
@@ -275,31 +275,27 @@ const Calendar = ({
             btnType={mode === "siempre" ? "primary" : "secondary"}
           />
         </div>
-        <div className="flex flex-col gap-4">
-          <div>
-            <Input
-              title="Fecha de inicio"
-              value={fechaInicio}
-              type="date"
-              required
-              onChange={(e) =>
-                setFechas((prev) => ({ ...prev, fechaInicio: e }))
-              }
-              disabled={mode === "hoy" || mode === "siempre"}
-            />
-          </div>
-          <div>
-            <Input
-              title="Fecha final"
-              value={fechaFinal}
-              type="date"
-              required
-              onChange={(e) =>
-                setFechas((prev) => ({ ...prev, fechaFinal: e }))
-              }
-              disabled={mode === "hoy" || mode === "siempre"}
-            />
-          </div>
+      </div>
+      <div className="flex w-full flex-wrap gap-4">
+        <div className="flex-1">
+          <Input
+            title="Fecha de inicio"
+            value={fechaInicio}
+            type="date"
+            required
+            onChange={(e) => setFechas((prev) => ({ ...prev, fechaInicio: e }))}
+            disabled={mode === "hoy" || mode === "siempre"}
+          />
+        </div>
+        <div className="flex-1">
+          <Input
+            title="Fecha final"
+            value={fechaFinal}
+            type="date"
+            required
+            onChange={(e) => setFechas((prev) => ({ ...prev, fechaFinal: e }))}
+            disabled={mode === "hoy" || mode === "siempre"}
+          />
         </div>
       </div>
     </div>

@@ -21,6 +21,11 @@ interface Props<T> {
     fn: () => void;
     type?: "primary" | "secondary";
   };
+  rowButton?: {
+    icon: JSX.Element;
+    fn: (row: T) => void;
+    disabled?: (row: T) => boolean;
+  };
   distinctOn?: string;
   opacityOn?: (row: T) => boolean;
   name: string;
@@ -33,6 +38,7 @@ interface Props<T> {
     value: (row: T) => string;
     style?: CSSProperties;
   }[];
+  extraJSX?: React.ReactNode;
 }
 
 export type TableView = "table" | "PDF";
@@ -53,6 +59,8 @@ const TableContainer = <T,>({
   name,
   pdfData = [],
   sheetData,
+  extraJSX,
+  rowButton,
 }: Props<T>) => {
   const id = useId();
   const [sorting, setSorting] = useState<any[]>([]);
@@ -103,6 +111,7 @@ const TableContainer = <T,>({
         show={data ? data.length > 0 : false}
         button={button}
         disableButtons={disableButtons}
+        extraJSX={extraJSX}
       />
       <div className="flex flex-1 overflow-auto w-full">
         {data ? (
@@ -126,6 +135,7 @@ const TableContainer = <T,>({
               opacityOn={opacityOn}
               name={name}
               pdfData={_pdfData}
+              rowButton={rowButton}
             />
           ) : (
             <Nothing />

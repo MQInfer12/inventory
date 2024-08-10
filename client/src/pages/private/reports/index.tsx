@@ -10,7 +10,7 @@ import Icon from "@/components/icons/icon";
 import { useModal } from "@/components/ui/modal/modal";
 import Form from "./components/form";
 import { useState } from "react";
-import { CalendarStateMode } from "./components/calendar";
+import { CalendarMode } from "./components/calendar";
 import { getTodayUtc } from "@/utils/getTodayUtc";
 import { toastError } from "@/utils/toasts";
 import FontedText from "@/components/ui/table/pdf/fontedText";
@@ -18,22 +18,33 @@ import { createColumns } from "@/utils/createColumns";
 import { useCityContext } from "@/context/cityContext";
 import { twMerge } from "@/utils/twMerge";
 import { formatDate } from "@/utils/formatDate";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Producto } from "../products/types/api";
+import { ROUTES } from "@/constants/routes";
 
 const Reports = () => {
+  const { idProduct } = useParams();
+  const navigate = useNavigate();
+
   const { city, cityName } = useCityContext();
 
-  const [fechas, setFechas] = useState<CalendarStateMode>({
-    fechaInicio: getTodayUtc(),
-    fechaFinal: getTodayUtc(),
-    mode: "personalizado",
+  const [searchParams, setSearchParams] = useSearchParams({
+    fechaInicio: idProduct ? "" : getTodayUtc(),
+    fechaFinal: idProduct ? "" : getTodayUtc(),
+    mode: idProduct ? "siempre" : "personalizado",
+    cats: [],
   });
 
-  const [cats, setCats] = useState<
-    {
-      id: number;
-      name: string;
-    }[]
-  >([]);
+  const fechaInicio = searchParams.get("fechaInicio") ?? getTodayUtc();
+  const fechaFinal = searchParams.get("fechaFinal") ?? getTodayUtc();
+  const mode = (searchParams.get("mode") || "personalizado") as CalendarMode;
+  const cats = JSON.parse(searchParams.get("cats") || "[]") as {
+    id: number;
+    name: string;
+  }[];
+
+  const fechas = { fechaInicio, fechaFinal, mode };
+
   const [reloadCounter, setReloadCounter] = useState(0);
 
   const [keys, setKeys] = useState([
@@ -44,6 +55,24 @@ const Reports = () => {
     String(reloadCounter),
   ]);
 
+  //! SEND IF PRODUCT EXIST
+  const { data: productData } = useGet<{
+    producto: Producto;
+    movimientos: Movimiento[];
+  }>(ENDPOINTS.MOVIMIENTO_SHOW + idProduct, [`product-${idProduct}`, ...keys], {
+    params: {
+      fechaInicio: fechas.fechaInicio,
+      fechaFinal: fechas.fechaFinal,
+      categories: cats.length > 0 ? JSON.stringify(cats.map((c) => c.id)) : "",
+    },
+    save: false,
+    send: !!idProduct,
+    onError: () => {
+      navigate(ROUTES.PRODUCTS);
+    },
+  });
+
+  //! SEND IF PRODUCT DOESN'T EXIST
   const { data } = useGet<Movimiento[]>(ENDPOINTS.MOVIMIENTO_INDEX, keys, {
     params: {
       fechaInicio: fechas.fechaInicio,
@@ -51,17 +80,21 @@ const Reports = () => {
       categories: cats.length > 0 ? JSON.stringify(cats.map((c) => c.id)) : "",
     },
     save: false,
+    send: !idProduct,
   });
 
   const { modal, openModal, closeModal } = useModal();
 
+  const loadedData = data || productData?.movimientos;
+
   return (
     <Page>
-      {modal("Filtros del reporte", () => (
+      {modal("Filtros de fechas", () => (
         <Form
           defaultFechas={fechas}
           defaultCats={cats.map((c) => c.id)}
-          onClose={(fechasRes, catsRes) => {
+          withCats={!idProduct}
+          onClose={(fechasRes, cats) => {
             const startDate = new Date(fechasRes.fechaInicio);
             const endDate = new Date(fechasRes.fechaFinal);
             if (startDate > endDate) {
@@ -74,19 +107,82 @@ const Reports = () => {
                 "La fecha final no puede ser menor que la fecha de inicio"
               );
             }
-            setFechas(fechasRes);
-            setCats(catsRes);
+
+            setSearchParams(
+              (prev) => {
+                prev.set("fechaInicio", fechasRes.fechaInicio);
+                prev.set("fechaFinal", fechasRes.fechaFinal);
+                prev.set("mode", fechasRes.mode);
+                prev.set("cats", JSON.stringify(cats));
+                return prev;
+              },
+              {
+                replace: true,
+              }
+            );
+
             setKeys([
               QUERYKEYS.MOVIMIENTOS,
               fechasRes.fechaInicio,
               fechasRes.fechaFinal,
-              JSON.stringify(catsRes.map((c) => c.id)),
+              JSON.stringify(cats.map((c) => c.id)),
               String(reloadCounter),
             ]);
             closeModal();
           }}
         />
       ))}
+
+      <div className="flex mb-4 gap-4">
+        {fechaInicio && fechaFinal ? (
+          fechaInicio === fechaFinal ? (
+            fechaInicio === getTodayUtc() ? (
+              <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+                Hoy
+              </small>
+            ) : (
+              <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+                {fechaInicio}
+              </small>
+            )
+          ) : (
+            <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+              {fechaInicio} / {fechaFinal}
+            </small>
+          )
+        ) : (
+          <>
+            {fechaInicio && (
+              <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+                {fechaInicio}
+              </small>
+            )}
+            {fechaFinal && (
+              <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+                {fechaFinal}
+              </small>
+            )}
+            {!fechaInicio && !fechaFinal && (
+              <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+                Siempre
+              </small>
+            )}
+          </>
+        )}
+        {!idProduct && (
+          <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+            {cats.length > 0
+              ? cats.map((c) => c.name).join(", ")
+              : "Todas las categorías"}
+          </small>
+        )}
+        {!!idProduct && (
+          <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+            {productData?.producto.descripcion || "Cargando datos..."}
+          </small>
+        )}
+      </div>
+
       <TableContainer
         name="Movimientos"
         reload={async () => {
@@ -99,7 +195,7 @@ const Reports = () => {
             String(reloadCounter + 1),
           ]);
         }}
-        data={data?.filter((v) => {
+        data={loadedData?.filter((v) => {
           //! NO SE ENTIENDE PERO FUNCIONA EL FILTRO
 
           const x = city === "cbba";
@@ -112,8 +208,10 @@ const Reports = () => {
           return condition1 || condition2;
         })}
         button={{
-          fn: () => openModal(),
-          icon: <Icon type="filter" />,
+          fn: () => {
+            openModal();
+          },
+          icon: <Icon type="calendarconfig" />,
           text: "Filtros",
           type: "primary",
         }}

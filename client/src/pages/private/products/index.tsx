@@ -19,6 +19,8 @@ import TransactionFooter from "./components/transactionFooter";
 import { useCityContext } from "@/context/cityContext";
 import { createColumns } from "@/utils/createColumns";
 import FontedText from "@/components/ui/table/pdf/fontedText";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/constants/routes";
 
 export interface Transaction {
   id: number;
@@ -28,6 +30,7 @@ export interface Transaction {
 
 const Products = () => {
   const keys = [QUERYKEYS.PRODUCTOS];
+  const navigate = useNavigate();
   const { data, refetch } = useGet<Producto[]>(ENDPOINTS.PRODUCTO_INDEX, keys);
   const { modal, openModal, closeModal } = useModal<Producto>();
   const { setQueryData } = useMutateGet();
@@ -150,6 +153,11 @@ const Products = () => {
         }}
         del={{
           fn: (row) => confirmAlert(() => send(row.id)),
+          disabled: (row) => row.id === current || inTransaction,
+        }}
+        rowButton={{
+          icon: <Icon type="eye_search" />,
+          fn: (row) => navigate(ROUTES.REPORTS + `/${row.id}`),
           disabled: (row) => row.id === current || inTransaction,
         }}
         button={{

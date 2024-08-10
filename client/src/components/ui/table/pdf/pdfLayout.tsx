@@ -45,6 +45,8 @@ const PDFLayout = ({ children, title, data }: Props) => {
   const { user } = useUserContext();
   const pages = Array.isArray(children) ? children : [children];
 
+  const logoUrl = import.meta.env.BASE_URL + "assets/logo.png";
+
   return (
     <PDFViewer height="100%" width="100%">
       <Document>
@@ -70,9 +72,18 @@ const PDFLayout = ({ children, title, data }: Props) => {
                 style={{
                   flexDirection: "row",
                   alignItems: "flex-end",
-                  gap: 12,
+                  gap: 8,
                 }}
               >
+                {/* <View
+                  style={{
+                    width: 32,
+                    aspectRatio: 1,
+                    borderRadius: 8,
+                    backgroundColor: tailwindColors.primary["900"],
+                    marginVertical: 4,
+                  }}
+                ></View> */}
                 <View
                   style={{
                     width: 40,
@@ -88,14 +99,14 @@ const PDFLayout = ({ children, title, data }: Props) => {
                       height: "100%",
                       objectFit: "cover",
                     }}
-                    source={import.meta.env.BASE_URL + "assets/logo.png"}
+                    source={logoUrl}
                   />
                 </View>
                 <Text
                   style={{
                     fontWeight: 700,
                     fontFamily: "Montserrat",
-                    fontSize: 24,
+                    fontSize: 20,
                     color: tailwindColors.emerald["900"],
                   }}
                 >

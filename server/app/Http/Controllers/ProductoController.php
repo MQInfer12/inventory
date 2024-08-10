@@ -156,18 +156,25 @@ class ProductoController extends Controller
 
     public function show(int $id)
     {
-        $tienda = Producto::with('tienda')->with('categorias')->where('id', $id)->first();
+        $producto = Producto::with('tienda')->with('categorias')->where('id', $id)->first();
 
-        if(!$tienda) return response()->json([
+        if(!$producto) return response()->json([
             "status" => 404,
             "message" => "Producto no encontrado",
             "data" => null
         ]);
 
+        $producto->porcentaje = $this->to_double_or_null($producto->porcentaje);
+        $producto->piezas = $this->to_double_or_null($producto->piezas);
+        $producto->precio_cbba = $this->to_double_or_null($producto->precio_cbba);
+        $producto->precio_oferta_cbba = $this->to_double_or_null($producto->precio_oferta_cbba);
+        $producto->precio_sc = $this->to_double_or_null($producto->precio_sc);
+        $producto->precio_oferta_sc = $this->to_double_or_null($producto->precio_oferta_sc);
+      
         return response()->json([
             "status" => 200,
-            "message" => "Producto obtenido exitosamente",
-            "data" => $tienda
+            "message" => "Producto obtenidos exitosamente",
+            "data" => $producto
         ]);
     }
 

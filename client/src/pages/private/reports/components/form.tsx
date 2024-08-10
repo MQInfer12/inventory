@@ -1,18 +1,19 @@
 import Calendar, { CalendarStateMode } from "./calendar";
 import Button from "@/components/ui/button";
-import Multicheck from "@/components/ui/multicheck";
+import { ENDPOINTS } from "@/constants/endpoints";
+import { QUERYKEYS } from "@/constants/queryKeys";
+import { useGet } from "@/hooks/useGet";
 import { FormEvent } from "@/types/formEvent";
 import { useState } from "react";
 import { Categoria } from "../../categories/types/api";
-import { useGet } from "@/hooks/useGet";
-import { ENDPOINTS } from "@/constants/endpoints";
-import { QUERYKEYS } from "@/constants/queryKeys";
+import Multicheck from "@/components/ui/multicheck";
 import ControlButton from "@/components/ui/table/controlButton";
 import Icon from "@/components/icons/icon";
 
 interface Props {
   defaultFechas: CalendarStateMode;
   defaultCats: number[];
+  withCats?: boolean;
   onClose: (
     fechas: CalendarStateMode,
     categorias: {
@@ -22,7 +23,7 @@ interface Props {
   ) => void;
 }
 
-const Form = ({ defaultFechas, defaultCats, onClose }: Props) => {
+const Form = ({ defaultFechas, defaultCats, withCats, onClose }: Props) => {
   const [fechas, setFechas] = useState<CalendarStateMode>(defaultFechas);
   const [cats, setCats] = useState<number[]>(defaultCats);
 
@@ -46,38 +47,40 @@ const Form = ({ defaultFechas, defaultCats, onClose }: Props) => {
     <form className="flex flex-col gap-4 max-w-full">
       <div className="flex flex-wrap gap-4 max-w-[560px]">
         <Calendar fechas={fechas} setFechas={setFechas} />
-        <div className="w-full flex gap-4">
-          <div className="flex items-end">
-            <ControlButton
-              title="Todas"
-              type="button"
-              btnType={cats.length > 0 ? "secondary" : "primary"}
-              icon={
-                <Icon
-                  type={cats.length > 0 ? "dialpad_false" : "dialpad_true"}
-                />
+        {withCats && (
+          <div className="w-[560px] flex gap-4">
+            <Multicheck
+              title={`Por categorías (${
+                cats.length > 0 ? "Personalizado" : "Todas"
+              })`}
+              options={
+                categorias?.map((v) => ({
+                  value: String(v.id),
+                  text: v.descripcion,
+                })) || []
               }
-              onClick={() => setCats([])}
-              size="input"
+              value={cats.map((v) => String(v))}
+              onChange={(v) => {
+                setCats(v.map((id) => Number(id)));
+              }}
+              loading={loadingCategorias}
             />
+            <div className="flex items-end">
+              <ControlButton
+                title="Todas"
+                type="button"
+                btnType={cats.length > 0 ? "secondary" : "primary"}
+                icon={
+                  <Icon
+                    type={cats.length > 0 ? "dialpad_false" : "dialpad_true"}
+                  />
+                }
+                onClick={() => setCats([])}
+                size="input"
+              />
+            </div>
           </div>
-          <Multicheck
-            title={`Categorías (${
-              cats.length > 0 ? "Personalizado" : "Todas"
-            })`}
-            options={
-              categorias?.map((v) => ({
-                value: String(v.id),
-                text: v.descripcion,
-              })) || []
-            }
-            value={cats.map((v) => String(v))}
-            onChange={(v) => {
-              setCats(v.map((id) => Number(id)));
-            }}
-            loading={loadingCategorias}
-          />
-        </div>
+        )}
         <Button text="Buscar" onClick={handleSend} />
       </div>
     </form>

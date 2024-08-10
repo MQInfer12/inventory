@@ -18,6 +18,8 @@ import IconCalendarToday from "./iconCalendarToday";
 import IconCalendarConfig from "./iconCalendarConfig";
 import IconCalendarAlways from "./iconCalendarAlways";
 import IconDial from "./iconDial";
+import IconListCheck from "./iconListCheck";
+import IconEyeSearch from "./iconEyeSearch";
 
 type IconType =
   | "add"
@@ -42,7 +44,9 @@ type IconType =
   | "calendaralways"
   | "calendarconfig"
   | "dialpad_false"
-  | "dialpad_true";
+  | "dialpad_true"
+  | "list_check"
+  | "eye_search";
 
 interface Props {
   type: IconType;
@@ -74,6 +78,8 @@ const Icon = ({ type }: Props) => {
       calendaralways: <IconCalendarAlways />,
       dialpad_false: <IconDial />,
       dialpad_true: <IconDial full />,
+      list_check: <IconListCheck />,
+      eye_search: <IconEyeSearch />,
     }),
     []
   );

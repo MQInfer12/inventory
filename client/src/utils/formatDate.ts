@@ -15,7 +15,7 @@ export const formatDate = (date: string) => {
   ];
 
   const _date = new Date(date);
-  const day = _date.getDate();
+  const day = _date.getDate() + 1;
   const month = MONTHS[_date.getMonth()];
   const year = _date.getFullYear();
 
