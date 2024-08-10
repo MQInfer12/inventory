@@ -142,6 +142,7 @@ const Products = () => {
     <Page>
       <TableContainer
         name="Productos"
+        rowHeight={82}
         add={() => openModal()}
         onClickRow={{
           fn: (row) => openModal(row),
@@ -156,6 +157,7 @@ const Products = () => {
           disabled: (row) => row.id === current || inTransaction,
         }}
         rowButton={{
+          title: "Examinar movimientos",
           icon: <Icon type="eye_search" />,
           fn: (row) => navigate(ROUTES.REPORTS + `/${row.id}`),
           disabled: (row) => row.id === current || inTransaction,

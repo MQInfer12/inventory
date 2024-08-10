@@ -7,6 +7,7 @@ use App\Models\Movimiento;
 use App\Models\Producto;
 use App\Models\ProductoCategoria;
 use App\Models\Tienda;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -168,6 +169,8 @@ class ProductoController extends Controller
             ]);
         }
 
+        $fechaHora = now()->subHours(4);
+        $fecha = Carbon::parse($fechaHora)->startOfDay();
         $tiendas = Tienda::all();
         $categorias = Categoria::all();
 
@@ -215,6 +218,16 @@ class ProductoController extends Controller
                     $rel->save();
                 }
             }
+
+            $movimiento = new Movimiento();
+            $movimiento->id_producto = $producto->id;
+            $movimiento->id_usuario = 1;
+            $movimiento->cantidad_cbba = 0;
+            $movimiento->cantidad_sc = 0;
+            $movimiento->actual_cbba = 0;
+            $movimiento->actual_sc = $producto->stock_sc;
+            $movimiento->fecha = $fecha;
+            $movimiento->save();
 
             $response[] = $producto;
         }

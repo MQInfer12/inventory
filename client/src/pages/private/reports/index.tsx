@@ -142,24 +142,24 @@ const Reports = () => {
               </small>
             ) : (
               <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
-                {fechaInicio}
+                {formatDate(fechaInicio)}
               </small>
             )
           ) : (
             <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
-              {fechaInicio} / {fechaFinal}
+              {formatDate(fechaInicio)} / {formatDate(fechaFinal)}
             </small>
           )
         ) : (
           <>
             {fechaInicio && (
               <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
-                {fechaInicio}
+                {formatDate(fechaInicio)}
               </small>
             )}
             {fechaFinal && (
               <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
-                {fechaFinal}
+                {formatDate(fechaFinal)}
               </small>
             )}
             {!fechaInicio && !fechaFinal && (
@@ -185,6 +185,7 @@ const Reports = () => {
 
       <TableContainer
         name="Movimientos"
+        rowHeight={82}
         reload={async () => {
           setReloadCounter((prev) => prev + 1);
           setKeys([
@@ -627,7 +628,7 @@ const Reports = () => {
           }
 
           columns.push({
-            accessorFn: (row) => formatDate(row.fecha.split(" ")[0]),
+            accessorFn: (row) => row.fecha,
             header: "Fecha",
             cell: ({ row: { original: v } }) => {
               return !isPDF ? (

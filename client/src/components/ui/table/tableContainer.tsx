@@ -15,6 +15,7 @@ interface Props<T> {
   onClickRow?: { fn: (row: T) => void; disabled?: (row: T) => boolean };
   edit?: { fn: (row: T) => void; disabled?: (row: T) => boolean };
   del?: { fn: (row: T) => void; disabled?: (row: T) => boolean };
+  rowHeight?: number;
   button?: {
     text: string;
     icon: JSX.Element;
@@ -22,6 +23,7 @@ interface Props<T> {
     type?: "primary" | "secondary";
   };
   rowButton?: {
+    title: string;
     icon: JSX.Element;
     fn: (row: T) => void;
     disabled?: (row: T) => boolean;
@@ -61,6 +63,7 @@ const TableContainer = <T,>({
   sheetData,
   extraJSX,
   rowButton,
+  rowHeight,
 }: Props<T>) => {
   const id = useId();
   const [sorting, setSorting] = useState<any[]>([]);
@@ -136,6 +139,7 @@ const TableContainer = <T,>({
               name={name}
               pdfData={_pdfData}
               rowButton={rowButton}
+              rowHeight={rowHeight}
             />
           ) : (
             <Nothing />

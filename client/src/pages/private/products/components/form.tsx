@@ -124,6 +124,9 @@ const Form = ({ item, onSuccess }: Props) => {
         placeholder="Ingrese detalle"
       />
       <Multicheck
+        title={`Categorías: ${form.categorias
+          .map((v) => categorias?.find((c) => c.id === v)?.descripcion)
+          .join(", ")}`}
         options={
           categorias?.map((v) => ({
             value: String(v.id),
@@ -137,7 +140,6 @@ const Form = ({ item, onSuccess }: Props) => {
             categorias: v.map((id) => Number(id)),
           }));
         }}
-        title="Categorías"
         loading={loadingCategorias}
       />
       <div className="flex w-full flex-wrap gap-4">

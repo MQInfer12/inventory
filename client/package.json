@@ -13,6 +13,7 @@
     "@react-pdf/renderer": "^3.4.4",
     "@tanstack/react-query": "^5.51.1",
     "@tanstack/react-table": "^8.19.2",
+    "@tanstack/react-virtual": "^3.8.6",
     "axios": "^1.7.2",
     "dayjs": "^1.11.11",
     "react": "^18.3.1",
