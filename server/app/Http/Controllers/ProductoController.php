@@ -171,38 +171,52 @@ class ProductoController extends Controller
 
         $fechaHora = now()->subHours(4);
         $fecha = Carbon::parse($fechaHora)->startOfDay();
-        $tiendas = Tienda::all();
-        $categorias = Categoria::all();
+
+        $noCodeCount = 0;
 
         $response = [];
         foreach($productos as $p) 
         {
             $producto = new Producto();
+
             //CARGAR LOS CODIGOS NULLS DESPUÉS
-            $producto->codigo = strval($p['CODIGO']);
+            $codigo = $p['CODIGO'];
+            if($codigo) {
+                $producto->codigo = $codigo;
+            } else {
+                $producto->codigo = "_".$noCodeCount;
+                $noCodeCount = $noCodeCount + 1;
+            }
+
             $producto->descripcion = $p['DESCRIPCION'];
-            $producto->detalle = null;
+            $producto->detalle = $p['DETALLE'];
             $producto->foto = null;
             $producto->porcentaje = $p['%'];
-            $producto->piezas = null;
+            $producto->piezas = $p['PIEZAS'];
 
             //TODO: PRECIOS ESTÁ DESORDENADO
-            $producto->precio_cbba = $p['PRECIO SANTA CRUZ'];
+            $producto->precio_cbba = $p['PRECIO'];
             $producto->precio_oferta_cbba = $p['PRECIO OFERTA'];
-            $producto->precio_sc = $p['PRECIO SANTA CRUZ'];
+            $producto->precio_sc = $p['PRECIO'];
             $producto->precio_oferta_sc = $p['PRECIO OFERTA'];
 
+            $saldo = $p['SALDO'];
             $producto->stock_cbba = 0;
-            $producto->stock_sc = $p['SALDO'];
+            $producto->stock_sc = 0;
 
             $producto->id_tienda = null;
             $tienda = $p['TIENDA'];
             if($tienda) 
             {
-                $t = $tiendas->firstWhere('nombre', $tienda);
-                if ($t) {
-                    $producto->id_tienda = $t->id;
+                $t = Tienda::where('nombre', $tienda)->first();
+                if ($t == null) {
+                    $t = new Tienda();
+                    $t->nombre = $tienda;
+                    $t->descripcion = null;
+                    $t->ciudad = "Santa Cruz";
+                    $t->save();
                 }
+                $producto->id_tienda = $t->id;
             }
             
             $producto->save();
@@ -210,13 +224,16 @@ class ProductoController extends Controller
             $categoria = $p['CATEGORIA'];
             if($categoria) 
             {
-                $c = $categorias->firstWhere('descripcion', $categoria);
-                if ($c) {
-                    $rel = new ProductoCategoria();
-                    $rel->id_producto = $producto->id;
-                    $rel->id_categoria = $c->id;
-                    $rel->save();
+                $c = Categoria::where('descripcion', $categoria)->first();
+                if($c == null) {
+                    $c = new Categoria();
+                    $c->descripcion = $categoria;
+                    $c->save();
                 }
+                $rel = new ProductoCategoria();
+                $rel->id_producto = $producto->id;
+                $rel->id_categoria = $c->id;
+                $rel->save();
             }
 
             $movimiento = new Movimiento();

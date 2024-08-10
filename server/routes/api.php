@@ -40,8 +40,6 @@ Route::group(['middleware' => ["auth:sanctum"]], function () {
     Route::post('/movimiento', [MovimientoController::class, 'store']);
     Route::get('/movimiento/{idProduct}', [MovimientoController::class, 'show']);
 
-    Route::post('/seeds/categoria', [CategoriaController::class, 'storeMany']);
-    Route::post('/seeds/tienda', [TiendaController::class, 'storeMany']);
     Route::post('/seeds/producto', [ProductoController::class, 'storeMany']);
 });
 
