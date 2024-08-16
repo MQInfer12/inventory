@@ -52,8 +52,6 @@ const TableRow = ({
     [onClickRow]
   );
 
-  console.log(virtualRow);
-
   return (
     <tr
       style={{

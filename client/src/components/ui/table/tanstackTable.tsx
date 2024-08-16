@@ -65,7 +65,7 @@ const TanstackTable = ({
   sheetData,
   excelTableId,
   rowButton,
-  rowHeight
+  rowHeight,
 }: Props) => {
   const table = useReactTable({
     data,
@@ -88,7 +88,14 @@ const TanstackTable = ({
         excelTableId={excelTableId}
       />
       {view === "PDF" ? (
-        <TablePDF name={name} data={pdfData} table={table} />
+        <TablePDF
+          name={name}
+          data={pdfData}
+          table={table}
+          loaderText={`Renderizando ${
+            table.getRowModel().rows.length
+          } filas en PDF...`}
+        />
       ) : (
         <div
           ref={tableContainerRef}

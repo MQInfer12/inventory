@@ -9,6 +9,7 @@ use App\Models\ProductoCategoria;
 use App\Models\Tienda;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ProductoController extends Controller
@@ -35,7 +36,10 @@ class ProductoController extends Controller
 
     public function index()
     {
-        $productos =  Producto::orderBy('id', 'asc')->with('tienda')->with('categorias')->get();
+        $productos = Producto::orderBy('id', 'asc')
+            ->with(['tienda', 'categorias'])
+            ->get();
+
         foreach ($productos as $producto) {
             $producto->porcentaje = $this->to_double_or_null($producto->porcentaje);
             $producto->piezas = $this->to_double_or_null($producto->piezas);
@@ -43,7 +47,10 @@ class ProductoController extends Controller
             $producto->precio_oferta_cbba = $this->to_double_or_null($producto->precio_oferta_cbba);
             $producto->precio_sc = $this->to_double_or_null($producto->precio_sc);
             $producto->precio_oferta_sc = $this->to_double_or_null($producto->precio_oferta_sc);
+            // Aquí quiero el último movimiento
+            $producto->movimiento = $producto->movimientos()->orderBy('fecha', 'desc')->first();
         }
+
         return response()->json([
             "status" => 200,
             "message" => "Productos obtenidos exitosamente",
@@ -149,6 +156,7 @@ class ProductoController extends Controller
 
         $producto->load('tienda');
         $producto->load('categorias');
+        $producto->movimiento = $movimiento;
 
         return response()->json([
             "status" => 200,
@@ -251,7 +259,7 @@ class ProductoController extends Controller
 
         return response()->json([
             "status" => 200,
-            "message" => "Tiendas creadas exitosamente",
+            "message" => "Productos creados exitosamente",
             "data" => $response
         ]);
     }
@@ -272,6 +280,7 @@ class ProductoController extends Controller
         $producto->precio_oferta_cbba = $this->to_double_or_null($producto->precio_oferta_cbba);
         $producto->precio_sc = $this->to_double_or_null($producto->precio_sc);
         $producto->precio_oferta_sc = $this->to_double_or_null($producto->precio_oferta_sc);
+        $producto->movimiento = $producto->movimientos()->orderBy('fecha', 'desc')->first();
       
         return response()->json([
             "status" => 200,
@@ -380,6 +389,7 @@ class ProductoController extends Controller
 
         $producto->load('tienda');
         $producto->load('categorias');
+        $producto->movimiento = $producto->movimientos()->orderBy('fecha', 'desc')->first();
 
         return response()->json([
             "status" => 200,

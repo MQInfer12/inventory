@@ -1,6 +1,7 @@
 import { Timestamps } from "@/types/timestamps";
 import { Tienda } from "../../shops/types/api";
 import { Categoria } from "../../categories/types/api";
+import { Movimiento } from "../../reports/types/api";
 
 export interface Producto extends Timestamps {
   id: number;
@@ -19,6 +20,7 @@ export interface Producto extends Timestamps {
   precio_oferta_sc: number | null;
   tienda: Tienda | null;
   categorias: Categoria[];
+  movimiento: Movimiento;
 }
 
 export interface API_ProductoDTO {

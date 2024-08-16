@@ -163,6 +163,7 @@ class MovimientoController extends Controller
 
             $producto->save();
             $movimiento->save();
+            $producto->movimiento = $movimiento;
 
             $productos[] = $producto;
         }

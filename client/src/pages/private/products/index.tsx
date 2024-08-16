@@ -21,6 +21,7 @@ import { createColumns } from "@/utils/createColumns";
 import FontedText from "@/components/ui/table/pdf/fontedText";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/constants/routes";
+import { formatDate } from "@/utils/formatDate";
 
 export interface Transaction {
   id: number;
@@ -52,10 +53,12 @@ const Products = () => {
         old.map((p) => {
           const hasBeenModified = data.find((v) => v.id === p.id);
           if (hasBeenModified) {
+            console.log(hasBeenModified);
             return {
               ...p,
               stock_cbba: hasBeenModified.stock_cbba,
               stock_sc: hasBeenModified.stock_sc,
+              movimiento: hasBeenModified.movimiento,
             };
           }
           return p;
@@ -484,6 +487,59 @@ const Products = () => {
                   width: "100px",
                   center: true,
                 },
+              },
+              {
+                header: "Último Mov.",
+                accessorFn: (row) =>
+                  row.movimiento.cantidad_cbba !== 0 ? row.movimiento.fecha : "",
+                /* accessorKey: "precio_sc", */
+                cell: ({ row: { original: v } }) =>
+                  !isPDF ? (
+                    <div className="flex gap-2 w-full justify-center">
+                      <div className="flex flex-col items-end gap-1">
+                        <strong className="font-bold text-primary-950 text-lg w-full text-center">
+                          {v.movimiento.cantidad_cbba > 0 && "+"}
+                          {v.movimiento.cantidad_cbba || ""}{" "}
+                          <span className="font-normal opacity-60 text-xs">
+                            {v.movimiento.cantidad_cbba !== 0
+                              ? "unidades"
+                              : "N/A"}
+                          </span>
+                        </strong>
+                        {v.movimiento.cantidad_cbba !== 0 && (
+                          <strong className="font-bold text-primary-950 text-xs w-full text-center flex flex-col">
+                            {formatDate(v.movimiento.fecha.split(" ")[0])}
+                            <span className="font-bold opacity-50 text-[10px]">
+                              {v.movimiento.fecha.includes("T")
+                                ? v.movimiento.fecha
+                                    .split("T")[1]
+                                    .substring(0, 8)
+                                : v.movimiento.fecha.split(" ")[1]}
+                            </span>
+                          </strong>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <FontedText>
+                      {v.movimiento.cantidad_cbba > 0 && "+"}
+                      {v.movimiento.cantidad_cbba || ""}{" "}
+                      {v.movimiento.cantidad_cbba !== 0 ? "unidades" : "N/A"}
+                      {"\n"}
+                      {v.movimiento.cantidad_cbba !== 0 && (
+                        <>
+                          {formatDate(v.movimiento.fecha.split(" ")[0])} {"\n"}
+                          {v.movimiento.fecha.includes("T")
+                            ? v.movimiento.fecha.split("T")[1].substring(0, 8)
+                            : v.movimiento.fecha.split(" ")[1]}
+                        </>
+                      )}
+                    </FontedText>
+                  ),
+                meta: {
+                  width: "140px",
+                  center: true,
+                },
               }
             );
           }
@@ -620,6 +676,59 @@ const Products = () => {
                 },
                 meta: {
                   width: "100px",
+                  center: true,
+                },
+              },
+              {
+                header: "Último Mov.",
+                accessorFn: (row) =>
+                  row.movimiento.cantidad_sc !== 0 ? row.movimiento.fecha : "",
+                /* accessorKey: "precio_sc", */
+                cell: ({ row: { original: v } }) =>
+                  !isPDF ? (
+                    <div className="flex gap-2 w-full justify-center">
+                      <div className="flex flex-col items-end gap-1">
+                        <strong className="font-bold text-primary-950 text-lg w-full text-center">
+                          {v.movimiento.cantidad_sc > 0 && "+"}
+                          {v.movimiento.cantidad_sc || ""}{" "}
+                          <span className="font-normal opacity-60 text-xs">
+                            {v.movimiento.cantidad_sc !== 0
+                              ? "unidades"
+                              : "N/A"}
+                          </span>
+                        </strong>
+                        {v.movimiento.cantidad_sc !== 0 && (
+                          <strong className="font-bold text-primary-950 text-xs w-full text-center flex flex-col">
+                            {formatDate(v.movimiento.fecha.split(" ")[0])}
+                            <span className="font-bold opacity-50 text-[10px]">
+                              {v.movimiento.fecha.includes("T")
+                                ? v.movimiento.fecha
+                                    .split("T")[1]
+                                    .substring(0, 8)
+                                : v.movimiento.fecha.split(" ")[1]}
+                            </span>
+                          </strong>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <FontedText>
+                      {v.movimiento.cantidad_sc > 0 && "+"}
+                      {v.movimiento.cantidad_sc || ""}{" "}
+                      {v.movimiento.cantidad_sc !== 0 ? "unidades" : "N/A"}
+                      {"\n"}
+                      {v.movimiento.cantidad_sc !== 0 && (
+                        <>
+                          {formatDate(v.movimiento.fecha.split(" ")[0])} {"\n"}
+                          {v.movimiento.fecha.includes("T")
+                            ? v.movimiento.fecha.split("T")[1].substring(0, 8)
+                            : v.movimiento.fecha.split(" ")[1]}
+                        </>
+                      )}
+                    </FontedText>
+                  ),
+                meta: {
+                  width: "140px",
                   center: true,
                 },
               }
