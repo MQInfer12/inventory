@@ -21,8 +21,7 @@
     "react-export-table-to-excel": "^1.0.6",
     "react-router-dom": "^6.24.1",
     "react-toastify": "^10.0.5",
-    "sweetalert2": "^11.12.2",
-    "zustand": "^4.5.4"
+    "sweetalert2": "^11.12.2"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",

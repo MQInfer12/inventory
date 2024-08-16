@@ -3,8 +3,12 @@ import ControlButton from "./controlButton";
 import { TableView } from "./tableContainer";
 import Icon from "@/components/icons/icon";
 import { twMerge } from "@/utils/twMerge";
-import { useId } from "react";
+import { MutableRefObject, useEffect, useId } from "react";
 import { toastSuccess } from "@/utils/toasts";
+import { Table } from "@tanstack/react-table";
+import { pdf } from "@react-pdf/renderer";
+import TablePDF from "./pdf/tablePDF";
+import { UserContextProvider } from "@/context/userContext";
 
 interface Props {
   filter: [string, React.Dispatch<React.SetStateAction<string>>];
@@ -23,6 +27,12 @@ interface Props {
     type?: "primary" | "secondary";
   };
   extraJSX?: React.ReactNode;
+  tanstackTableRef: MutableRefObject<Table<any> | null>;
+  pdfData: {
+    title: string;
+    value: string;
+  }[];
+  name: string;
 }
 
 const TableControls = ({
@@ -37,6 +47,9 @@ const TableControls = ({
   button,
   disableButtons,
   extraJSX,
+  tanstackTableRef,
+  pdfData,
+  name,
 }: Props) => {
   const idSearch = useId();
   const [filterValue, setFilter] = filter;
@@ -59,6 +72,54 @@ const TableControls = ({
     sheet: "Datos",
     currentTableRef: tableCurrentRef,
   });
+
+  useEffect(() => {
+    const downloadPDF = async () => {
+      if (tanstackTableRef.current) {
+        try {
+          // Genera el blob del PDF
+          const blob = await pdf(
+            <UserContextProvider>
+              <TablePDF
+                table={tanstackTableRef.current}
+                data={pdfData}
+                name={name}
+              />
+            </UserContextProvider>
+          ).toBlob();
+
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = String(now.getMonth() + 1).padStart(2, "0"); // Meses de 0-11, así que sumamos 1 y formateamos
+          const day = String(now.getDate()).padStart(2, "0");
+          const hours = String(now.getHours()).padStart(2, "0");
+          const minutes = String(now.getMinutes()).padStart(2, "0");
+
+          const formattedDateTime = `${year}-${month}-${day}_${hours}-${minutes}`;
+          const fileName = `${name}_${formattedDateTime}.pdf`;
+
+          // Crea un enlace y simula un clic para descargar el archivo
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = fileName; // Nombre del archivo PDF a descargar
+          document.body.appendChild(link);
+          link.click();
+
+          // Limpieza
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+          setView("table");
+        } catch (error) {
+          console.error("Error generating PDF:", error);
+        }
+      }
+    };
+
+    if (viewValue === "PDF") {
+      downloadPDF();
+    }
+  }, [viewValue]);
 
   return (
     <div className="w-full flex flex-wrap pb-4 gap-4 max-[872px]:gap-2 items-end">
@@ -105,9 +166,7 @@ const TableControls = ({
                     hideOnScreen
                     disabled={disableButtons || loading}
                     title={viewValue === "PDF" ? "Ver tabla" : "Ver PDF"}
-                    onClick={() =>
-                      setView((old) => (old === "PDF" ? "table" : "PDF"))
-                    }
+                    onClick={() => setView("PDF")}
                     icon={
                       viewValue === "PDF" ? (
                         <Icon type="list" />

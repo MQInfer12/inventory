@@ -1,7 +1,7 @@
-import { CSSProperties, useEffect, useId, useState } from "react";
+import { CSSProperties, useEffect, useId, useRef, useState } from "react";
 import TableControls from "./tableControls";
 import TanstackTable from "./tanstackTable";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Table } from "@tanstack/react-table";
 import Loader from "../loader/loader";
 import Nothing from "../loader/nothing";
 
@@ -72,6 +72,7 @@ const TableContainer = <T,>({
   const [tableCurrentRef, setTableCurrentRef] = useState<HTMLElement | null>(
     null
   );
+  const tanstackTableRef = useRef<Table<T> | null>(null);
 
   const _pdfData = [...pdfData];
 
@@ -115,6 +116,9 @@ const TableContainer = <T,>({
         button={button}
         disableButtons={disableButtons}
         extraJSX={extraJSX}
+        tanstackTableRef={tanstackTableRef}
+        pdfData={_pdfData}
+        name={name}
       />
       <div className="flex flex-1 overflow-auto w-full">
         {data ? (
@@ -131,15 +135,13 @@ const TableContainer = <T,>({
               sorting={sorting}
               setSorting={setSorting}
               onClickRow={onClickRow}
-              view={view}
               del={del}
               edit={edit}
               distinctOn={distinctOn}
               opacityOn={opacityOn}
-              name={name}
-              pdfData={_pdfData}
               rowButton={rowButton}
               rowHeight={rowHeight}
+              tanstackTableRef={tanstackTableRef}
             />
           ) : (
             <Nothing />

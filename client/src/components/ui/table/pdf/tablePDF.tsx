@@ -11,12 +11,11 @@ interface Props {
     title: string;
     value: string;
   }[];
-  loaderText?: string;
 }
 
-const TablePDF = ({ table, data, name, loaderText }: Props) => {
+const TablePDF = ({ table, data, name }: Props) => {
   return (
-    <PDFLayout data={data} title={name} loaderText={loaderText}>
+    <PDFLayout data={data} title={name}>
       <View style={styles.tableContainer}>
         {table.getHeaderGroups().map((group) => (
           <TablePDFHeader key={group.id} headers={group.headers} />
