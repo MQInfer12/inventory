@@ -53,12 +53,14 @@ const Products = () => {
         old.map((p) => {
           const hasBeenModified = data.find((v) => v.id === p.id);
           if (hasBeenModified) {
-            console.log(hasBeenModified);
+            console.log(hasBeenModified.movimiento);
             return {
               ...p,
               stock_cbba: hasBeenModified.stock_cbba,
               stock_sc: hasBeenModified.stock_sc,
               movimiento: hasBeenModified.movimiento,
+              total_ventas_cbba: hasBeenModified.total_ventas_cbba,
+              total_ventas_sc: hasBeenModified.total_ventas_sc,
             };
           }
           return p;
@@ -140,6 +142,8 @@ const Products = () => {
       element?.focus();
     }
   }, [transaction]);
+
+  console.log(data);
 
   return (
     <Page>
@@ -491,7 +495,9 @@ const Products = () => {
               {
                 header: "Último Mov.",
                 accessorFn: (row) =>
-                  row.movimiento.cantidad_cbba !== 0 ? row.movimiento.fecha : "",
+                  row.movimiento.cantidad_cbba !== 0
+                    ? row.movimiento.fecha
+                    : "",
                 /* accessorKey: "precio_sc", */
                 cell: ({ row: { original: v } }) =>
                   !isPDF ? (
@@ -508,7 +514,11 @@ const Products = () => {
                         </strong>
                         {v.movimiento.cantidad_cbba !== 0 && (
                           <strong className="font-bold text-primary-950 text-xs w-full text-center flex flex-col">
-                            {formatDate(v.movimiento.fecha.split(" ")[0])}
+                            {formatDate(
+                              v.movimiento.fecha.includes("T")
+                                ? v.movimiento.fecha.split("T")[0]
+                                : v.movimiento.fecha.split(" ")[0]
+                            )}
                             <span className="font-bold opacity-50 text-[10px]">
                               {v.movimiento.fecha.includes("T")
                                 ? v.movimiento.fecha
@@ -537,7 +547,36 @@ const Products = () => {
                     </FontedText>
                   ),
                 meta: {
-                  width: "140px",
+                  width: "132px",
+                  center: true,
+                },
+              },
+              {
+                accessorKey: "total_ventas_cbba",
+                header: "Ventas",
+                cell: ({ row: { original: v } }) => {
+                  const { total_ventas_cbba } = v;
+                  return !isPDF ? (
+                    <div className="flex flex-col items-center transition-all duration-300 text-primary-950">
+                      {total_ventas_cbba > 0 && (
+                        <strong className="font-bold text-xl border-b border-transparent">
+                          {total_ventas_cbba}{" "}
+                        </strong>
+                      )}
+                      <small className="font-normal opacity-60 text-[12px]">
+                        {total_ventas_cbba > 0 ? "vendidos" : "N/A"}
+                      </small>
+                    </div>
+                  ) : (
+                    <FontedText>
+                      {total_ventas_cbba > 0
+                        ? `${total_ventas_cbba} vendidos`
+                        : "Agotado"}
+                    </FontedText>
+                  );
+                },
+                meta: {
+                  width: "100px",
                   center: true,
                 },
               }
@@ -729,6 +768,35 @@ const Products = () => {
                   ),
                 meta: {
                   width: "140px",
+                  center: true,
+                },
+              },
+              {
+                accessorKey: "total_ventas_sc",
+                header: "Ventas",
+                cell: ({ row: { original: v } }) => {
+                  const { total_ventas_sc } = v;
+                  return !isPDF ? (
+                    <div className="flex flex-col items-center transition-all duration-300 text-primary-950">
+                      {total_ventas_sc > 0 && (
+                        <strong className="font-bold text-xl border-b border-transparent">
+                          {total_ventas_sc}{" "}
+                        </strong>
+                      )}
+                      <small className="font-normal opacity-60 text-[12px]">
+                        {total_ventas_sc > 0 ? "vendidos" : "N/A"}
+                      </small>
+                    </div>
+                  ) : (
+                    <FontedText>
+                      {total_ventas_sc > 0
+                        ? `${total_ventas_sc} vendidos`
+                        : "Agotado"}
+                    </FontedText>
+                  );
+                },
+                meta: {
+                  width: "100px",
                   center: true,
                 },
               }

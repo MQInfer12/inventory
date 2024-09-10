@@ -4,6 +4,7 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
+  Table,
   useReactTable,
 } from "@tanstack/react-table";
 import TablePDF from "./pdf/tablePDF";
@@ -11,7 +12,7 @@ import { TableView } from "./tableContainer";
 import Icon from "@/components/icons/icon";
 import { twMerge } from "@/utils/twMerge";
 import TableSheet from "./sheet/tableSheet";
-import { CSSProperties, useRef } from "react";
+import { CSSProperties, MutableRefObject, useRef } from "react";
 import TableBody from "./tableBody";
 
 interface Props {
@@ -45,6 +46,7 @@ interface Props {
     disabled?: (row: any) => boolean;
   };
   rowHeight?: number;
+  tanstackTableRef: MutableRefObject<Table<any> | null>;
 }
 
 const TanstackTable = ({
@@ -66,6 +68,7 @@ const TanstackTable = ({
   excelTableId,
   rowButton,
   rowHeight,
+  tanstackTableRef,
 }: Props) => {
   const table = useReactTable({
     data,
@@ -78,6 +81,7 @@ const TanstackTable = ({
     onSortingChange: setSorting,
     onGlobalFilterChange: setFilter,
   });
+  tanstackTableRef.current = table;
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
   return (

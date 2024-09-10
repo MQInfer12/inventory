@@ -152,8 +152,14 @@ class MovimientoController extends Controller
             $movimiento = new Movimiento();
             $movimiento->id_producto = $id_producto;
             $movimiento->cantidad_cbba = $diff_cbba;
+            if($diff_cbba < 0) {
+                $producto->total_ventas_cbba += ($diff_cbba * -1);
+            }
             $movimiento->actual_cbba = $producto->stock_cbba + $diff_cbba;
             $movimiento->cantidad_sc = $diff_sc;
+            if($diff_sc < 0) {
+                $producto->total_ventas_sc += ($diff_sc * -1);
+            }
             $movimiento->actual_sc = $producto->stock_sc + $diff_sc;
             $movimiento->fecha = $currentDateTime;
             $movimiento->id_usuario = $user->id;

@@ -18,6 +18,8 @@ export interface Producto extends Timestamps {
   precio_oferta_cbba: number | null;
   precio_sc: number | null;
   precio_oferta_sc: number | null;
+  total_ventas_cbba: number;
+  total_ventas_sc: number;
   tienda: Tienda | null;
   categorias: Categoria[];
   movimiento: Movimiento;

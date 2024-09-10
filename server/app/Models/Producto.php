@@ -22,7 +22,9 @@ class Producto extends Model
         "precio_sc",
         "precio_oferta_sc",
         "piezas",
-        "id_tienda"
+        "id_tienda",
+        "total_ventas_cbba",
+        "total_ventas_sc"
     ];
 
     public function tienda()

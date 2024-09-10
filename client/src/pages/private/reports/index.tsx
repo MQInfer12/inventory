@@ -133,54 +133,71 @@ const Reports = () => {
         />
       ))}
 
-      <div className="flex mb-4 gap-4">
-        {fechaInicio && fechaFinal ? (
-          fechaInicio === fechaFinal ? (
-            fechaInicio === getTodayUtc() ? (
-              <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
-                Hoy
-              </small>
+      <div className="flex mb-4 justify-between">
+        <div className="flex gap-4">
+          {fechaInicio && fechaFinal ? (
+            fechaInicio === fechaFinal ? (
+              fechaInicio === getTodayUtc() ? (
+                <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+                  Hoy
+                </small>
+              ) : (
+                <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+                  {formatDate(fechaInicio)}
+                </small>
+              )
             ) : (
               <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
-                {formatDate(fechaInicio)}
+                {formatDate(fechaInicio)} / {formatDate(fechaFinal)}
               </small>
             )
           ) : (
+            <>
+              {fechaInicio && (
+                <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+                  {formatDate(fechaInicio)}
+                </small>
+              )}
+              {fechaFinal && (
+                <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+                  {formatDate(fechaFinal)}
+                </small>
+              )}
+              {!fechaInicio && !fechaFinal && (
+                <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+                  Siempre
+                </small>
+              )}
+            </>
+          )}
+          {!idProduct && (
             <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
-              {formatDate(fechaInicio)} / {formatDate(fechaFinal)}
+              {cats.length > 0
+                ? cats.map((c) => c.name).join(", ")
+                : "Todas las categorías"}
             </small>
-          )
-        ) : (
-          <>
-            {fechaInicio && (
-              <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
-                {formatDate(fechaInicio)}
-              </small>
-            )}
-            {fechaFinal && (
-              <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
-                {formatDate(fechaFinal)}
-              </small>
-            )}
-            {!fechaInicio && !fechaFinal && (
-              <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
-                Siempre
-              </small>
-            )}
-          </>
-        )}
-        {!idProduct && (
-          <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
-            {cats.length > 0
-              ? cats.map((c) => c.name).join(", ")
-              : "Todas las categorías"}
-          </small>
-        )}
-        {!!idProduct && (
-          <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
-            {productData?.producto.descripcion || "Cargando datos..."}
-          </small>
-        )}
+          )}
+          {!!idProduct && (
+            <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+              {productData?.producto.descripcion || "Cargando datos..."}
+            </small>
+          )}
+        </div>
+        <div>
+          {productData && (
+            <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+              {productData
+                ? city === "cbba"
+                  ? productData.producto.total_ventas_cbba > 0
+                    ? `${productData.producto.total_ventas_cbba} vendidos en total`
+                    : "Sin ventas"
+                  : productData.producto.total_ventas_sc > 0
+                  ? `${productData.producto.total_ventas_sc} vendidos en total`
+                  : "Sin ventas"
+                : "Cargando datos..."}
+            </small>
+          )}
+        </div>
       </div>
 
       <TableContainer

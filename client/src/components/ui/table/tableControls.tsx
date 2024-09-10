@@ -3,8 +3,10 @@ import ControlButton from "./controlButton";
 import { TableView } from "./tableContainer";
 import Icon from "@/components/icons/icon";
 import { twMerge } from "@/utils/twMerge";
-import { useId } from "react";
+import { MutableRefObject, useId } from "react";
 import { toastSuccess } from "@/utils/toasts";
+import { Table } from "@tanstack/react-table";
+import { confirmAlert } from "@/utils/alerts";
 
 interface Props {
   filter: [string, React.Dispatch<React.SetStateAction<string>>];
@@ -23,6 +25,7 @@ interface Props {
     type?: "primary" | "secondary";
   };
   extraJSX?: React.ReactNode;
+  tanstackTableRef: MutableRefObject<Table<any> | null>;
 }
 
 const TableControls = ({
@@ -37,6 +40,7 @@ const TableControls = ({
   button,
   disableButtons,
   extraJSX,
+  tanstackTableRef,
 }: Props) => {
   const idSearch = useId();
   const [filterValue, setFilter] = filter;
@@ -59,6 +63,10 @@ const TableControls = ({
     sheet: "Datos",
     currentTableRef: tableCurrentRef,
   });
+
+  const handlePDF = () => {
+    setView((old) => (old === "PDF" ? "table" : "PDF"));
+  };
 
   return (
     <div className="w-full flex flex-wrap pb-4 gap-4 max-[872px]:gap-2 items-end">
@@ -105,9 +113,30 @@ const TableControls = ({
                     hideOnScreen
                     disabled={disableButtons || loading}
                     title={viewValue === "PDF" ? "Ver tabla" : "Ver PDF"}
-                    onClick={() =>
-                      setView((old) => (old === "PDF" ? "table" : "PDF"))
-                    }
+                    onClick={() => {
+                      if (!tanstackTableRef.current) return;
+                      if (
+                        tanstackTableRef.current.getRowModel().rows.length >
+                          300 &&
+                        viewValue === "table"
+                      ) {
+                        return confirmAlert(
+                          () => {
+                            setTimeout(() => {
+                              handlePDF();
+                            }, 200);
+                          },
+                          {
+                            type: "question",
+                            title: "¿Continuar?",
+                            text: `Hay ${
+                              tanstackTableRef.current.getRowModel().rows.length
+                            } datos visibles en la tabla, puede tardar un poco más en generarse el PDF`,
+                          }
+                        );
+                      }
+                      handlePDF();
+                    }}
                     icon={
                       viewValue === "PDF" ? (
                         <Icon type="list" />

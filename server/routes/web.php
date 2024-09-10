@@ -18,6 +18,11 @@ Route::get("/", function () {
     return view('index');
 });
 
+/* Route::get('/migrate', function () {
+    $res = Artisan::call("migrate");
+    return $res;
+}); */
+
 /* Route::get('/foo', function () {
     Artisan::call("storage:link");
     return "foo";

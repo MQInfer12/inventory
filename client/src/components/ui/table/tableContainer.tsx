@@ -1,7 +1,14 @@
-import { CSSProperties, useEffect, useId, useState } from "react";
+import {
+  CSSProperties,
+  useDeferredValue,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import TableControls from "./tableControls";
 import TanstackTable from "./tanstackTable";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Table } from "@tanstack/react-table";
 import Loader from "../loader/loader";
 import Nothing from "../loader/nothing";
 
@@ -68,10 +75,12 @@ const TableContainer = <T,>({
   const id = useId();
   const [sorting, setSorting] = useState<any[]>([]);
   const [filter, setFilter] = useState("");
+  const deferedFilter = useDeferredValue(filter);
   const [view, setView] = useState<TableView>("table");
   const [tableCurrentRef, setTableCurrentRef] = useState<HTMLElement | null>(
     null
   );
+  const tanstackTableRef = useRef<Table<T> | null>(null);
 
   const _pdfData = [...pdfData];
 
@@ -115,6 +124,7 @@ const TableContainer = <T,>({
         button={button}
         disableButtons={disableButtons}
         extraJSX={extraJSX}
+        tanstackTableRef={tanstackTableRef}
       />
       <div className="flex flex-1 overflow-auto w-full">
         {data ? (
@@ -126,7 +136,7 @@ const TableContainer = <T,>({
                 Array.isArray(columns) ? columns : columns(view === "PDF")
               }
               data={data}
-              filter={filter}
+              filter={deferedFilter}
               setFilter={setFilter}
               sorting={sorting}
               setSorting={setSorting}
@@ -140,6 +150,7 @@ const TableContainer = <T,>({
               pdfData={_pdfData}
               rowButton={rowButton}
               rowHeight={rowHeight}
+              tanstackTableRef={tanstackTableRef}
             />
           ) : (
             <Nothing />

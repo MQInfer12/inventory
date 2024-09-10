@@ -12,6 +12,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ToastContainer position="bottom-left" autoClose={2000} />
+      <p className="fixed bottom-0 right-0 px-2 py-[2px] text-xs bg-primary-700 text-white rounded-tl-md z-20">
+        v{APP_VERSION}
+      </p>
       <HashRouter>
         <Routes />
       </HashRouter>
