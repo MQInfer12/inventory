@@ -8,6 +8,8 @@ export interface Movimiento extends Timestamps {
   cantidad_cbba: number;
   actual_cbba: number;
   cantidad_sc: number;
+  precio_venta_cbba: number;
+  precio_venta_sc: number;
   actual_sc: number;
   fecha: string;
   producto: Producto | null;

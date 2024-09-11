@@ -84,6 +84,17 @@ const TanstackTable = ({
   tanstackTableRef.current = table;
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
+  let actionColSize = 0;
+  if (edit) {
+    actionColSize += 80;
+  }
+  if (del) {
+    actionColSize += 80;
+  }
+  if (rowButton) {
+    actionColSize += 80;
+  }
+
   return (
     <>
       <TableSheet
@@ -175,9 +186,12 @@ const TanstackTable = ({
                   {(edit || del) && (
                     <th
                       className={twMerge(
-                        "text-sm px-2 py-2 font-bold text-primary-900 text-center select-none",
-                        rowButton ? "min-w-60 w-60" : "min-w-40 w-40"
+                        "text-sm px-2 py-2 font-bold text-primary-900 text-center select-none"
                       )}
+                      style={{
+                        minWidth: actionColSize,
+                        width: actionColSize,
+                      }}
                     >
                       Acciones
                     </th>

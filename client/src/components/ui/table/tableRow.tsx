@@ -52,6 +52,17 @@ const TableRow = ({
     [onClickRow]
   );
 
+  let actionColSize = 0;
+  if (edit) {
+    actionColSize += 80;
+  }
+  if (del) {
+    actionColSize += 80;
+  }
+  if (rowButton) {
+    actionColSize += 80;
+  }
+
   return (
     <tr
       style={{
@@ -122,10 +133,11 @@ const TableRow = ({
       })}
       {(edit || del) && (
         <td
-          className={twMerge(
-            `px-2 py-2 text-sm text-neutral-800`,
-            rowButton ? "min-w-60 w-60" : "min-w-40 w-40"
-          )}
+          className={twMerge(`px-2 py-2 text-sm text-neutral-800`)}
+          style={{
+            minWidth: actionColSize,
+            width: actionColSize,
+          }}
         >
           <div className="flex gap-2 justify-center items-center w-full h-full">
             {edit && (

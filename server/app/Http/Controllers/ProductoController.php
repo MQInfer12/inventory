@@ -24,14 +24,46 @@ class ProductoController extends Controller
         }
         return $randomString;
     }
-    private function to_int_or_null($val) 
+    private function to_int_or_null($val)
     {
         return $val != null ? intval($val) : null;
     }
-    private function to_double_or_null($val) 
+    private function to_double_or_null($val)
     {
         $val = str_replace(',', '.', $val);
         return $val != null ? doubleval($val) : null;
+    }
+
+    public function availableCodes()
+    {
+        $productos = Producto::orderBy('codigo', 'asc')->get();
+
+        $codigosExistentes = $productos->pluck('codigo')->filter(function ($codigo) {
+            return preg_match('/^\d+$/', $codigo);
+        })->map(function ($codigo) {
+            return (int) $codigo;
+        })->sort()->values();
+
+        if ($codigosExistentes->isEmpty()) {
+            return response()->json([
+                "status" => 200,
+                "message" => "No hay códigos disponibles",
+                "data" => []
+            ]);
+        }
+
+        $codigoMinimo = $codigosExistentes->first();
+        $codigoMaximo = $codigosExistentes->last();
+
+        $rangoCompleto = collect(range($codigoMinimo, $codigoMaximo));
+
+        $codigosDisponibles = $rangoCompleto->diff($codigosExistentes)->values();
+
+        return response()->json([
+            "status" => 200,
+            "message" => "Códigos disponibles obtenidos exitosamente",
+            "data" => $codigosDisponibles
+        ]);
     }
 
     public function index()
@@ -57,15 +89,15 @@ class ProductoController extends Controller
             "data" => $productos
         ]);
     }
-    
+
     public function store(Request $request)
     {
         $error = "";
-        if(!$request->codigo) $error = "El código es obligatorio";
-        if(!$request->descripcion) $error = "La descripción es obligatoria";
-        if($request->stock_cbba == null) $error = "Ambos stocks son obligatorios";
-        if($request->stock_sc == null) $error = "Ambos stocks son obligatorios";
-        if($error != "") {
+        if (!$request->codigo) $error = "El código es obligatorio";
+        if (!$request->descripcion) $error = "La descripción es obligatoria";
+        if ($request->stock_cbba == null) $error = "Ambos stocks son obligatorios";
+        if ($request->stock_sc == null) $error = "Ambos stocks son obligatorios";
+        if ($error != "") {
             return response()->json([
                 "status" => 500,
                 "message" => $error,
@@ -76,7 +108,7 @@ class ProductoController extends Controller
         $producto = new Producto();
 
         $existCodigo = Producto::where('codigo', $request->codigo)->first();
-        if($existCodigo) {
+        if ($existCodigo) {
             return response()->json([
                 "status" => 500,
                 "message" => "Ya existe un producto con este código",
@@ -100,11 +132,11 @@ class ProductoController extends Controller
         $precio_oferta_sc = $this->to_double_or_null($request->precio_oferta_sc);
 
         $error = "";
-        if($precio_cbba != null && $precio_cbba < 0) $error = "Los precios tienen que ser valores positivos";
-        if($precio_oferta_cbba != null && $precio_oferta_cbba < 0) $error = "Los precios tienen que ser valores positivos";
-        if($precio_sc != null && $precio_sc < 0) $error = "Los precios tienen que ser valores positivos";
-        if($precio_oferta_sc != null && $precio_oferta_sc < 0) $error = "Los precios tienen que ser valores positivos";
-        if($error != "") {
+        if ($precio_cbba != null && $precio_cbba < 0) $error = "Los precios tienen que ser valores positivos";
+        if ($precio_oferta_cbba != null && $precio_oferta_cbba < 0) $error = "Los precios tienen que ser valores positivos";
+        if ($precio_sc != null && $precio_sc < 0) $error = "Los precios tienen que ser valores positivos";
+        if ($precio_oferta_sc != null && $precio_oferta_sc < 0) $error = "Los precios tienen que ser valores positivos";
+        if ($error != "") {
             return response()->json([
                 "status" => 500,
                 "message" => $error,
@@ -135,7 +167,7 @@ class ProductoController extends Controller
                 "data" => null
             ]);
         }
-        foreach($categorias as $idCategoria){
+        foreach ($categorias as $idCategoria) {
             $producto_categoria = new ProductoCategoria();
             $producto_categoria->id_producto = $producto->id;
             $producto_categoria->id_categoria = $idCategoria;
@@ -183,16 +215,15 @@ class ProductoController extends Controller
         $noCodeCount = 0;
 
         $response = [];
-        foreach($productos as $p) 
-        {
+        foreach ($productos as $p) {
             $producto = new Producto();
 
             //CARGAR LOS CODIGOS NULLS DESPUÉS
             $codigo = $p['CODIGO'];
-            if($codigo) {
+            if ($codigo) {
                 $producto->codigo = $codigo;
             } else {
-                $producto->codigo = "_".$noCodeCount;
+                $producto->codigo = "_" . $noCodeCount;
                 $noCodeCount = $noCodeCount + 1;
             }
 
@@ -214,8 +245,7 @@ class ProductoController extends Controller
 
             $producto->id_tienda = null;
             $tienda = $p['TIENDA'];
-            if($tienda) 
-            {
+            if ($tienda) {
                 $t = Tienda::where('nombre', $tienda)->first();
                 if ($t == null) {
                     $t = new Tienda();
@@ -226,14 +256,13 @@ class ProductoController extends Controller
                 }
                 $producto->id_tienda = $t->id;
             }
-            
+
             $producto->save();
 
             $categoria = $p['CATEGORIA'];
-            if($categoria) 
-            {
+            if ($categoria) {
                 $c = Categoria::where('descripcion', $categoria)->first();
-                if($c == null) {
+                if ($c == null) {
                     $c = new Categoria();
                     $c->descripcion = $categoria;
                     $c->save();
@@ -268,7 +297,7 @@ class ProductoController extends Controller
     {
         $producto = Producto::with('tienda')->with('categorias')->where('id', $id)->first();
 
-        if(!$producto) return response()->json([
+        if (!$producto) return response()->json([
             "status" => 404,
             "message" => "Producto no encontrado",
             "data" => null
@@ -281,7 +310,7 @@ class ProductoController extends Controller
         $producto->precio_sc = $this->to_double_or_null($producto->precio_sc);
         $producto->precio_oferta_sc = $this->to_double_or_null($producto->precio_oferta_sc);
         $producto->movimiento = $producto->movimientos()->orderBy('fecha', 'desc')->first();
-      
+
         return response()->json([
             "status" => 200,
             "message" => "Producto obtenidos exitosamente",
@@ -292,18 +321,18 @@ class ProductoController extends Controller
     public function update(int $id, Request $request)
     {
         $producto = Producto::where('id', $id)->first();
-        if(!$producto) return response()->json([
+        if (!$producto) return response()->json([
             "status" => 404,
             "message" => "Producto no encontrado",
             "data" => null
         ]);
 
         $error = "";
-        if(!$request->codigo) $error = "El código es obligatorio";
-        if(!$request->descripcion) $error = "La descripción es obligatoria";
-        if($request->stock_cbba == null) $error = "Ambos stocks son obligatorios";
-        if($request->stock_sc == null) $error = "Ambos stocks son obligatorios";
-        if($error != "") {
+        if (!$request->codigo) $error = "El código es obligatorio";
+        if (!$request->descripcion) $error = "La descripción es obligatoria";
+        if ($request->stock_cbba == null) $error = "Ambos stocks son obligatorios";
+        if ($request->stock_sc == null) $error = "Ambos stocks son obligatorios";
+        if ($error != "") {
             return response()->json([
                 "status" => 500,
                 "message" => $error,
@@ -312,7 +341,7 @@ class ProductoController extends Controller
         }
 
         $existCodigo = Producto::where('codigo', $request->codigo)->where('id', "!=", $id)->first();
-        if($existCodigo) {
+        if ($existCodigo) {
             return response()->json([
                 "status" => 500,
                 "message" => "Ya existe un producto con este código",
@@ -336,11 +365,11 @@ class ProductoController extends Controller
         $precio_oferta_sc = $this->to_double_or_null($request->precio_oferta_sc);
 
         $error = "";
-        if($precio_cbba != null && $precio_cbba < 0) $error = "Los precios tienen que ser valores positivos";
-        if($precio_oferta_cbba != null && $precio_oferta_cbba < 0) $error = "Los precios tienen que ser valores positivos";
-        if($precio_sc != null && $precio_sc < 0) $error = "Los precios tienen que ser valores positivos";
-        if($precio_oferta_sc != null && $precio_oferta_sc < 0) $error = "Los precios tienen que ser valores positivos";
-        if($error != "") {
+        if ($precio_cbba != null && $precio_cbba < 0) $error = "Los precios tienen que ser valores positivos";
+        if ($precio_oferta_cbba != null && $precio_oferta_cbba < 0) $error = "Los precios tienen que ser valores positivos";
+        if ($precio_sc != null && $precio_sc < 0) $error = "Los precios tienen que ser valores positivos";
+        if ($precio_oferta_sc != null && $precio_oferta_sc < 0) $error = "Los precios tienen que ser valores positivos";
+        if ($error != "") {
             return response()->json([
                 "status" => 500,
                 "message" => $error,
@@ -401,7 +430,7 @@ class ProductoController extends Controller
     public function destroy(int $id)
     {
         $producto = Producto::where('id', $id)->first();
-        if(!$producto) return response()->json([
+        if (!$producto) return response()->json([
             "status" => 404,
             "message" => "Producto no encontrado",
             "data" => null

@@ -10,6 +10,7 @@ interface Props {
   dark?: boolean;
   required?: boolean;
   disabled?: boolean;
+  datalist?: string[];
 }
 
 const Input = ({
@@ -21,6 +22,7 @@ const Input = ({
   dark,
   required,
   disabled,
+  datalist,
 }: Props) => {
   const id = useId();
 
@@ -50,7 +52,16 @@ const Input = ({
         )}
         placeholder={placeholder}
         disabled={disabled}
+        list={`datalist-${id}`}
+        autoComplete="off"
       />
+      {datalist && (
+        <datalist id={`datalist-${id}`}>
+          {datalist.map((v, i) => (
+            <option key={i} value={v} />
+          ))}
+        </datalist>
+      )}
     </div>
   );
 };

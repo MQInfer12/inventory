@@ -24,6 +24,10 @@ const Form = ({ item, onSuccess }: Props) => {
   const { data: tiendas } = useGet<Tienda[]>(ENDPOINTS.TIENDA_INDEX, [
     QUERYKEYS.TIENDAS,
   ]);
+  const { data: codigosDisponibles } = useGet<number[]>(
+    ENDPOINTS.PRODUCTO_CODIGOS_DISPONIBLES,
+    [QUERYKEYS.PRODUCTOS_CODIGOS]
+  );
   const { data: categorias, loading: loadingCategorias } = useGet<Categoria[]>(
     ENDPOINTS.CATEGORIA_INDEX,
     [QUERYKEYS.CATEGORIAS]
@@ -79,6 +83,10 @@ const Form = ({ item, onSuccess }: Props) => {
     send(formData);
   };
 
+  const codigos = codigosDisponibles?.map((v) => String(v)) || [];
+  if (item) {
+    codigos.push(item.codigo);
+  }
   return (
     <form className="flex flex-col gap-4 w-[760px] max-w-full">
       <FileInput state={fileState} defaultSrc={getHttpImage(item?.foto)} />
@@ -89,6 +97,7 @@ const Form = ({ item, onSuccess }: Props) => {
           title="Código"
           placeholder="Ingrese código"
           required
+          datalist={codigos}
         />
         <Input
           value={form.porcentaje}

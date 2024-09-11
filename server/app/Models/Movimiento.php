@@ -17,6 +17,8 @@ class Movimiento extends Model
         "actual_cbba",
         "actual_sc",
         "fecha",
+        "precio_venta_cbba",
+        "precio_venta_sc"
     ];
 
     public function producto()

@@ -96,75 +96,77 @@ const Navbar = ({ isDashboard }: Props) => {
                 </NavLink>
                 <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
               </li>
-              <li className="text-sm flex flex-col items-center">
-                <NavLink
-                  onClick={handleLink}
-                  className={({ isActive }) =>
-                    twMerge(
-                      "px-4 transition-all duration-300",
-                      isActive
-                        ? "text-white [&+span]:scale-100"
-                        : "text-white/60 [&+span]:scale-0"
-                    )
-                  }
-                  to={ROUTES.REPORTS}
-                >
-                  Movimientos
-                </NavLink>
-                <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
-              </li>
-              <li className="text-sm flex flex-col items-center">
-                <NavLink
-                  onClick={handleLink}
-                  className={({ isActive }) =>
-                    twMerge(
-                      "px-4 transition-all duration-300",
-                      isActive
-                        ? "text-white [&+span]:scale-100"
-                        : "text-white/60 [&+span]:scale-0"
-                    )
-                  }
-                  to={ROUTES.CATEGORIES}
-                >
-                  Categorías
-                </NavLink>
-                <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
-              </li>
-              <li className="text-sm flex flex-col items-center">
-                <NavLink
-                  onClick={handleLink}
-                  className={({ isActive }) =>
-                    twMerge(
-                      "px-4 transition-all duration-300",
-                      isActive
-                        ? "text-white [&+span]:scale-100"
-                        : "text-white/60 [&+span]:scale-0"
-                    )
-                  }
-                  to={ROUTES.SHOPS}
-                >
-                  Tiendas
-                </NavLink>
-                <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
-              </li>
               {user?.superadmin && (
-                <li className="text-sm flex flex-col items-center">
-                  <NavLink
-                    onClick={handleLink}
-                    className={({ isActive }) =>
-                      twMerge(
-                        "px-4 transition-all duration-300",
-                        isActive
-                          ? "text-white [&+span]:scale-100"
-                          : "text-white/60 [&+span]:scale-0"
-                      )
-                    }
-                    to={ROUTES.USERS}
-                  >
-                    Usuarios
-                  </NavLink>
-                  <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
-                </li>
+                <>
+                  <li className="text-sm flex flex-col items-center">
+                    <NavLink
+                      onClick={handleLink}
+                      className={({ isActive }) =>
+                        twMerge(
+                          "px-4 transition-all duration-300",
+                          isActive
+                            ? "text-white [&+span]:scale-100"
+                            : "text-white/60 [&+span]:scale-0"
+                        )
+                      }
+                      to={ROUTES.REPORTS}
+                    >
+                      Reportes
+                    </NavLink>
+                    <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
+                  </li>
+                  <li className="text-sm flex flex-col items-center">
+                    <NavLink
+                      onClick={handleLink}
+                      className={({ isActive }) =>
+                        twMerge(
+                          "px-4 transition-all duration-300",
+                          isActive
+                            ? "text-white [&+span]:scale-100"
+                            : "text-white/60 [&+span]:scale-0"
+                        )
+                      }
+                      to={ROUTES.CATEGORIES}
+                    >
+                      Categorías
+                    </NavLink>
+                    <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
+                  </li>
+                  <li className="text-sm flex flex-col items-center">
+                    <NavLink
+                      onClick={handleLink}
+                      className={({ isActive }) =>
+                        twMerge(
+                          "px-4 transition-all duration-300",
+                          isActive
+                            ? "text-white [&+span]:scale-100"
+                            : "text-white/60 [&+span]:scale-0"
+                        )
+                      }
+                      to={ROUTES.SHOPS}
+                    >
+                      Tiendas
+                    </NavLink>
+                    <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
+                  </li>
+                  <li className="text-sm flex flex-col items-center">
+                    <NavLink
+                      onClick={handleLink}
+                      className={({ isActive }) =>
+                        twMerge(
+                          "px-4 transition-all duration-300",
+                          isActive
+                            ? "text-white [&+span]:scale-100"
+                            : "text-white/60 [&+span]:scale-0"
+                        )
+                      }
+                      to={ROUTES.USERS}
+                    >
+                      Usuarios
+                    </NavLink>
+                    <span className="w-12 h-[1px] bg-primary-600 origin-center transition-all duration-300" />
+                  </li>
+                </>
               )}
             </ul>
             <div className="flex items-center h-full border-l border-white/30 pl-4 max-[872px]:border-r max-[872px]:border-l-0 max-[872px]:pr-4">

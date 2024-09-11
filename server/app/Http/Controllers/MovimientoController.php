@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class MovimientoController extends Controller
 {
-    private function to_double_or_null($val) 
+    private function to_double_or_null($val)
     {
         $val = str_replace(',', '.', $val);
         return $val != null ? doubleval($val) : null;
@@ -24,10 +24,10 @@ class MovimientoController extends Controller
         $fechaInicioCarbon = null;
         $fechaFinalCarbon = null;
 
-        if($fechaInicio) {
+        if ($fechaInicio) {
             $fechaInicioCarbon = Carbon::parse($fechaInicio)->startOfDay();
         }
-        if($fechaFinal) {
+        if ($fechaFinal) {
             $fechaFinalCarbon = Carbon::parse($fechaFinal)->endOfDay();
         }
 
@@ -86,7 +86,7 @@ class MovimientoController extends Controller
     {
         $producto = Producto::with('tienda')->with('categorias')->where('id', $idProduct)->first();
 
-        if(!$producto) return response()->json([
+        if (!$producto) return response()->json([
             "status" => 404,
             "message" => "Producto no encontrado",
             "data" => null
@@ -129,7 +129,7 @@ class MovimientoController extends Controller
      *       diff_sc: number;
      *    }[]
      * }
-    */
+     */
     public function store(Request $request)
     {
         $user = auth()->user();
@@ -139,9 +139,11 @@ class MovimientoController extends Controller
             $id_producto = $transaction['id'];
             $diff_cbba = $transaction['diff_cbba'];
             $diff_sc = $transaction['diff_sc'];
+            $precio_cbba = $transaction['precio_cbba'];
+            $precio_sc = $transaction['precio_sc'];
 
             $producto = Producto::with('tienda')->where('id', $id_producto)->first();
-            if(!$producto) {
+            if (!$producto) {
                 return response()->json([
                     "status" => 500,
                     "message" => "No se pudo encontrar un producto",
@@ -152,17 +154,20 @@ class MovimientoController extends Controller
             $movimiento = new Movimiento();
             $movimiento->id_producto = $id_producto;
             $movimiento->cantidad_cbba = $diff_cbba;
-            if($diff_cbba < 0) {
+            if ($diff_cbba < 0) {
                 $producto->total_ventas_cbba += ($diff_cbba * -1);
             }
             $movimiento->actual_cbba = $producto->stock_cbba + $diff_cbba;
             $movimiento->cantidad_sc = $diff_sc;
-            if($diff_sc < 0) {
+            if ($diff_sc < 0) {
                 $producto->total_ventas_sc += ($diff_sc * -1);
             }
             $movimiento->actual_sc = $producto->stock_sc + $diff_sc;
             $movimiento->fecha = $currentDateTime;
             $movimiento->id_usuario = $user->id;
+
+            $movimiento->precio_venta_cbba = $precio_cbba;
+            $movimiento->precio_venta_sc = $precio_sc;
 
             $producto->stock_cbba += $movimiento->cantidad_cbba;
             $producto->stock_sc += $movimiento->cantidad_sc;

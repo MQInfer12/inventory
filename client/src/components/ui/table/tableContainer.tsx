@@ -12,6 +12,12 @@ import { ColumnDef, Table } from "@tanstack/react-table";
 import Loader from "../loader/loader";
 import Nothing from "../loader/nothing";
 
+export interface SheetData<T> {
+  title: string;
+  value: (row: T) => string;
+  style?: CSSProperties;
+}
+
 interface Props<T> {
   data: T[] | undefined;
   columns: ColumnDef<T, any>[] | ((isPDF: boolean) => ColumnDef<T, any>[]);
@@ -42,11 +48,7 @@ interface Props<T> {
     title: string;
     value: string;
   }[];
-  sheetData?: {
-    title: string;
-    value: (row: T) => string;
-    style?: CSSProperties;
-  }[];
+  sheetData?: SheetData<T>[];
   extraJSX?: React.ReactNode;
 }
 

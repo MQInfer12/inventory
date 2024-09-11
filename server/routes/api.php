@@ -20,6 +20,7 @@ use App\Http\Controllers\TiendaController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 Route::group(['middleware' => ["auth:sanctum"]], function () {
     Route::get('/me', [UsuarioController::class, 'perfil']);
     Route::get('/logout', [UsuarioController::class, 'logout']);
@@ -32,7 +33,9 @@ Route::group(['middleware' => ["auth:sanctum"]], function () {
     Route::put('/usuario/{id}', [UsuarioController::class, 'update']);
     Route::get('/usuario/{id}', [UsuarioController::class, 'show']);
 
+    Route::get('/producto/codigos', [ProductoController::class, 'availableCodes']);
     Route::apiResource('/producto', ProductoController::class);
+
     Route::apiResource('/categoria', CategoriaController::class);
     Route::apiResource('/tienda', TiendaController::class);
 

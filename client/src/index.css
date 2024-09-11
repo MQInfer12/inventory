@@ -56,11 +56,15 @@ svg {
   @apply !bg-primary-700;
 }
 
-  .no-arrows::-webkit-outer-spin-button,
-  .no-arrows::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  .no-arrows[type="number"] {
-    -moz-appearance: textfield;
-  }
+.no-arrows::-webkit-outer-spin-button,
+.no-arrows::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-arrows[type="number"] {
+  -moz-appearance: textfield;
+}
+
+[list]::-webkit-calendar-picker-indicator {
+  display: none;
+}

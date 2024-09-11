@@ -18,23 +18,33 @@ import { createColumns } from "@/utils/createColumns";
 import { useCityContext } from "@/context/cityContext";
 import { twMerge } from "@/utils/twMerge";
 import { formatDate } from "@/utils/formatDate";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Producto } from "../products/types/api";
 import { ROUTES } from "@/constants/routes";
+import ControlButton from "@/components/ui/table/controlButton";
+import { getSheetData } from "./utils/sheetData";
 
-const Reports = () => {
-  const { idProduct } = useParams();
+export type ShowType = "Movimientos" | "Ventas";
+
+interface Props {
+  idProduct?: number;
+}
+
+const Reports = ({ idProduct }: Props) => {
   const navigate = useNavigate();
 
   const { city, cityName } = useCityContext();
 
   const [searchParams, setSearchParams] = useSearchParams({
+    show: "Movimientos",
     fechaInicio: idProduct ? "" : getTodayUtc(),
     fechaFinal: idProduct ? "" : getTodayUtc(),
     mode: idProduct ? "siempre" : "personalizado",
     cats: [],
   });
 
+  const show: ShowType =
+    (searchParams.get("show") as ShowType) || "Movimientos";
   const fechaInicio = searchParams.get("fechaInicio") ?? getTodayUtc();
   const fechaFinal = searchParams.get("fechaFinal") ?? getTodayUtc();
   const mode = (searchParams.get("mode") || "personalizado") as CalendarMode;
@@ -87,6 +97,42 @@ const Reports = () => {
 
   const loadedData = data || productData?.movimientos;
 
+  const pdfData = [
+    {
+      title: "Ciudad",
+      value: cityName,
+    },
+    {
+      title: "Fecha",
+      value:
+        fechas.fechaInicio && fechas.fechaFinal
+          ? fechas.fechaInicio === fechas.fechaFinal
+            ? formatDate(fechas.fechaInicio)
+            : `Desde el ${formatDate(fechas.fechaInicio)} hasta el ${formatDate(
+                fechas.fechaFinal
+              )}`
+          : fechas.fechaInicio
+          ? `Desde el ${formatDate(fechas.fechaInicio)}`
+          : fechas.fechaFinal
+          ? `Hasta el ${formatDate(fechas.fechaFinal)}`
+          : "Siempre",
+    },
+  ];
+
+  if (idProduct) {
+    pdfData.push({
+      title: "Producto",
+      value: productData
+        ? `${productData.producto.id} - ${productData.producto.descripcion}`
+        : "",
+    });
+  } else {
+    pdfData.push({
+      title: "Categorías",
+      value: cats.length > 0 ? cats.map((c) => c.name).join(", ") : "Todas",
+    });
+  }
+
   return (
     <Page>
       {modal("Filtros de fechas", () => (
@@ -133,8 +179,22 @@ const Reports = () => {
         />
       ))}
 
-      <div className="flex mb-4 justify-between">
-        <div className="flex gap-4">
+      <div className="flex mb-4 justify-between gap-4">
+        <div className="flex gap-4 items-center flex-1 overflow-hidden">
+          <ControlButton
+            onClick={() =>
+              setSearchParams((prev) => {
+                prev.set(
+                  "show",
+                  show === "Movimientos" ? "Ventas" : "Movimientos"
+                );
+                return prev;
+              })
+            }
+            icon={<Icon type={"eye_search"} />}
+            text={`${show}`}
+            btnType="secondary"
+          ></ControlButton>
           {fechaInicio && fechaFinal ? (
             fechaInicio === fechaFinal ? (
               fechaInicio === getTodayUtc() ? (
@@ -178,14 +238,16 @@ const Reports = () => {
             </small>
           )}
           {!!idProduct && (
-            <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
-              {productData?.producto.descripcion || "Cargando datos..."}
+            <small className="items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md whitespace-nowrap text-ellipsis overflow-hidden">
+              {productData
+                ? `${productData.producto.codigo} - ${productData.producto.descripcion}`
+                : "Cargando datos..."}
             </small>
           )}
         </div>
-        <div>
+        <div className="flex items-center">
           {productData && (
-            <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md">
+            <small className="flex items-center justify-center text-xs bg-primary-800 text-white px-3 rounded-md whitespace-nowrap">
               {productData
                 ? city === "cbba"
                   ? productData.producto.total_ventas_cbba > 0
@@ -201,7 +263,7 @@ const Reports = () => {
       </div>
 
       <TableContainer
-        name="Movimientos"
+        name={show}
         rowHeight={82}
         reload={async () => {
           setReloadCounter((prev) => prev + 1);
@@ -215,15 +277,22 @@ const Reports = () => {
         }}
         data={loadedData?.filter((v) => {
           //! NO SE ENTIENDE PERO FUNCIONA EL FILTRO
+          if (show === "Movimientos") {
+            const x = city === "cbba";
+            const y = v.cantidad_cbba !== 0;
+            const z = v.cantidad_sc !== 0;
 
-          const x = city === "cbba";
-          const y = v.cantidad_cbba !== 0;
-          const z = v.cantidad_sc !== 0;
+            const condition1 = y === z;
+            const condition2 = x === y;
 
-          const condition1 = y === z;
-          const condition2 = x === y;
+            return condition1 || condition2;
+          }
 
-          return condition1 || condition2;
+          if (show === "Ventas") {
+            return city === "cbba" ? v.cantidad_cbba < 0 : v.cantidad_sc < 0;
+          }
+
+          return true;
         })}
         button={{
           fn: () => {
@@ -234,305 +303,183 @@ const Reports = () => {
           type: "primary",
         }}
         opacityOn={(row) => !row.producto}
-        pdfData={[
-          {
-            title: "Ciudad",
-            value: cityName,
-          },
-          {
-            title: "Fecha",
-            value:
-              fechas.fechaInicio && fechas.fechaFinal
-                ? fechas.fechaInicio === fechas.fechaFinal
-                  ? formatDate(fechas.fechaInicio)
-                  : `Desde el ${formatDate(
-                      fechas.fechaInicio
-                    )} hasta el ${formatDate(fechas.fechaFinal)}`
-                : fechas.fechaInicio
-                ? `Desde el ${formatDate(fechas.fechaInicio)}`
-                : fechas.fechaFinal
-                ? `Hasta el ${formatDate(fechas.fechaFinal)}`
-                : "Siempre",
-          },
-          {
-            title: "Categorías",
-            value:
-              cats.length > 0 ? cats.map((c) => c.name).join(", ") : "Todas",
-          },
-        ]}
-        sheetData={[
-          {
-            title: "Descripción",
-            value: (row) => row.producto?.descripcion || "-",
-            style: {
-              fontWeight: 700,
-            },
-          },
-          {
-            title: "Categorías",
-            value: (row) =>
-              row.producto?.categorias
-                .map((cat) => cat.descripcion)
-                .join(", ") || "",
-          },
-          {
-            title: "Cantidad inicial",
-            value: (row) =>
-              city === "cbba"
-                ? String(row.actual_cbba - row.cantidad_cbba)
-                : String(row.actual_sc - row.cantidad_sc),
-          },
-          {
-            title: "Código",
-            value: (row) => row.producto?.codigo || "-",
-            style: {
-              color: "red",
-            },
-          },
-          {
-            title: "%",
-            value: (row) =>
-              row.producto?.porcentaje ? String(row.producto.porcentaje) : "",
-          },
-          {
-            title: "Tienda",
-            value: (row) => row.producto?.tienda?.nombre || "",
-          },
-          {
-            title: "Ciudad",
-            value: () => cityName,
-          },
-          {
-            title: "Precio",
-            value: (row) =>
-              row.producto
-                ? city === "cbba"
-                  ? String(row.producto.precio_cbba || "")
-                  : String(row.producto.precio_sc || "")
-                : "",
-          },
-          {
-            title: "Precio oferta",
-            value: (row) =>
-              row.producto
-                ? city === "cbba"
-                  ? String(row.producto.precio_oferta_cbba || "")
-                  : String(row.producto.precio_oferta_sc || "")
-                : "",
-          },
-          {
-            title: "Usuario",
-            value: (row) => row.usuario?.usuario || "-",
-          },
-          {
-            title: "Fecha",
-            value: (row) => formatDate(row.fecha.split(" ")[0]),
-          },
-          {
-            title: "Hora",
-            value: (row) => row.fecha.split(" ")[1],
-          },
-          {
-            title: "Entrada",
-            value: (row) =>
-              city === "cbba"
-                ? row.cantidad_cbba > 0
-                  ? String(row.cantidad_cbba)
-                  : "0"
-                : row.cantidad_sc > 0
-                ? String(row.cantidad_sc)
-                : "0",
-          },
-          {
-            title: "Salida",
-            value: (row) =>
-              city === "cbba"
-                ? row.cantidad_cbba < 0
-                  ? String(row.cantidad_cbba)
-                  : "0"
-                : row.cantidad_sc < 0
-                ? String(row.cantidad_sc)
-                : "0",
-          },
-          {
-            title: "Saldo",
-            value: (row) =>
-              city === "cbba" ? String(row.actual_cbba) : String(row.actual_sc),
-          },
-          {
-            title: "",
-            value: (row) =>
-              city === "cbba"
-                ? row.actual_cbba === 0
-                  ? "Agotado"
-                  : ""
-                : row.actual_sc === 0
-                ? "Agotado"
-                : "",
-            style: {
-              color: "red",
-            },
-          },
-        ]}
+        pdfData={pdfData}
+        sheetData={getSheetData(show, city, cityName)}
         columns={(isPDF) => {
-          const columns = createColumns<Movimiento>([
-            {
-              accessorFn: (row) => row.producto?.codigo,
-              header: "Código",
-              cell: ({ row: { original: v } }) =>
-                !isPDF ? (
-                  <p
-                    title={v.producto?.codigo}
-                    className="text-ellipsis overflow-hidden"
-                  >
-                    {v.producto?.codigo || "N/A"}
-                  </p>
-                ) : (
-                  <FontedText>{v.producto?.codigo}</FontedText>
-                ),
-              meta: {
-                width: "90px",
-                sticky: true,
-              },
-            },
-            {
-              header: "Foto",
-              cell: ({ row: { original: v } }) => (
-                <div className="w-full flex justify-center">
-                  <ZoomImage
-                    title="Foto del producto"
-                    src={getHttpImage(v.producto?.foto)}
-                    width="64px"
-                    height="64px"
-                  />
-                </div>
-              ),
-              meta: {
-                width: "80px",
-                showPDF: false,
-              },
-            },
-            {
-              accessorFn: (row) =>
-                row.producto?.descripcion + " " + row.producto?.detalle,
-              header: "Descripción",
-              cell: ({ row: { original: v } }) => {
-                const detalle = v.producto?.detalle || null;
-                return !isPDF ? (
-                  <div className="flex flex-col gap-[2px]">
-                    <strong
-                      title={v.producto?.descripcion || "Producto eliminado"}
-                      className="line-clamp-2 font-semibold text-black/80 text-balance"
-                    >
-                      {v.producto?.descripcion || "Producto eliminado"}
-                    </strong>
-                    <p className="line-clamp-1 text-black/60 font-medium">
-                      {detalle && (
-                        <span title={detalle || undefined}>{detalle}</span>
-                      )}
-                    </p>
-                  </div>
-                ) : (
-                  <FontedText>{v.producto?.descripcion || "-"}</FontedText>
-                );
-              },
-            },
-            {
-              accessorFn: (row) =>
-                row.producto?.categorias.map((v) => v.descripcion).join(", "),
-              header: "Categorías",
-              cell: ({ row: { original: v } }) => {
-                return !isPDF ? (
-                  <div className="flex gap-1 flex-wrap max-h-14 overflow-auto px-1">
-                    {v.producto?.categorias.map((cat) => (
-                      <strong
-                        key={cat.id}
-                        title={v.producto?.categorias
-                          .map((v) => v.descripcion)
-                          .join(", ")}
-                        className="line-clamp-2 font-semibold text-white px-2 text-balance text-xs bg-primary-600 rounded-md"
-                      >
-                        {cat.descripcion}
-                      </strong>
-                    ))}
-                  </div>
-                ) : (
-                  <FontedText>
-                    {v.producto?.categorias
-                      .map((v) => v.descripcion)
-                      .join(", ")}
-                  </FontedText>
-                );
-              },
-              meta: {
-                width: "180px",
-              },
-            },
-            {
-              accessorFn: (row) => row.usuario?.usuario || "Usuario eliminado",
-              header: "Usuario",
-              cell: ({ row: { original: v } }) => {
-                return !isPDF ? (
-                  <p className="text-sm font-medium text-black/80 line-clamp-1">
-                    {v.usuario?.usuario || "Usuario eliminado"}
-                  </p>
-                ) : (
-                  <FontedText>
-                    {v.usuario?.usuario || "Usuario eliminado"}
-                  </FontedText>
-                );
-              },
-              meta: {
-                width: "160px",
-              },
-            },
-          ]);
+          const columns = createColumns<Movimiento>([]);
 
-          if (city === "cbba") {
+          if (!idProduct) {
             columns.push(
               {
-                accessorKey: "cantidad_cbba",
-                header: "Movimiento",
+                accessorFn: (row) => row.producto?.codigo,
+                header: "Código",
+                cell: ({ row: { original: v } }) =>
+                  !isPDF ? (
+                    <p
+                      title={v.producto?.codigo}
+                      className="text-ellipsis overflow-hidden"
+                    >
+                      {v.producto?.codigo || "N/A"}
+                    </p>
+                  ) : (
+                    <FontedText>{v.producto?.codigo}</FontedText>
+                  ),
+                meta: {
+                  width: "90px",
+                  sticky: true,
+                },
+              },
+              {
+                header: "Foto",
+                cell: ({ row: { original: v } }) => (
+                  <div className="w-full flex justify-center">
+                    <ZoomImage
+                      title="Foto del producto"
+                      src={getHttpImage(v.producto?.foto)}
+                      width="64px"
+                      height="64px"
+                    />
+                  </div>
+                ),
+                meta: {
+                  width: "80px",
+                  showPDF: false,
+                },
+              },
+              {
+                accessorFn: (row) =>
+                  row.producto?.descripcion + " " + row.producto?.detalle,
+                header: "Descripción",
+                cell: ({ row: { original: v } }) => {
+                  const detalle = v.producto?.detalle || null;
+                  return !isPDF ? (
+                    <div className="flex flex-col gap-[2px]">
+                      <strong
+                        title={v.producto?.descripcion || "Producto eliminado"}
+                        className="line-clamp-2 font-semibold text-black/80 text-balance"
+                      >
+                        {v.producto?.descripcion || "Producto eliminado"}
+                      </strong>
+                      <p className="line-clamp-1 text-black/60 font-medium">
+                        {detalle && (
+                          <span title={detalle || undefined}>{detalle}</span>
+                        )}
+                      </p>
+                    </div>
+                  ) : (
+                    <FontedText>{v.producto?.descripcion || "-"}</FontedText>
+                  );
+                },
+                meta: {
+                  showPDF: show === "Movimientos",
+                },
+              },
+              {
+                accessorFn: (row) =>
+                  row.producto?.categorias.map((v) => v.descripcion).join(", "),
+                header: "Categorías",
                 cell: ({ row: { original: v } }) => {
                   return !isPDF ? (
-                    <div
-                      className={twMerge(
-                        "flex flex-col items-center transition-all duration-300",
-                        "text-primary-950"
-                      )}
-                    >
-                      <strong className="font-bold text-xl border-b border-transparent">
-                        {v.cantidad_cbba !== 0 ? (
+                    <div className="flex gap-1 flex-wrap max-h-14 overflow-auto px-1">
+                      {v.producto?.categorias.map((cat) => (
+                        <strong
+                          key={cat.id}
+                          title={v.producto?.categorias
+                            .map((v) => v.descripcion)
+                            .join(", ")}
+                          className="line-clamp-2 font-semibold text-white px-2 text-balance text-xs bg-primary-600 rounded-md"
+                        >
+                          {cat.descripcion}
+                        </strong>
+                      ))}
+                    </div>
+                  ) : (
+                    <FontedText>
+                      {v.producto?.categorias
+                        .map((v) => v.descripcion)
+                        .join(", ")}
+                    </FontedText>
+                  );
+                },
+                meta: {
+                  showPDF: show === "Movimientos",
+                  width: "180px",
+                },
+              }
+            );
+          }
+
+          columns.push({
+            accessorFn: (row) => row.usuario?.usuario || "Usuario eliminado",
+            header: show === "Movimientos" ? "Usuario" : "Vendedor",
+            cell: ({ row: { original: v } }) => {
+              return !isPDF ? (
+                <p className="text-sm font-medium text-black/80 line-clamp-1">
+                  {v.usuario?.usuario || "Usuario eliminado"}
+                </p>
+              ) : (
+                <FontedText>
+                  {v.usuario?.usuario || "Usuario eliminado"}
+                </FontedText>
+              );
+            },
+            meta: {
+              width: idProduct ? undefined : "160px",
+            },
+          });
+
+          if (city === "cbba") {
+            columns.push({
+              accessorKey: "cantidad_cbba",
+              header: show === "Movimientos" ? "Movimiento" : "Cantidad",
+              cell: ({ row: { original: v } }) => {
+                return !isPDF ? (
+                  <div
+                    className={twMerge(
+                      "flex flex-col items-center transition-all duration-300",
+                      "text-primary-950"
+                    )}
+                  >
+                    <strong className="font-bold text-xl border-b border-transparent">
+                      {show === "Movimientos" ? (
+                        v.cantidad_cbba !== 0 ? (
                           <>
                             {v.cantidad_cbba > 0 && "+"}
                             {v.cantidad_cbba}{" "}
                           </>
                         ) : (
                           "Creado"
-                        )}
-                      </strong>
-                      {v.cantidad_cbba !== 0 && (
-                        <small className="font-normal opacity-60 text-[12px]">
-                          unidades
-                        </small>
+                        )
+                      ) : (
+                        v.cantidad_cbba * -1
                       )}
-                    </div>
-                  ) : (
-                    <FontedText>
-                      {v.cantidad_cbba === 0
-                        ? `Creado`
-                        : `${v.cantidad_cbba > 0 ? "+" : ""}${
+                    </strong>
+                    {v.cantidad_cbba !== 0 && (
+                      <small className="font-normal opacity-60 text-[12px]">
+                        unidades
+                      </small>
+                    )}
+                  </div>
+                ) : (
+                  <FontedText>
+                    {show === "Movimientos"
+                      ? v.cantidad_cbba !== 0
+                        ? `${v.cantidad_cbba > 0 ? "+" : ""}${
                             v.cantidad_cbba
-                          } unidades`}
-                    </FontedText>
-                  );
-                },
-                meta: {
-                  width: "128px",
-                  center: true,
-                },
+                          } unidades`
+                        : "Creado"
+                      : `${v.cantidad_cbba * -1} unidades`}
+                  </FontedText>
+                );
               },
-              {
+              meta: {
+                width: "128px",
+                center: true,
+              },
+            });
+
+            if (show === "Movimientos") {
+              columns.push({
                 accessorKey: "actual_cbba",
                 header: "Total",
                 cell: ({ row: { original: v } }) => {
@@ -562,55 +509,114 @@ const Reports = () => {
                   width: "100px",
                   center: true,
                 },
-              }
-            );
+              });
+            } else {
+              columns.push(
+                {
+                  header: "Precio/u",
+                  accessorKey: "precio_venta_cbba",
+                  cell: ({ row: { original: v } }) =>
+                    !isPDF ? (
+                      <div className="flex w-full justify-end">
+                        <div className="flex flex-col items-end">
+                          <strong className="font-bold text-primary-950 text-xl w-full text-center">
+                            {v.precio_venta_cbba}{" "}
+                            <span className="font-normal opacity-60 text-[12px]">
+                              Bs.
+                            </span>
+                          </strong>
+                        </div>
+                      </div>
+                    ) : (
+                      <FontedText>{v.precio_venta_cbba} Bs.</FontedText>
+                    ),
+                  meta: {
+                    width: "100px",
+                    center: true,
+                  },
+                },
+                {
+                  header: "Total",
+                  accessorFn: (row) =>
+                    row.precio_venta_cbba * row.cantidad_cbba,
+                  cell: ({ row: { original: v } }) =>
+                    !isPDF ? (
+                      <div className="flex w-full justify-end">
+                        <div className="flex flex-col items-end">
+                          <strong className="font-bold text-primary-950 text-xl w-full text-center">
+                            {v.precio_venta_cbba * v.cantidad_cbba * -1}{" "}
+                            <span className="font-normal opacity-60 text-[12px]">
+                              Bs.
+                            </span>
+                          </strong>
+                        </div>
+                      </div>
+                    ) : (
+                      <FontedText>
+                        {v.precio_venta_cbba * v.cantidad_cbba * -1} Bs.
+                      </FontedText>
+                    ),
+                  meta: {
+                    width: "100px",
+                    center: true,
+                  },
+                }
+              );
+            }
           }
 
           if (city === "sc") {
-            columns.push(
-              {
-                accessorKey: "cantidad_sc",
-                header: "Movimiento",
-                cell: ({ row: { original: v } }) => {
-                  return !isPDF ? (
-                    <div
-                      className={twMerge(
-                        "flex flex-col items-center transition-all duration-300",
-                        "text-primary-950"
-                      )}
-                    >
-                      <strong className="font-bold text-xl border-b border-transparent">
-                        {v.cantidad_sc !== 0 ? (
+            columns.push({
+              accessorKey: "cantidad_sc",
+              header: "Movimiento",
+              cell: ({ row: { original: v } }) => {
+                return !isPDF ? (
+                  <div
+                    className={twMerge(
+                      "flex flex-col items-center transition-all duration-300",
+                      "text-primary-950"
+                    )}
+                  >
+                    <strong className="font-bold text-xl border-b border-transparent">
+                      {show === "Movimientos" ? (
+                        v.cantidad_sc !== 0 ? (
                           <>
                             {v.cantidad_sc > 0 && "+"}
                             {v.cantidad_sc}{" "}
                           </>
                         ) : (
                           "Creado"
-                        )}
-                      </strong>
-                      {v.cantidad_sc !== 0 && (
-                        <small className="font-normal opacity-60 text-[12px]">
-                          unidades
-                        </small>
+                        )
+                      ) : (
+                        v.cantidad_sc * -1
                       )}
-                    </div>
-                  ) : (
-                    <FontedText>
-                      {v.cantidad_sc === 0
-                        ? `Creado`
-                        : `${v.cantidad_sc > 0 ? "+" : ""}${
+                    </strong>
+                    {v.cantidad_sc !== 0 && (
+                      <small className="font-normal opacity-60 text-[12px]">
+                        unidades
+                      </small>
+                    )}
+                  </div>
+                ) : (
+                  <FontedText>
+                    {show === "Movimientos"
+                      ? v.cantidad_sc !== 0
+                        ? `${v.cantidad_sc > 0 ? "+" : ""}${
                             v.cantidad_sc
-                          } unidades`}
-                    </FontedText>
-                  );
-                },
-                meta: {
-                  width: "128px",
-                  center: true,
-                },
+                          } unidades`
+                        : "Creado"
+                      : `${v.cantidad_sc * -1} unidades`}
+                  </FontedText>
+                );
               },
-              {
+              meta: {
+                width: "128px",
+                center: true,
+              },
+            });
+
+            if (show === "Movimientos") {
+              columns.push({
                 accessorKey: "actual_sc",
                 header: "Total",
                 cell: ({ row: { original: v } }) => {
@@ -640,8 +646,59 @@ const Reports = () => {
                   width: "100px",
                   center: true,
                 },
-              }
-            );
+              });
+            } else {
+              columns.push(
+                {
+                  header: "Precio/u",
+                  accessorKey: "precio_venta_sc",
+                  cell: ({ row: { original: v } }) =>
+                    !isPDF ? (
+                      <div className="flex w-full justify-end">
+                        <div className="flex flex-col items-end">
+                          <strong className="font-bold text-primary-950 text-xl w-full text-center">
+                            {v.precio_venta_sc}{" "}
+                            <span className="font-normal opacity-60 text-[12px]">
+                              Bs.
+                            </span>
+                          </strong>
+                        </div>
+                      </div>
+                    ) : (
+                      <FontedText>{v.precio_venta_sc} Bs.</FontedText>
+                    ),
+                  meta: {
+                    width: "100px",
+                    center: true,
+                  },
+                },
+                {
+                  header: "Total",
+                  accessorFn: (row) => row.precio_venta_sc * row.cantidad_sc,
+                  cell: ({ row: { original: v } }) =>
+                    !isPDF ? (
+                      <div className="flex w-full justify-end">
+                        <div className="flex flex-col items-end">
+                          <strong className="font-bold text-primary-950 text-xl w-full text-center">
+                            {v.precio_venta_sc * v.cantidad_sc * -1}{" "}
+                            <span className="font-normal opacity-60 text-[12px]">
+                              Bs.
+                            </span>
+                          </strong>
+                        </div>
+                      </div>
+                    ) : (
+                      <FontedText>
+                        {v.precio_venta_sc * v.cantidad_sc * -1} Bs.
+                      </FontedText>
+                    ),
+                  meta: {
+                    width: "100px",
+                    center: true,
+                  },
+                }
+              );
+            }
           }
 
           columns.push({
@@ -660,9 +717,11 @@ const Reports = () => {
               ) : (
                 <FontedText>
                   {formatDate(v.fecha.split(" ")[0])}{" "}
-                  <FontedText style={{ fontSize: 8 }}>
-                    / {v.fecha.split(" ")[1]}
-                  </FontedText>
+                  {show === "Movimientos" && (
+                    <FontedText style={{ fontSize: 8 }}>
+                      / {v.fecha.split(" ")[1]}
+                    </FontedText>
+                  )}
                 </FontedText>
               );
             },

@@ -12,7 +12,7 @@ export enum ENDPOINTS {
   TIENDA_STORE = "tienda",
   TIENDA_UPDATE = "tienda/",
   TIENDA_DESTROY = "tienda/",
-  
+
   USUARIO_INDEX = "usuario",
   USUARIO_STORE = "registro",
   USUARIO_UPDATE = "usuario/",
@@ -22,7 +22,8 @@ export enum ENDPOINTS {
   PRODUCTO_STORE = "producto",
   PRODUCTO_UPDATE = "producto/",
   PRODUCTO_DESTROY = "producto/",
-  
+  PRODUCTO_CODIGOS_DISPONIBLES = "producto/codigos",
+
   MOVIMIENTO_INDEX = "movimiento",
   MOVIMIENTO_SHOW = "movimiento/",
   MOVIMIENTO_STORE = "movimiento",

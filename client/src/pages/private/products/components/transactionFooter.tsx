@@ -12,6 +12,7 @@ interface Props {
   open: boolean;
   productos: Producto[];
   transaction: Transaction[];
+  setTransaction: React.Dispatch<React.SetStateAction<Transaction[]>>;
   handleSave: () => void;
 }
 
@@ -20,10 +21,63 @@ const TransactionFooter = ({
   open,
   productos,
   transaction,
+  setTransaction,
 }: Props) => {
-  const { city, cityName } = useCityContext();
+  const { city } = useCityContext();
   const render = useDelayUnmount(open, 300);
   if (!render) return null;
+
+  const entradas = transaction.reduce((suma, v) => {
+    if (v.diff_cbba < 0 && v.diff_sc < 0) return suma;
+    if (v.diff_cbba > 0) suma += v.diff_cbba;
+    if (v.diff_sc > 0) suma += v.diff_sc;
+    return suma;
+  }, 0);
+
+  const salidas =
+    transaction.reduce((suma, v) => {
+      if (v.diff_cbba > 0 && v.diff_sc > 0) return suma;
+      if (v.diff_cbba < 0) suma += v.diff_cbba;
+      if (v.diff_sc < 0) suma += v.diff_sc;
+      return suma;
+    }, 0) * -1;
+
+  const totalPago =
+    transaction.reduce((suma, v) => {
+      if (v.diff_cbba > 0 && v.diff_sc > 0) return suma;
+      if (v.diff_cbba < 0) suma += v.diff_cbba * v.precio_cbba;
+      if (v.diff_sc < 0) suma += v.diff_sc * v.precio_sc;
+      return suma;
+    }, 0) * -1;
+
+  const handleChangePrice = (transaction: Transaction) => {
+    const product = productos.find((p) => p.id === transaction.id);
+    setTransaction((prev) =>
+      prev.map((t) => {
+        if (t.id === transaction.id) {
+          const tipoPrecio = transaction.tipo_precio;
+          if (tipoPrecio === "normal") {
+            return {
+              ...t,
+              precio_cbba: product?.precio_oferta_cbba || 0,
+              precio_sc: product?.precio_oferta_sc || 0,
+              tipo_precio: "oferta",
+            };
+          }
+          if (tipoPrecio === "oferta") {
+            return {
+              ...t,
+              precio_cbba: product?.precio_cbba || 0,
+              precio_sc: product?.precio_sc || 0,
+              tipo_precio: "normal",
+            };
+          }
+        }
+        return t;
+      })
+    );
+  };
+
   return (
     <div
       className={twMerge(
@@ -55,16 +109,33 @@ const TransactionFooter = ({
                         title="Foto de producto"
                       />
                     </div>
-                    <div className="flex-1 flex flex-col gap-1">
+                    <div className="flex-1 flex flex-col">
                       <strong
                         className="text-sm line-clamp-1"
                         title={`${product.codigo} - ${product.descripcion}`}
                       >
                         {product.codigo} - {product.descripcion}
                       </strong>
-                      <p className="text-xs font-semibold text-black/70">
-                        {cityName}
-                      </p>
+                      <div className="flex items-center gap-1">
+                        <p className="text-xs font-semibold text-black/70">
+                          Total:{" "}
+                          <span className="text-primary-800 font-bold">
+                            {(city === "cbba" ? v.diff_cbba : v.diff_sc) *
+                              (city === "cbba" ? v.precio_cbba : v.precio_sc) *
+                              (v.diff_cbba < 0 ? -1 : 1)}{" "}
+                            Bs.
+                          </span>{" "}
+                          a
+                        </p>
+                        <button
+                          onClick={() => handleChangePrice(v)}
+                          className="hover:bg-primary-600 hover:text-white transition-all duration-300 text-[10px] font-semibold px-1 py-1 bg-primary-100 text-primary-800 rounded-md border border-primary-600"
+                        >
+                          {v.tipo_precio === "normal"
+                            ? "Precio normal"
+                            : "Precio de oferta"}
+                        </button>
+                      </div>
                       {city === "cbba" && (
                         <p className="text-xs font-semibold text-black/70">
                           Stock:{" "}
@@ -125,24 +196,16 @@ const TransactionFooter = ({
               </p>
               <p className="text-sm font-medium text-black/80">
                 Salidas:{" "}
-                <span className="text-primary-800 font-bold">
-                  {transaction.reduce((suma, v) => {
-                    if (v.diff_cbba > 0 && v.diff_sc > 0) return suma;
-                    if (v.diff_cbba < 0) suma += v.diff_cbba;
-                    if (v.diff_sc < 0) suma += v.diff_sc;
-                    return suma;
-                  }, 0) * -1}
-                </span>
+                <span className="text-primary-800 font-bold">{salidas}</span>
               </p>
               <p className="text-sm font-medium text-black/80">
                 Entradas:{" "}
+                <span className="text-primary-800 font-bold">{entradas}</span>
+              </p>
+              <p className="text-sm font-medium text-black/80 mt-1 flex flex-col items-center">
+                Total de venta:{" "}
                 <span className="text-primary-800 font-bold">
-                  {transaction.reduce((suma, v) => {
-                    if (v.diff_cbba < 0 && v.diff_sc < 0) return suma;
-                    if (v.diff_cbba > 0) suma += v.diff_cbba;
-                    if (v.diff_sc > 0) suma += v.diff_sc;
-                    return suma;
-                  }, 0)}
+                  {totalPago} Bs.
                 </span>
               </p>
             </div>

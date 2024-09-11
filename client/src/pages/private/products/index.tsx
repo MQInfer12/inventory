@@ -19,23 +19,28 @@ import TransactionFooter from "./components/transactionFooter";
 import { useCityContext } from "@/context/cityContext";
 import { createColumns } from "@/utils/createColumns";
 import FontedText from "@/components/ui/table/pdf/fontedText";
-import { useNavigate } from "react-router-dom";
-import { ROUTES } from "@/constants/routes";
 import { formatDate } from "@/utils/formatDate";
+import Reports from "../reports";
+import { useUserContext } from "@/context/userContext";
 
 export interface Transaction {
   id: number;
   diff_cbba: number;
   diff_sc: number;
+  codigo: string;
+  precio_cbba: number;
+  precio_sc: number;
+  tipo_precio: "normal" | "oferta";
 }
 
 const Products = () => {
   const keys = [QUERYKEYS.PRODUCTOS];
-  const navigate = useNavigate();
   const { data, refetch } = useGet<Producto[]>(ENDPOINTS.PRODUCTO_INDEX, keys);
   const { modal, openModal, closeModal } = useModal<Producto>();
+  const { modal: movModal, openModal: openMovModal } = useModal<Producto>();
   const { setQueryData } = useMutateGet();
   const { city, cityName } = useCityContext();
+  const { user } = useUserContext();
 
   const [inTransaction, setInTransaction] = useState(false);
   const [transaction, setTransaction] = useState<Transaction[]>([]);
@@ -53,7 +58,6 @@ const Products = () => {
         old.map((p) => {
           const hasBeenModified = data.find((v) => v.id === p.id);
           if (hasBeenModified) {
-            console.log(hasBeenModified.movimiento);
             return {
               ...p,
               stock_cbba: hasBeenModified.stock_cbba,
@@ -114,6 +118,10 @@ const Products = () => {
           id,
           diff_cbba: city === "cbba" ? diff : 0,
           diff_sc: city === "sc" ? diff : 0,
+          precio_cbba: product.precio_cbba || 0,
+          precio_sc: product.precio_sc || 0,
+          codigo: product.codigo,
+          tipo_precio: "normal",
         },
       ]);
     }
@@ -126,6 +134,26 @@ const Products = () => {
   const handleSaveTransaction = () => {
     confirmAlert(
       () => {
+        const productsWithoutPrice = transaction.filter((t) => {
+          return city === "cbba"
+            ? t.diff_cbba < 0 && t.precio_cbba === 0
+            : t.diff_sc < 0 && t.precio_sc === 0;
+        });
+        if (productsWithoutPrice.length > 0) {
+          confirmAlert(
+            () => {
+              sendTransaction({
+                data: transaction,
+              });
+            },
+            {
+              text: `Algunos productos no tienen precio (${productsWithoutPrice
+                .map((v) => v.codigo)
+                .join(", ")}), se registrará la venta con cero, ¿Continuar?`,
+            }
+          );
+          return;
+        }
         sendTransaction({
           data: transaction,
         });
@@ -143,14 +171,13 @@ const Products = () => {
     }
   }, [transaction]);
 
-  console.log(data);
-
   return (
     <Page>
       <TableContainer
         name="Productos"
         rowHeight={82}
         add={() => openModal()}
+        reports={!!user?.superadmin}
         onClickRow={{
           fn: (row) => openModal(row),
           disabled: (row) => row.id === current || inTransaction,
@@ -159,16 +186,27 @@ const Products = () => {
           fn: (row) => openModal(row),
           disabled: (row) => row.id === current || inTransaction,
         }}
-        del={{
-          fn: (row) => confirmAlert(() => send(row.id)),
-          disabled: (row) => row.id === current || inTransaction,
-        }}
-        rowButton={{
-          title: "Examinar movimientos",
-          icon: <Icon type="eye_search" />,
-          fn: (row) => navigate(ROUTES.REPORTS + `/${row.id}`),
-          disabled: (row) => row.id === current || inTransaction,
-        }}
+        del={
+          user?.superadmin
+            ? {
+                fn: (row) => confirmAlert(() => send(row.id)),
+                disabled: (row) => row.id === current || inTransaction,
+              }
+            : undefined
+        }
+        rowButton={
+          user?.superadmin
+            ? {
+                title: "Examinar movimientos",
+                icon: <Icon type="eye_search" />,
+                fn: (row) =>
+                  /* navigate(ROUTES.REPORTS + `/${row.id}`) */ openMovModal(
+                    row
+                  ),
+                disabled: (row) => row.id === current || inTransaction,
+              }
+            : undefined
+        }
         button={{
           text: inTransaction ? "Cancelar movimiento" : "Iniciar movimiento",
           fn: () => {
@@ -811,6 +849,7 @@ const Products = () => {
         handleSave={handleSaveTransaction}
         productos={data || []}
         transaction={transaction}
+        setTransaction={setTransaction}
       />
       {modal("Formulario de producto", (item) => (
         <Form
@@ -828,6 +867,17 @@ const Products = () => {
           }}
         />
       ))}
+      {movModal(
+        "Movimientos del producto",
+        (item) => (
+          <Reports idProduct={item?.id} />
+        ),
+        {
+          height: "80vh",
+          width: "800px",
+          padding: false,
+        }
+      )}
     </Page>
   );
 };

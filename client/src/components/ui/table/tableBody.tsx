@@ -1,7 +1,7 @@
 import { Row, Table } from "@tanstack/react-table";
 import TableRow from "./tableRow";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { RefObject } from "react";
+import { RefObject, useEffect, useState } from "react";
 
 interface Props {
   table: Table<any>;
@@ -45,6 +45,12 @@ const TableBody = ({
 
   let lastValue = "";
   let counter = 0;
+
+  const [_, setRerender] = useState(0);
+  useEffect(() => {
+    //* NO SÉ POR QUE PERO EL ROWVIRTUALIZER SE VACÍA POR ALGÚN MOTIVO Y HAY QUE FORZAR UN RERENDER
+    setRerender((old) => old + 1);
+  }, [rowVirtualizer]);
 
   return (
     <tbody
